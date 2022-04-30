@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Управление пневматикой</string>
+    <string name="tab_measurements">Измерения</string>
+    <string name="tab_manual">Ручной</string>
+    <string name="tab_auto">Автомат</string>
+    <string name="tab_settings">Настройки</string>
+    <string name="sensor_text">датчик</string>
+    <string name="kg_text">кг</string>
+    <string name="bar_text">бар</string>
+    <string name="prompt_password_text">Введите пароль доступа</string>
+    <string name="wrong_pass_text">Введённый пароль не верен</string>
+    <!-- Strings related to login -->
+    <string name="prompt_password">Пароль</string>
+    <string name="action_sign_in">Войти</string>
+    <string name="action_sign_in_short">Войти</string>
+    <string name="welcome">"Welcome!"</string>
+    <string name="invalid_password">Пароль больше 3 символов</string>
+    <string name="login_failed">"Login failed"</string>
+</resources>
