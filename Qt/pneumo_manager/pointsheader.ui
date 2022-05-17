@@ -17,28 +17,28 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="d1_pushButton">
        <property name="text">
         <string>Д1</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="d2_pushButton">
        <property name="text">
         <string>Д2</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="d3_pushButton">
        <property name="text">
         <string>Д3</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_4">
+      <widget class="QPushButton" name="d4_pushButton">
        <property name="text">
         <string>Д4-Р</string>
        </property>
@@ -49,14 +49,14 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="pushButton_5">
+      <widget class="QPushButton" name="fwd_pushButton">
        <property name="text">
         <string>передний ход</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_6">
+      <widget class="QPushButton" name="bwd_pushButton">
        <property name="text">
         <string>задний ход</string>
        </property>
@@ -67,7 +67,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QPushButton" name="pushButton_7">
+      <widget class="QPushButton" name="present_pushButton">
        <property name="text">
         <string>ВКЛ</string>
        </property>
@@ -81,7 +81,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_8">
+      <widget class="QPushButton" name="unpresent_pushButton">
        <property name="text">
         <string>ВЫКЛ</string>
        </property>

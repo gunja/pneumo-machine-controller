@@ -28,16 +28,31 @@ SOURCES += \
         firstwindow.cpp \
     settingstab.cpp \
     pointsheader.cpp \
-    pairpoints.cpp
+    pairpoints.cpp \
+    passwordchangedialog.cpp \
+    headingmeasure.cpp \
+    pressuresettings.cpp \
+    cilynderpairsettings.cpp \
+    cylindersetting.cpp
 
 HEADERS += \
         firstwindow.h \
     settingstab.h \
     pointsheader.h \
-    pairpoints.h
+    pairpoints.h \
+    passwordchangedialog.h \
+    headingmeasure.h \
+    pressuresettings.h \
+    cilynderpairsettings.h \
+    cylindersetting.h
 
 FORMS += \
         firstwindow.ui \
     settingstab.ui \
     pointsheader.ui \
-    pairpoints.ui
+    pairpoints.ui \
+    passwordchangedialog.ui \
+    headingmeasure.ui \
+    pressuresettings.ui \
+    cilynderpairsettings.ui \
+    cylindersetting.ui
