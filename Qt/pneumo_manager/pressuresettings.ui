@@ -20,7 +20,7 @@
       <widget class="HeadingMeasure" name="widget_2" native="true"/>
      </item>
      <item row="0" column="0">
-      <widget class="HeadingMeasure" name="widget" native="true"/>
+      <widget class="HeadingMeasure" name="widget_1" native="true"/>
      </item>
      <item row="0" column="2">
       <widget class="HeadingMeasure" name="widget_3" native="true"/>

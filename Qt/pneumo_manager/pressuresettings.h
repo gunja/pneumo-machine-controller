@@ -17,16 +17,24 @@ public:
     ~PressureSettings();
 
 public slots:
-    void on_widget_clicked();
     void on_widget_1_clicked();
     void on_widget_2_clicked();
     void on_widget_3_clicked();
+    void on_widget_4_clicked();
+    void on_widget_5_clicked();
+    void on_widget_6_clicked();
+    void on_widget_7_clicked();
+    void on_widget_8_clicked();
+
+    void on_widget_clicked(int idx);
+
 
 private:
     Ui::PressureSettings *ui;
     bool has_third_pair;
     bool has_forth_pair;
     CilynderPairSettings *cps[2];
+    QString names[8];
 };
 
 #endif // PRESSURESETTINGS_H

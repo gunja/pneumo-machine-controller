@@ -33,7 +33,8 @@ SOURCES += \
     headingmeasure.cpp \
     pressuresettings.cpp \
     cilynderpairsettings.cpp \
-    cylindersetting.cpp
+    cylindersetting.cpp \
+    headpressuresettings.cpp
 
 HEADERS += \
         firstwindow.h \
@@ -44,7 +45,9 @@ HEADERS += \
     headingmeasure.h \
     pressuresettings.h \
     cilynderpairsettings.h \
-    cylindersetting.h
+    cylindersetting.h \
+    headpressuresettings.h \
+    ../../common/placements.h
 
 FORMS += \
         firstwindow.ui \
@@ -55,4 +58,5 @@ FORMS += \
     headingmeasure.ui \
     pressuresettings.ui \
     cilynderpairsettings.ui \
-    cylindersetting.ui
+    cylindersetting.ui \
+    headpressuresettings.ui
