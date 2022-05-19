@@ -298,5 +298,7 @@
 #define AP_NAME_LEN_REGS 23
 #define AP_NAME_ 387
 
+// measurement tab has no targets. don't use it
+//TODO
 
 #endif // PLACEMENTS_H
