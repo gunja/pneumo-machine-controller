@@ -26,7 +26,6 @@ import com.example.manager_pneumo.MainActivity;
 import com.example.manager_pneumo.databinding.FragmentLoginBinding;
 
 import com.example.manager_pneumo.R;
-import com.example.manager_pneumo.ui.main.PlaceholderFragment;
 
 public class LoginFragment extends Fragment {
 

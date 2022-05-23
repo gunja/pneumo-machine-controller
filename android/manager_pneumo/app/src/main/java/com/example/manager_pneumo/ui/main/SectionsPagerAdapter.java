@@ -13,7 +13,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.manager_pneumo.MainActivity;
 import com.example.manager_pneumo.R;
+import com.example.manager_pneumo.SettingsFragment;
 import com.example.manager_pneumo.ui.main.ui.login.LoginFragment;
+import com.example.manager_pneumo.manualFragment;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -35,12 +37,29 @@ public class SectionsPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         Fragment rv = null;
         System.out.println("create Fragment called with position =" + position);
-        if (position == 4) {
-            rv = LoginFragment.newInstance(ma);
+        switch(position)
+        {
+            case 0:
+                System.out.println("case 0 in switch");
+                rv = manualFragment.newInstance(false);
+                break;
+            case 1:
+                System.out.println("Измерения вкладка должна открыться");
+                rv = manualFragment.newInstance(false);
+                break;
+            case 2:
+                System.out.println("ручной вкладка должна открыться");
+                rv = manualFragment.newInstance(true);
+                break;
+            case 3:
+                System.out.println("автомат вкладка должна открыться. Сначала диалог");
+                rv = SettingsFragment.newInstance("true", "false");
+                break;
+            case 4:
+                rv = LoginFragment.newInstance(ma);
+                break;
         }
-        else {
-            rv = PlaceholderFragment.newInstance(position + 1);
-        }
+
         return rv;
     }
 
