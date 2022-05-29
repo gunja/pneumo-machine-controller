@@ -30,4 +30,8 @@
     <string name="pass_text">Пароль</string>
     <string name="ap_text">Точ Дос</string>
     <string name="pressure_text">Давление</string>
+    <string name="old_pass_title">Текущий пароль</string>
+    <string name="new_pass_title">Новый пароль</string>
+    <string name="new_pass_repeat">Повтор нового пароля</string>
+    <string name="ap_name_title">Введите имя точки доступа</string>
 </resources>

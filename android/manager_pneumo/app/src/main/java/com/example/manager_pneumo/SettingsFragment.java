@@ -1,12 +1,16 @@
 package com.example.manager_pneumo;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.manager_pneumo.databinding.FragmentSettingsBinding;
 
@@ -15,17 +19,25 @@ import com.example.manager_pneumo.databinding.FragmentSettingsBinding;
  * Use the {@link SettingsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements ChangePasswordDialogFragment.EditNameDialogListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    public static final String PASS_NOW = "cur_pass";
+    public static final String AP_NAME_NOW = "cur_ap_name";
     private FragmentSettingsBinding binding;
+    private AppCompatActivity ma;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
-    private String mParam2;
+    private String cur_pass;
+    private String cur_ap_name;
+
+    public void setMA(AppCompatActivity _ma)
+    {
+        ma = _ma;
+    }
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -43,8 +55,8 @@ public class SettingsFragment extends Fragment {
     public static SettingsFragment newInstance(String param1, String param2) {
         SettingsFragment fragment = new SettingsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(AP_NAME_NOW, param1);
+        args.putString(PASS_NOW, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,18 +65,18 @@ public class SettingsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            cur_ap_name = getArguments().getString(AP_NAME_NOW);
+            cur_pass = getArguments().getString(PASS_NOW);
         }
 
     }
 
     private void unMarkButtons()
     {
-        //binding.pressureButton.unmark();
-        //binding.pointsButton.unmark();
-        //binding.apButton.unmark();
-        //binding.passButton.unmark();
+        binding.pressureButton.setBackgroundColor(Color.BLUE);
+        binding.pointsButton.setBackgroundColor(Color.BLUE);
+        binding.apButton.setBackgroundColor(Color.BLUE);
+        binding.passButton.setBackgroundColor(Color.BLUE);
     }
 
     @Override
@@ -73,14 +85,42 @@ public class SettingsFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
+        if(getArguments() != null)
+        {
+            System.out.println("cur_P=" +  getArguments().getString(PASS_NOW));
+        }
         View.OnClickListener onc = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final Button b = (Button) view;
                 System.out.println("Кнопка " + b.getText() +" надавлена. Снимаем подсведку с других");
                 unMarkButtons();
-                //view.mark();
+                b.setBackgroundColor(Color.RED);
+
+                if(view == binding.pressureButton)
+                {
+                    System.out.println("pressureButton");
+                } else if (view == binding.pointsButton)
+                {
+                    System.out.println("pointButton");
+                } else if (view == binding.apButton)
+                {
+                    System.out.println("Access point button");
+                    FragmentManager fm = getActivity().getSupportFragmentManager();
+                    AccessPointDialogFragment ap_name = AccessPointDialogFragment.newInstance(cur_ap_name);
+                    ap_name.setTargetFragment(SettingsFragment.this, 300);
+                    ap_name.show(fm, "");
+                } else if(view == binding.passButton)
+                {
+                    System.out.println("password button");
+                    FragmentManager fm = getActivity().getSupportFragmentManager();
+                    System.out.println("fm = "+ fm);
+                    ChangePasswordDialogFragment changePass = ChangePasswordDialogFragment.newInstance("Some Title", cur_pass);
+                    changePass.setTargetFragment(SettingsFragment.this, 300);
+                    changePass.show(fm, "fragment_edit_name");
+                }
+
+
             }
         };
 
@@ -97,5 +137,10 @@ public class SettingsFragment extends Fragment {
         System.out.println("SettingsFragment::onDestroyView called ");
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onFinishEditDialog(String inputText) {
+        System.out.println("dialog returned new password" + inputText);
     }
 }

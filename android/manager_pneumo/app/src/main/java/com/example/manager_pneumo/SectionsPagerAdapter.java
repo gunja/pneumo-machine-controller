@@ -1,4 +1,4 @@
-package com.example.manager_pneumo.ui.main;
+package com.example.manager_pneumo;
 
 import android.content.Context;
 
@@ -53,7 +53,8 @@ public class SectionsPagerAdapter extends FragmentStateAdapter {
                 break;
             case 3:
                 System.out.println("автомат вкладка должна открыться. Сначала диалог");
-                rv = SettingsFragment.newInstance("true", "false");
+                rv = SettingsFragment.newInstance("true", ma.getCurPW());
+                ((SettingsFragment)rv).setMA(ma);
                 break;
             case 4:
                 rv = LoginFragment.newInstance(ma);

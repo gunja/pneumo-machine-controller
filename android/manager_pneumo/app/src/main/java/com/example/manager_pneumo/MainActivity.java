@@ -1,45 +1,56 @@
 package com.example.manager_pneumo;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 
-import com.example.manager_pneumo.ui.main.ui.login.LoginResult;
 import com.example.manager_pneumo.ui.main.ui.login.LoginViewModel;
-import com.example.manager_pneumo.ui.main.ui.login.LoginViewModelFactory;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
-
-import com.example.manager_pneumo.ui.main.SectionsPagerAdapter;
 import com.example.manager_pneumo.databinding.ActivityMainBinding;
-import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.tabs.TabLayout;
 
-public class MainActivity extends AppCompatActivity implements  com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
+public class MainActivity extends AppCompatActivity
+        implements  TabLayout.OnTabSelectedListener,  Handler.Callback
+{
 
+    private static final String TAG = "EAT";
     private ActivityMainBinding binding;
     private LoginViewModel loginViewModel;
     private TabLayout.Tab tab[] = new TabLayout.Tab[SectionsPagerAdapter.TAB_TITLES.length];
     private ViewPager2 viewPager;
+    private final String CUR_PASS_PRM = "CurPass";
+    private String cur_pass;
+    private ModbusExchangeThread mbThread;
+    private Handler uiHandler;
 
     public void renderSettingsPage() {
         viewPager.setCurrentItem(3);
     }
 
+    public String getCurPW() { return cur_pass;}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            cur_pass = savedInstanceState.getString(CUR_PASS_PRM, "1111");
+        } else
+        {
+            cur_pass = "1111";
+        }
+        uiHandler = new Handler(this);
+        mbThread = new ModbusExchangeThread();
+        mbThread.setMUIHandler(uiHandler);
+        mbThread.start();
+        //mUiHandler = new Handler(this);
+        System.out.println("Main thread = " + Thread.currentThread().getId() );
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -57,24 +68,6 @@ public class MainActivity extends AppCompatActivity implements  com.google.andro
         }
         tabs.addOnTabSelectedListener(this);
 
-        /*new TabLayoutMediator(tabs, viewPager,
-                (tab, position) -> {if(position < 4) tab.setText(getResources().getString(SectionsPagerAdapter.TAB_TITLES[position])); else tab.setText(""); } ).attach();
-*/
-        /*viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-            }
-            @Override
-            public void onPageSelected(int position)
-            {
-                System.out.println("page " + position + " is selected");
-                if (position == 3) {
-                    viewPager.setCurrentItem(0);
-                    System.out.println("switching to 0");
-                }
-            }
-        });*/
     }
 
 
@@ -98,5 +91,16 @@ public class MainActivity extends AppCompatActivity implements  com.google.andro
     public void onTabReselected(TabLayout.Tab tab) {
         System.out.println("reselected tab" + tab.getPosition());
 
+    }
+
+    @Override
+    public boolean handleMessage(@NonNull Message msg) {
+        Log.d(TAG, "handleMessage - what = " + msg.what+ "this threadId=" + Thread.currentThread().getId());
+        return false;
+    }
+
+    public void logMsg()
+    {
+        System.out.println("hello from main thread");
     }
 }
