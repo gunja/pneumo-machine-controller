@@ -100,9 +100,22 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
                 if(view == binding.pressureButton)
                 {
                     System.out.println("pressureButton");
+                    LayoutInflater ltInflater = getLayoutInflater();
+                    //binding.view.inflate(getContext(), R.layout.layout_manual, null);
+                    //binding.pages.addView(viewPressure);
+                    View child = getLayoutInflater().inflate(R.layout.layout_manual, null);
+                    binding.view.removeAllViews();
+                    binding.view.addView(child);
+
                 } else if (view == binding.pointsButton)
                 {
                     System.out.println("pointButton");
+                    LayoutInflater ltInflater = getLayoutInflater();
+                    View viewPoints = ltInflater.inflate(R.layout.points_settings, null, false);
+                    //binding.view.inflate(getContext(), R.layout.points_settings, null);
+                    binding.view.removeAllViews();
+                    binding.view.addView(viewPoints);
+
                 } else if (view == binding.apButton)
                 {
                     System.out.println("Access point button");

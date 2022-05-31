@@ -34,4 +34,13 @@
     <string name="new_pass_title">Новый пароль</string>
     <string name="new_pass_repeat">Повтор нового пароля</string>
     <string name="ap_name_title">Введите имя точки доступа</string>
+    <string name="d1_name">Датч 1</string>
+    <string name="d2_name">Датч 2</string>
+    <string name="d3_name">Датч 3</string>
+    <string name="d4_name">Д4-Р</string>
+    <string name="fwd_name">передний ход</string>
+    <string name="bwd_name">задний ход</string>
+    <string name="on_name">Вкл</string>
+    <string name="off_name">Выкл</string>
+    <string name="pulses_label">импульсы</string>
 </resources>
