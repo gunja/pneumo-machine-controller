@@ -53,7 +53,7 @@ public class SectionsPagerAdapter extends FragmentStateAdapter {
                 break;
             case 3:
                 System.out.println("автомат вкладка должна открыться. Сначала диалог");
-                rv = SettingsFragment.newInstance("true", ma.getCurPW());
+                rv = SettingsFragment.newInstance("AP_name_fetched", ma.getCurPW());
                 ((SettingsFragment)rv).setMA(ma);
                 break;
             case 4:

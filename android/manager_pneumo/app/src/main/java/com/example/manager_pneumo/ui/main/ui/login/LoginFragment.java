@@ -113,7 +113,7 @@ public class LoginFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    loginViewModel.login(passwordEditText.getText().toString());
+                    loginViewModel.login(passwordEditText.getText().toString(), ma.getCurPW());
                 }
                 return false;
             }
@@ -123,17 +123,14 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.login( passwordEditText.getText().toString());
+                loginViewModel.login( passwordEditText.getText().toString(), ma.getCurPW());
             }
         });
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
-        // TODO : initiate successful logged in experience
         if (getContext() != null && getContext().getApplicationContext() != null) {
-            //Toast.makeText(getContext().getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
-            ma.renderSettingsPage();
+              ma.renderSettingsPage();
         }
     }
 

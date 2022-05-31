@@ -103,4 +103,20 @@ public class MainActivity extends AppCompatActivity
     {
         System.out.println("hello from main thread");
     }
+
+    // invoked when the activity may be temporarily destroyed, save the instance state here
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        System.out.println("stroing to bundle cur_pass=" + cur_pass);
+        outState.putString(CUR_PASS_PRM, cur_pass);
+        // call superclass to save any view hierarchy
+        super.onSaveInstanceState(outState);
+    }
+
+    public void setCurPW(String p)
+    {
+        System.out.println("New password set to " + p);
+        cur_pass = p;
+    }
+
 }

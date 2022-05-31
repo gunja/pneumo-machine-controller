@@ -27,14 +27,14 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
     public static final String PASS_NOW = "cur_pass";
     public static final String AP_NAME_NOW = "cur_ap_name";
     private FragmentSettingsBinding binding;
-    private AppCompatActivity ma;
+    private MainActivity ma;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String cur_pass;
     private String cur_ap_name;
 
-    public void setMA(AppCompatActivity _ma)
+    public void setMA(MainActivity _ma)
     {
         ma = _ma;
     }
@@ -128,9 +128,10 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
                     System.out.println("password button");
                     FragmentManager fm = getActivity().getSupportFragmentManager();
                     System.out.println("fm = "+ fm);
-                    ChangePasswordDialogFragment changePass = ChangePasswordDialogFragment.newInstance("Some Title", cur_pass);
+                    ChangePasswordDialogFragment changePass = ChangePasswordDialogFragment.newInstance("Some Title", ma.getCurPW());
                     changePass.setTargetFragment(SettingsFragment.this, 300);
                     changePass.show(fm, "fragment_edit_name");
+                    changePass = null;
                 }
 
 
@@ -155,5 +156,6 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
     @Override
     public void onFinishEditDialog(String inputText) {
         System.out.println("dialog returned new password" + inputText);
+        ma.setCurPW(inputText);
     }
 }
