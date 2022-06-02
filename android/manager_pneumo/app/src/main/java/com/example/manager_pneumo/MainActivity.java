@@ -1,5 +1,7 @@
 package com.example.manager_pneumo;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity
     private String cur_pass;
     private ModbusExchangeThread mbThread;
     private Handler uiHandler;
+    private SharedPreferences sharedPref;
 
     public void renderSettingsPage() {
         viewPager.setCurrentItem(3);
@@ -39,12 +42,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            cur_pass = savedInstanceState.getString(CUR_PASS_PRM, "1111");
-        } else
-        {
-            cur_pass = "1111";
-        }
+
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        cur_pass = sharedPref.getString(CUR_PASS_PRM, "1111");
+
+
         uiHandler = new Handler(this);
         mbThread = new ModbusExchangeThread();
         mbThread.setMUIHandler(uiHandler);
@@ -105,12 +107,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     // invoked when the activity may be temporarily destroyed, save the instance state here
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
+
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+
         System.out.println("stroing to bundle cur_pass=" + cur_pass);
         outState.putString(CUR_PASS_PRM, cur_pass);
-        // call superclass to save any view hierarchy
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(CUR_PASS_PRM, cur_pass);
+        editor.commit();
+        // call superclass to save any view hierarch
         super.onSaveInstanceState(outState);
+    }
+
+    protected void onRestoreInstanceState (Bundle savedInstanceState)
+    {
+        super.onRestoreInstanceState(savedInstanceState);
+        cur_pass = savedInstanceState.getString(CUR_PASS_PRM, "1111");
     }
 
     public void setCurPW(String p)

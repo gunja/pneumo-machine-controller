@@ -98,7 +98,14 @@ public class ChangePasswordDialogFragment extends DialogFragment implements  OnC
             if( ! binding.editTextTextPassword2.getText().toString().equals(binding.editTextTextPassword3.getText().toString()))
             {
                 Toast toast = Toast.makeText(getActivity().getApplicationContext(),
-                        "Новый ароль не совпадает", Toast.LENGTH_SHORT);
+                        "Новый пароль не совпадает", Toast.LENGTH_SHORT);
+                toast.show();
+                return;
+            }
+            if (binding.editTextTextPassword2.getText().toString().length() < 4)
+            {
+                Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+                        "Длина должна быть больше 4 символов", Toast.LENGTH_SHORT);
                 toast.show();
                 return;
             }
