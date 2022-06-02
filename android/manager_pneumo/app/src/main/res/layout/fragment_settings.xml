@@ -56,10 +56,9 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/view"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"></LinearLayout>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

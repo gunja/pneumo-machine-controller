@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:FeedsView="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_readings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:scrollbarAlwaysDrawHorizontalTrack="true"
     android:scrollbars="vertical"
-    tools:context=".ui.main.ManualFragment">
+    tools:context=".manualFragment">
 
     <TableLayout
         android:layout_width="match_parent"
@@ -17,30 +18,34 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <include
-                android:id="@+id/pump"
+            <com.example.manager_pneumo.FeedsView
+                android:id="@+id/globa1"
                 layout="@layout/layout_feeds"
+                FeedsView:exampleString="Салют"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <include
-                android:id="@+id/common_rail"
+            <com.example.manager_pneumo.FeedsView
+                android:id="@+id/globa2"
                 layout="@layout/layout_feeds"
+                FeedsView:exampleString="Салют2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <include
-                android:id="@+id/receiver"
+            <com.example.manager_pneumo.FeedsView
+                android:id="@+id/globa3"
                 layout="@layout/layout_feeds"
+                FeedsView:exampleString="Салют3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <include
-                android:id="@+id/vide_001"
+            <com.example.manager_pneumo.FeedsView
+                android:id="@+id/globa4"
                 layout="@layout/layout_feeds"
+                FeedsView:exampleString="Салют4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
@@ -50,30 +55,35 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <include
-                android:id="@+id/vide_002"
+            <com.example.manager_pneumo.FeedsView
+                android:id="@+id/globa5"
+                FeedsView:exampleString="Салют4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+
+                />
+
+            <com.example.manager_pneumo.FeedsView
+                android:id="@+id/globa6"
                 layout="@layout/layout_feeds"
+                FeedsView:exampleString="Салют5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <include
-                android:id="@+id/vide_003"
+            <com.example.manager_pneumo.FeedsView
+                android:id="@+id/globa7"
                 layout="@layout/layout_feeds"
+                FeedsView:exampleString="Салют6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <include
-                android:id="@+id/vide_004"
+            <com.example.manager_pneumo.FeedsView
+                android:id="@+id/globa8"
                 layout="@layout/layout_feeds"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <include
-                android:id="@+id/vide_005"
-                layout="@layout/layout_feeds"
+                FeedsView:exampleString="Салют8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />

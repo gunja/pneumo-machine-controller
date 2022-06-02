@@ -68,7 +68,6 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
             cur_ap_name = getArguments().getString(AP_NAME_NOW);
             cur_pass = getArguments().getString(PASS_NOW);
         }
-
     }
 
     private void unMarkButtons()
@@ -89,6 +88,11 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
         {
             System.out.println("cur_P=" +  getArguments().getString(PASS_NOW));
         }
+        SettingPagerAdapter spa = new SettingPagerAdapter(ma);
+        spa.setMA(ma);
+        binding.vp2.setAdapter(spa);
+        binding.vp2.setUserInputEnabled(false);
+
         View.OnClickListener onc = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,21 +104,12 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
                 if(view == binding.pressureButton)
                 {
                     System.out.println("pressureButton");
-                    LayoutInflater ltInflater = getLayoutInflater();
-                    //binding.view.inflate(getContext(), R.layout.layout_manual, null);
-                    //binding.pages.addView(viewPressure);
-                    View child = getLayoutInflater().inflate(R.layout.layout_manual, null);
-                    binding.view.removeAllViews();
-                    binding.view.addView(child);
+                    binding.vp2.setCurrentItem(0);
 
                 } else if (view == binding.pointsButton)
                 {
                     System.out.println("pointButton");
-                    LayoutInflater ltInflater = getLayoutInflater();
-                    View viewPoints = ltInflater.inflate(R.layout.points_settings, null, false);
-                    //binding.view.inflate(getContext(), R.layout.points_settings, null);
-                    binding.view.removeAllViews();
-                    binding.view.addView(viewPoints);
+                    binding.vp2.setCurrentItem(1);
 
                 } else if (view == binding.apButton)
                 {
@@ -129,7 +124,7 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
                     FragmentManager fm = getActivity().getSupportFragmentManager();
                     System.out.println("fm = "+ fm);
                     ChangePasswordDialogFragment changePass = ChangePasswordDialogFragment.newInstance("Some Title", ma.getCurPW());
-                    changePass.setTargetFragment(SettingsFragment.this, 300);
+                    changePass.setTargetFragment(SettingsFragment.this, 310);
                     changePass.show(fm, "fragment_edit_name");
                     changePass = null;
                 }

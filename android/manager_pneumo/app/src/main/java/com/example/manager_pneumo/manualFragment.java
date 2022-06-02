@@ -50,19 +50,17 @@ public class manualFragment extends Fragment  {
         binding = LayoutManualBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.pump.feedTitle;
-        final EditText editT = binding.pump.feedValue;
-        final Button btn = binding.left1.button2;
+         final Button btn = binding.left1.button2;
         final Button btn_r2 = binding.right1.button2;
         btn.setText("Ню");
         btn_r2.setText("Па");
 
-        binding.pump.feedTitle.setText("Насос");
-        binding.commonRail.feedTitle.setText("Общее давление");
-        binding.receiver.feedTitle.setText("Ресивер");
+        binding.globa1.setTitleText("Насос");
+        binding.globa2.setTitleText("Общее давление");
+        binding.globa3.setTitleText("Ресивер");
 
-        binding.pump.feedValue.setText("0.0 бар");
-        binding.commonRail.feedValue.setText("10.0 бар");
+        binding.globa1.setValueText("0.0 бар");
+        binding.globa2.setValueText("10.0 бар");
         
         
         if (! desiredDisplayed) {
