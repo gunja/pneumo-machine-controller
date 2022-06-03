@@ -10,13 +10,17 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.example.manager_pneumo.databinding.LayoutFeedsBinding;
 
 /**
  * TODO: document your custom view class.
  */
-public class FeedsView extends View {
+public class FeedsView extends LinearLayout implements View.OnClickListener {
     private String mExampleString; // TODO: use a default from R.string...
     private int mExampleColor = Color.RED; // TODO: use a default from R.color...
     private float mExampleDimension = 0; // TODO: use a default from R.dimen...
@@ -25,6 +29,9 @@ public class FeedsView extends View {
     private TextPaint mTextPaint;
     private float mTextWidth;
     private float mTextHeight;
+    private LayoutFeedsBinding binding;
+    private EditText title;
+    private EditText value;
 
     public FeedsView(Context context) {
         super(context);
@@ -43,165 +50,35 @@ public class FeedsView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
-        //View.inflate(getContext(), R.layout.layout_feeds, this);
-        //LayoutInflater inflater = (LayoutInflater) getContext()
-        //        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //inflater.inflate(R.layout.layout_feeds, this, true);
-        // Load attributes
-        final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.FeedsView, defStyle, 0);
+        View.inflate(getContext(), R.layout.layout_feeds, this);
+        title = (EditText) findViewById(R.id.feed_title);
+        value = (EditText) findViewById(R.id.feed_value);
 
-        mExampleString = a.getString(
-                R.styleable.FeedsView_exampleString);
-        mExampleColor = a.getColor(
-                R.styleable.FeedsView_exampleColor,
-                mExampleColor);
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
-        mExampleDimension = a.getDimension(
-                R.styleable.FeedsView_exampleDimension,
-                mExampleDimension);
 
-        if (a.hasValue(R.styleable.FeedsView_exampleDrawable)) {
-            mExampleDrawable = a.getDrawable(
-                    R.styleable.FeedsView_exampleDrawable);
-            mExampleDrawable.setCallback(this);
-        }
-
-        a.recycle();
-
-        // Set up a default TextPaint object
-        mTextPaint = new TextPaint();
-        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextAlign(Paint.Align.LEFT);
-
-        // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements();
-        mExampleString = "хуета какая-то";
-
-    }
-
-    private void invalidateTextPaintAndMeasurements() {
-        mTextPaint.setTextSize(mExampleDimension);
-        mTextPaint.setColor(mExampleColor);
-        mTextWidth = mTextPaint.measureText(mExampleString);
-
-        Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-        mTextHeight = fontMetrics.bottom;
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        // TODO: consider storing these as member variables to reduce
-        // allocations per draw cycle.
-        int paddingLeft = getPaddingLeft();
-        int paddingTop = getPaddingTop();
-        int paddingRight = getPaddingRight();
-        int paddingBottom = getPaddingBottom();
-
-        int contentWidth = getWidth() - paddingLeft - paddingRight;
-        int contentHeight = getHeight() - paddingTop - paddingBottom;
-
-        // Draw the text.
-        canvas.drawText(mExampleString,
-                paddingLeft + (contentWidth - mTextWidth) / 2,
-                paddingTop + (contentHeight + mTextHeight) / 2,
-                mTextPaint);
-
-        // Draw the example drawable on top of the text.
-        if (mExampleDrawable != null) {
-            mExampleDrawable.setBounds(paddingLeft, paddingTop,
-                    paddingLeft + contentWidth, paddingTop + contentHeight);
-            mExampleDrawable.draw(canvas);
-        }
-    }
-
-    /**
-     * Gets the example string attribute value.
-     *
-     * @return The example string attribute value.
-     */
-    public String getExampleString() {
-        return mExampleString;
-    }
-
-    /**
-     * Sets the view"s example string attribute value. In the example view, this string
-     * is the text to draw.
-     *
-     * @param exampleString The example string attribute value to use.
-     */
-    public void setExampleString(String exampleString) {
-        mExampleString = exampleString;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example color attribute value.
-     *
-     * @return The example color attribute value.
-     */
-    public int getExampleColor() {
-        return mExampleColor;
-    }
-
-    /**
-     * Sets the view"s example color attribute value. In the example view, this color
-     * is the font color.
-     *
-     * @param exampleColor The example color attribute value to use.
-     */
-    public void setExampleColor(int exampleColor) {
-        mExampleColor = exampleColor;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example dimension attribute value.
-     *
-     * @return The example dimension attribute value.
-     */
-    public float getExampleDimension() {
-        return mExampleDimension;
-    }
-
-    /**
-     * Sets the view"s example dimension attribute value. In the example view, this dimension
-     * is the font size.
-     *
-     * @param exampleDimension The example dimension attribute value to use.
-     */
-    public void setExampleDimension(float exampleDimension) {
-        mExampleDimension = exampleDimension;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example drawable attribute value.
-     *
-     * @return The example drawable attribute value.
-     */
-    public Drawable getExampleDrawable() {
-        return mExampleDrawable;
-    }
-
-    /**
-     * Sets the view"s example drawable attribute value. In the example view, this drawable is
-     * drawn above the text.
-     *
-     * @param exampleDrawable The example drawable attribute value to use.
-     */
-    public void setExampleDrawable(Drawable exampleDrawable) {
-        mExampleDrawable = exampleDrawable;
     }
 
     public void setTitleText(String title) {
         System.out.println("setting title of " + this + " to "+ title);
+        this.title.setText(title);
     }
+
+    public String getTitleText() { return this.title.getText().toString();};
 
     public void setValueText(String s) {
         System.out.println("setting value of " + this + " to "+ s);
+        this.value.setText(s);
+    }
+
+    @Override
+    public void setOnClickListener(View.OnClickListener ocl)
+    {
+        super.setOnClickListener(ocl);
+        title.setOnClickListener(this);
+        value.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        performClick();
     }
 }

@@ -7,10 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentResultListener;
 
 import com.example.manager_pneumo.databinding.FragmentSettingsBinding;
 
@@ -19,12 +21,15 @@ import com.example.manager_pneumo.databinding.FragmentSettingsBinding;
  * Use the {@link SettingsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SettingsFragment extends Fragment implements ChangePasswordDialogFragment.EditNameDialogListener {
+public class SettingsFragment extends Fragment implements  FragmentResultListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     public static final String PASS_NOW = "cur_pass";
+    public static final String REQ_KEY_PASS = "REQ_KEY_PASS";
+    public static final String REQ_KEY_AP = "REQ_KEY_AP";
+
     public static final String AP_NAME_NOW = "cur_ap_name";
     private FragmentSettingsBinding binding;
     private MainActivity ma;
@@ -93,6 +98,10 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
         binding.vp2.setAdapter(spa);
         binding.vp2.setUserInputEnabled(false);
 
+        getChildFragmentManager().setFragmentResultListener(REQ_KEY_PASS, this, this );
+        getChildFragmentManager().setFragmentResultListener(REQ_KEY_AP, this, this );
+
+
         View.OnClickListener onc = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,18 +123,15 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
                 } else if (view == binding.apButton)
                 {
                     System.out.println("Access point button");
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
                     AccessPointDialogFragment ap_name = AccessPointDialogFragment.newInstance(cur_ap_name);
-                    ap_name.setTargetFragment(SettingsFragment.this, 300);
-                    ap_name.show(fm, "");
+                    ap_name.show(getChildFragmentManager(), "");
+                    ap_name = null;
                 } else if(view == binding.passButton)
                 {
                     System.out.println("password button");
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
-                    System.out.println("fm = "+ fm);
-                    ChangePasswordDialogFragment changePass = ChangePasswordDialogFragment.newInstance("Some Title", ma.getCurPW());
-                    changePass.setTargetFragment(SettingsFragment.this, 310);
-                    changePass.show(fm, "fragment_edit_name");
+                    ChangePasswordDialogFragment changePass =
+                            ChangePasswordDialogFragment.newInstance("Some Title", ma.getCurPW());
+                    changePass.show(getChildFragmentManager(), "fragment_edit_name");
                     changePass = null;
                 }
 
@@ -138,6 +144,8 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
         binding.apButton.setOnClickListener(onc);
         binding.passButton.setOnClickListener(onc);
 
+        binding.pressureButton.setBackgroundColor(Color.RED);
+
         return root;
     }
 
@@ -148,9 +156,23 @@ public class SettingsFragment extends Fragment implements ChangePasswordDialogFr
         binding = null;
     }
 
+    /*
     @Override
     public void onFinishEditDialog(String inputText) {
         System.out.println("dialog returned new password" + inputText);
         ma.setCurPW(inputText);
+    }
+*/
+    @Override
+    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+        switch(requestKey)
+        {
+            case REQ_KEY_PASS:
+                ma.setCurPW(result.getString(requestKey));
+                break;
+            case REQ_KEY_AP:
+                System.out.println("dialog returned new AP name" + result.getString(REQ_KEY_AP));
+                break;
+        }
     }
 }

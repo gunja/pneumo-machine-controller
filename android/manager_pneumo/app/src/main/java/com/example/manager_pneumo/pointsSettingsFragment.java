@@ -143,14 +143,14 @@ public class pointsSettingsFragment  extends Fragment {
 
     private void updateValues(int selectedD, int selectedWD) {
         //TODO fill in values for certain sensor + direction
-        binding.editT1.setText(110 +  selectedWD * selectedD);
-        binding.editT2.setText(120 +  selectedWD * selectedD);
-        binding.editT3.setText(130 +  selectedWD * selectedD);
-        binding.editT4.setText(140 +  selectedWD * selectedD);
-        binding.editT5.setText(150 +  selectedWD * selectedD);
-        binding.editT6.setText(160 +  selectedWD * selectedD);
-        binding.editT7.setText(170 +  selectedWD * selectedD);
-        binding.editT8.setText(180 +  selectedWD * selectedD);
+        binding.editT1.setText(new Integer(110 +  selectedWD * selectedD).toString());
+        binding.editT2.setText(new Integer(120 +  selectedWD * selectedD).toString());
+        binding.editT3.setText(new Integer(130 +  selectedWD * selectedD).toString());
+        binding.editT4.setText(new Integer(140 +  selectedWD * selectedD).toString());
+        binding.editT5.setText(new Integer(150 +  selectedWD * selectedD).toString());
+        binding.editT6.setText(new Integer(160 +  selectedWD * selectedD).toString());
+        binding.editT7.setText(new Integer(170 +  selectedWD * selectedD).toString());
+        binding.editT8.setText(new Integer(180 +  selectedWD * selectedD).toString());
 
     }
 }

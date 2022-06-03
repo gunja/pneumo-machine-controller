@@ -20,7 +20,6 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa1"
-                layout="@layout/layout_feeds"
                 FeedsView:exampleString="Салют"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -28,7 +27,6 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa2"
-                layout="@layout/layout_feeds"
                 FeedsView:exampleString="Салют2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -36,7 +34,6 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa3"
-                layout="@layout/layout_feeds"
                 FeedsView:exampleString="Салют3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -44,7 +41,6 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa4"
-                layout="@layout/layout_feeds"
                 FeedsView:exampleString="Салют4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -66,7 +62,6 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa6"
-                layout="@layout/layout_feeds"
                 FeedsView:exampleString="Салют5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -74,7 +69,6 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa7"
-                layout="@layout/layout_feeds"
                 FeedsView:exampleString="Салют6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,7 +76,6 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa8"
-                layout="@layout/layout_feeds"
                 FeedsView:exampleString="Салют8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

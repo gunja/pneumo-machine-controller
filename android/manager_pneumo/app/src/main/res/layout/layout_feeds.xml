@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    android:layout_marginStart="2dp"
+    android:layout_marginLeft="2dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="2dp"
     android:background="@color/purple_200"
     android:orientation="vertical"
     android:padding="2dp"
@@ -10,7 +16,8 @@
     android:paddingTop="3dp"
     android:paddingEnd="3dp"
     android:paddingRight="3dp"
-    android:paddingBottom="3dp">
+    android:paddingBottom="3dp"
+    tools:context=".FeedsView"   >
 
     <EditText
         android:id="@+id/feed_title"

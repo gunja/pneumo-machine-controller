@@ -2,6 +2,7 @@ package com.example.manager_pneumo;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -31,7 +32,6 @@ public class AccessPointDialogFragment extends DialogFragment  implements View.O
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment AccessPointDialogFragment.
      */
     // TODO: Rename and change types and number of parameters
@@ -44,7 +44,7 @@ public class AccessPointDialogFragment extends DialogFragment  implements View.O
     }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState)
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             super.onCreateView(inflater, container, savedInstanceState);
             if(getArguments() != null)
@@ -52,6 +52,7 @@ public class AccessPointDialogFragment extends DialogFragment  implements View.O
                 cur_ap_name = getArguments().getString(SettingsFragment.AP_NAME_NOW);
             }
             getDialog().setTitle("Задать пароль");
+
             binding = FragmentAccessPointDialogBinding.inflate(inflater, null, false);
             binding.editTextTextPersonName.setText(cur_ap_name);
 
@@ -70,8 +71,11 @@ public class AccessPointDialogFragment extends DialogFragment  implements View.O
         }
         if (view == binding.button5)
         {
-            // send resutls
+            // send results
             System.out.println("new AP name is set to " + binding.editTextTextPersonName.getText().toString());
+            Bundle result = new Bundle();
+            result.putString(SettingsFragment.REQ_KEY_AP, binding.editTextTextPersonName.getText().toString());
+            getParentFragmentManager().setFragmentResult(SettingsFragment.REQ_KEY_AP, result);
             dismiss();
         }
     }

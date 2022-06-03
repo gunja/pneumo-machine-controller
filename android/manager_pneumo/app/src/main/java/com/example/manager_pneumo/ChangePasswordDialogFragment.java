@@ -23,12 +23,6 @@ public class ChangePasswordDialogFragment extends DialogFragment implements  OnC
     private ChangePasswordDialogBinding binding;
     private String curPass;
 
-    public interface EditNameDialogListener {
-
-        void onFinishEditDialog(String inputText);
-
-    }
-
     public ChangePasswordDialogFragment() {
         // Empty constructor is required for DialogFragment
         // Make sure not to add arguments to the constructor
@@ -109,8 +103,9 @@ public class ChangePasswordDialogFragment extends DialogFragment implements  OnC
                 toast.show();
                 return;
             }
-            EditNameDialogListener listener = (EditNameDialogListener) getTargetFragment();
-            listener.onFinishEditDialog(binding.editTextTextPassword2.getText().toString());
+            Bundle result = new Bundle();
+            result.putString(SettingsFragment.REQ_KEY_PASS, binding.editTextTextPassword2.getText().toString());
+            getParentFragmentManager().setFragmentResult(SettingsFragment.REQ_KEY_PASS, result);
             dismiss();
 
         }
