@@ -6,6 +6,7 @@
 #endif
 #include <ModbusTCP.h>
 #include "placements.h"
+#include <math.h>
 
 #ifndef APSSID
 #define APSSID "ESPap"
@@ -27,6 +28,10 @@ char rqHoldingRegs[] = {'H', sizeof(struct memory_layout) };
 unsigned long lastIRegRq =0;
 #define RQ_INPUTS_PERIOD_MS  20
 
+unsigned long eeprom_write_request = 0;
+#define EEPROM_COMMIT_DELAY 500
+bool eepromWriteRequest;
+
 void getInputRegs()
 {
   Serial.write(rqInputRegs, 2);
@@ -41,9 +46,28 @@ void getInputRegs()
   }
 }
 
+void getIRSimulated()
+{
+  unsigned long now = millis();
+  for(int i=1; i <= sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
+  {
+    int16_t val = 32000 + 30000 * sin( now/100000. * i);
+    mb.Ireg(i, val);
+  }
+}
+
 uint16_t cbModbusSetHreg(TRegister* reg, uint16_t val)
 {
-  return 0;
+  if(reg->address.type !=  TAddress::HREG){
+    Serial.println("callback called not for set HREG");
+    return val;
+  }
+    
+  EEPROM.put((reg->address.address - 1) * sizeof(uint16_t), val);
+  Serial.print("Writing register "); Serial.print(reg->address.address); Serial.print(" with value "); Serial.println(val);
+  eepromWriteRequest = true;
+  eeprom_write_request = millis();
+  return val;
 }
 
 void initEEPROM()
@@ -61,13 +85,13 @@ void initEEPROM()
     EEPROM.put((char*)(&ML.ap_name) - (char*)(&ML) +3, 'S');
     EEPROM.put((char*)(&ML.ap_name) - (char*)(&ML) +4, 'A');
     EEPROM.put((char*)(&ML.ap_name) - (char*)(&ML) +5, '\0' );
-    EEPROM.commit();
-  }
   
   EEPROM.put((char*)(&ML.header_names[0]) - (char*)(&ML), "Nasos");
   EEPROM.put((char*)(&ML.header_names[1]) - (char*)(&ML), "общее");
   EEPROM.put((char*)(&ML.header_names[2]) - (char*)(&ML), "ресивер");
   EEPROM.put((char*)(&ML.header_names[3]) - (char*)(&ML), "хрень");
+  EEPROM.commit();
+    }
   
   EEPROM.get((char*)(&ML.ap_name) - (char*)(&ML), ML.ap_name.name);
   EEPROM.get((char*)(&ML.header_names[0]) - (char*)(&ML), ML.header_names[0].name);
@@ -114,8 +138,9 @@ void setup()
      mb.addHreg(i, ((incomingByte1 & 0xFF)<<8) + (incomingByte2 & 0xFF));
   }
 */
+  eepromWriteRequest = false;
 
-  for(int i=0; i < sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
+  for(int i=1; i <= sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
   {
     mb.addIreg(i, (i+1)<<8 + (i +1));
   }
@@ -136,6 +161,13 @@ void loop()
   if (now - lastIRegRq > RQ_INPUTS_PERIOD_MS)
   {
     //getInputRegs();
+    getIRSimulated();
     lastIRegRq = millis();
+  }
+  if (eepromWriteRequest && (now - EEPROM_COMMIT_DELAY > eeprom_write_request))
+  {
+    Serial.println("making EEPROM commit");
+    EEPROM.commit();
+    eepromWriteRequest = false;
   }
 }

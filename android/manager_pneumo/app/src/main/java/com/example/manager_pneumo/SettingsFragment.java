@@ -123,7 +123,7 @@ public class SettingsFragment extends Fragment implements  FragmentResultListene
                 } else if (view == binding.apButton)
                 {
                     System.out.println("Access point button");
-                    AccessPointDialogFragment ap_name = AccessPointDialogFragment.newInstance(cur_ap_name);
+                    AccessPointDialogFragment ap_name = AccessPointDialogFragment.newInstance(ma.getAPName());
                     ap_name.show(getChildFragmentManager(), "");
                     ap_name = null;
                 } else if(view == binding.passButton)
@@ -171,7 +171,8 @@ public class SettingsFragment extends Fragment implements  FragmentResultListene
                 ma.setCurPW(result.getString(requestKey));
                 break;
             case REQ_KEY_AP:
-                System.out.println("dialog returned new AP name" + result.getString(REQ_KEY_AP));
+                System.out.println("dialog returned new AP name " + result.getString(REQ_KEY_AP));
+                ma.sendAPNameToController(result.getString(REQ_KEY_AP));
                 break;
         }
     }

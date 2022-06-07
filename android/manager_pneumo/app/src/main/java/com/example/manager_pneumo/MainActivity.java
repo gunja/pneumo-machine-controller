@@ -14,6 +14,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.manager_pneumo.databinding.ActivityMainBinding;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity
     private Handler uiHandler;
     private SharedPreferences sharedPref;
 
+    private String apName;
+
     public void renderSettingsPage() {
         viewPager.setCurrentItem(3);
     }
@@ -47,6 +50,8 @@ public class MainActivity extends AppCompatActivity
 
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         cur_pass = sharedPref.getString(CUR_PASS_PRM, "1111");
+
+        apName = new String("");
 
 
         uiHandler = new Handler(this);
@@ -100,6 +105,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean handleMessage(@NonNull Message msg) {
         Log.d(TAG, "handleMessage - what = " + msg.what+ "this threadId=" + Thread.currentThread().getId());
+        if(msg.what == 30)
+        {
+            apName = new String((String) msg.obj);
+        }
         return false;
     }
 
@@ -133,4 +142,16 @@ public class MainActivity extends AppCompatActivity
         cur_pass = p;
     }
 
+    public String getAPName()
+    {
+        return apName;
+    }
+
+    public void sendAPNameToController(String string) {
+        apName = string.substring(0, string.length()< 23 ? string.length(): 23);
+        Message msg = new Message();
+        msg.what = 101;
+        msg.obj = new String (apName);
+        mbThread.getHandler().sendMessage(msg);
+    }
 }
