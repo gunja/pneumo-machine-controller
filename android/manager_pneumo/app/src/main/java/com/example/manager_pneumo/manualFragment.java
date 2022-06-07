@@ -65,21 +65,17 @@ public class manualFragment extends Fragment  {
         
         if (! desiredDisplayed) {
             binding.left1.targetValue.setText(""); binding.left2.targetValue.setText(""); binding.left3.targetValue.setText("");
-            binding.left4.targetValue.setText(""); binding.left5.targetValue.setText("");binding.left6.targetValue.setText("");
-            binding.left7.targetValue.setText("");binding.left8.targetValue.setText("");
+            binding.left4.targetValue.setText("");
 
             binding.left1.targetValue.setInputType(InputType.TYPE_NULL); binding.left2.targetValue.setInputType(InputType.TYPE_NULL); binding.left3.targetValue.setInputType(InputType.TYPE_NULL);
-            binding.left4.targetValue.setInputType(InputType.TYPE_NULL); binding.left5.targetValue.setInputType(InputType.TYPE_NULL); binding.left6.targetValue.setInputType(InputType.TYPE_NULL);
-            binding.left7.targetValue.setInputType(InputType.TYPE_NULL); binding.left8.targetValue.setInputType(InputType.TYPE_NULL);
+            binding.left4.targetValue.setInputType(InputType.TYPE_NULL);
 
 
             binding.right1.targetValue.setText(""); binding.right2.targetValue.setText(""); binding.right3.targetValue.setText("");
-            binding.right4.targetValue.setText(""); binding.right5.targetValue.setText("");binding.right6.targetValue.setText("");
-            binding.right7.targetValue.setText("");binding.right8.targetValue.setText("");
+            binding.right4.targetValue.setText("");
 
             binding.right1.targetValue.setInputType(InputType.TYPE_NULL); binding.right2.targetValue.setInputType(InputType.TYPE_NULL); binding.right3.targetValue.setInputType(InputType.TYPE_NULL);
-            binding.right4.targetValue.setInputType(InputType.TYPE_NULL); binding.right5.targetValue.setInputType(InputType.TYPE_NULL); binding.right6.targetValue.setInputType(InputType.TYPE_NULL);
-            binding.right7.targetValue.setInputType(InputType.TYPE_NULL); binding.right8.targetValue.setInputType(InputType.TYPE_NULL);
+            binding.right4.targetValue.setInputType(InputType.TYPE_NULL);
         }
 
         return root;

@@ -129,8 +129,8 @@ public class pointsSettingsFragment  extends Fragment {
     }
     private void enablePointsInput() {
         updateValues(selectedD, selectedWD);
-        boolean gotReading56 = false;
-        boolean gotReading78 = false;
+        boolean gotReading56 = true;
+        boolean gotReading78 = true;
         binding.editT1.setEnabled(true);
         binding.editT2.setEnabled(true);
         binding.editT3.setEnabled(true);
@@ -138,7 +138,7 @@ public class pointsSettingsFragment  extends Fragment {
         binding.editT5.setEnabled(gotReading56);
         binding.editT6.setEnabled(gotReading56);
         binding.editT7.setEnabled(gotReading78);
-        binding.editT7.setEnabled(gotReading78);
+        binding.editT8.setEnabled(gotReading78);
      }
 
     private void updateValues(int selectedD, int selectedWD) {

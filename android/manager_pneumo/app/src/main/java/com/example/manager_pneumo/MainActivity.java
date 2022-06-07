@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Window;
 
 import com.example.manager_pneumo.ui.main.ui.login.LoginViewModel;
 import com.google.android.material.tabs.TabLayout;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         cur_pass = sharedPref.getString(CUR_PASS_PRM, "1111");

@@ -127,22 +127,6 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
                     essdf = ExecutionSensorSettingDialogFragment.newInstance(4,"l", binding.left4.pneumoTitle.getText().toString());
                 } else if (view == binding.right4.getRoot()) {
                     essdf = ExecutionSensorSettingDialogFragment.newInstance(4,"r", binding.right4.pneumoTitle.getText().toString());
-                }else if (view == binding.left5.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(5,"l", binding.left5.pneumoTitle.getText().toString());
-                } else if (view == binding.right5.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(5,"r", binding.right5.pneumoTitle.getText().toString());
-                }else if (view == binding.left6.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(6,"l", binding.left6.pneumoTitle.getText().toString());
-                } else if (view == binding.right6.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(6,"r", binding.right6.pneumoTitle.getText().toString());
-                }else if (view == binding.left7.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(7,"l", binding.left7.pneumoTitle.getText().toString());
-                } else if (view == binding.right7.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(7,"r", binding.right7.pneumoTitle.getText().toString());
-                }else if (view == binding.left8.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(8,"l", binding.left8.pneumoTitle.getText().toString());
-                } else if (view == binding.right8.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(8,"r", binding.right8.pneumoTitle.getText().toString());
                 }
 
                 essdf.show(getChildFragmentManager(), "");
@@ -158,14 +142,7 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         binding.right3.getRoot().setOnClickListener(sensONC);
         binding.left4.getRoot().setOnClickListener(sensONC);
         binding.right4.getRoot().setOnClickListener(sensONC);
-        binding.left5.getRoot().setOnClickListener(sensONC);
-        binding.right5.getRoot().setOnClickListener(sensONC);
-        binding.left6.getRoot().setOnClickListener(sensONC);
-        binding.right6.getRoot().setOnClickListener(sensONC);
-        binding.left7.getRoot().setOnClickListener(sensONC);
-        binding.right7.getRoot().setOnClickListener(sensONC);
-        binding.left8.getRoot().setOnClickListener(sensONC);
-        binding.right8.getRoot().setOnClickListener(sensONC);
+
 
 
         return root;
