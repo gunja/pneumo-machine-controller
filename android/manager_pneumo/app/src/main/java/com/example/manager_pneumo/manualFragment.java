@@ -22,6 +22,7 @@ public class manualFragment extends Fragment  {
     private LayoutManualBinding binding;
     //private PageViewModel pageViewModelCHANGE;
     private Boolean desiredDisplayed;
+    FeedsViewModel[] fwms;
 
     public static manualFragment newInstance(boolean displayDesired) {
         manualFragment fragment = new manualFragment();
@@ -85,6 +86,34 @@ public class manualFragment extends Fragment  {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         System.out.println("manualFragment::onViewCreated  called");
+        fwms = new FeedsViewModel[]{
+                new ViewModelProvider(requireActivity()).get("1", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("2", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("3", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("4", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("5", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("6", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("7", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("8", FeedsViewModel.class)
+        };
+
+        fwms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa1.setTitleText(title));
+        fwms[1].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa2.setTitleText(title));
+        fwms[2].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa3.setTitleText(title));
+        fwms[3].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa4.setTitleText(title));
+        fwms[4].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa5.setTitleText(title));
+        fwms[5].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa6.setTitleText(title));
+        fwms[6].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa7.setTitleText(title));
+        fwms[7].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa8.setTitleText(title));
+
+        fwms[0].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa1.setValueText(value));
+        fwms[1].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa2.setValueText(value));
+        fwms[2].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa3.setValueText(value));
+        fwms[3].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa4.setValueText(value));
+        fwms[4].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa5.setValueText(value));
+        fwms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa6.setValueText(value));
+        fwms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa7.setValueText(value));
+        fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
     }
 
 }

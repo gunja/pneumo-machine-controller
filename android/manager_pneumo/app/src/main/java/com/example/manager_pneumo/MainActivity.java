@@ -105,22 +105,51 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean handleMessage(@NonNull Message msg) {
-        Log.d(TAG, "handleMessage - what = " + msg.what+ "this threadId=" + Thread.currentThread().getId());
-        if(msg.what == 30)
+        //Log.d(TAG, "handleMessage - what = " + msg.what+ "this threadId=" + Thread.currentThread().getId());
+        switch(msg.what)
         {
-            apName = new String((String) msg.obj);
-        }
-        if (msg.what == 41)
-        {
+            case 30:
+                apName = new String((String) msg.obj);
+                break;
+            case 41: //getActuatorNames
             //FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
             //fwm.setTitle((String) msg.obj);
-        }
-        if (msg.what == 42)
-        {
-            FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
-            fwm.setTitle((String) msg.obj);
+                break;
+            case 42: //getHeaderNamesHRs
+                FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
+                fwm.setTitle((String) msg.obj);
+                break;
+            case 43: //getHeaderCalibrationCoefficients
+                break;
+            case 44: //getActuatorsCalibrationCoefficients
+                break;
+            case 90: //INPUT_REG_READING_Hx
+                updateInputRegsHeaders(msg);
+                break;
+            case 91: // INPUT_REG_CNT_D1
+                updateDetailCounter(msg);
+                break;
+            case 92: // INPUT_REG_READING_ACTx
+                updateInputRegsActuators(msg);
+                break;
+
         }
         return false;
+    }
+
+    private void updateDetailCounter(Message msg) {
+    }
+
+    private void updateInputRegsActuators(Message msg) {
+    }
+
+    private void updateInputRegsHeaders(Message msg) {
+        short[] vals = (short[]) msg.obj;
+        for(int i=0; i < 8; ++i)
+        {
+            FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", i+1), FeedsViewModel.class);
+            fwm.setValue(vals[i]);
+        }
     }
 
     public void logMsg()

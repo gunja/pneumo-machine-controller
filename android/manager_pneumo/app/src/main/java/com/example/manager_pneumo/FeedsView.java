@@ -65,14 +65,14 @@ public class FeedsView extends LinearLayout implements View.OnClickListener {
     }
 
     public void setTitleText(String title) {
-        System.out.println("setting title of " + this + " to "+ title);
+        //System.out.println("setting title of " + this + " to "+ title);
         this.title.setText(title);
     }
 
     public String getTitleText() { return this.title.getText().toString();};
 
     public void setValueText(String s) {
-        System.out.println("setting value of " + this + " to "+ s);
+        //System.out.println("setting value of " + this + " to "+ s);
         this.value.setText(s);
     }
 
