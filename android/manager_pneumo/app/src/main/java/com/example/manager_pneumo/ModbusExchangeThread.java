@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.zgkxzx.modbus4And.requset.ModbusParam;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
@@ -123,6 +124,11 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                         String v = convertShortsArray(sub);
                         Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_ACT" + (i+1) + "_NM_START as string \"" + v + "\"");
                         //todo send message, 41 to main thread
+                        Message msg = new Message();
+                        msg.what = 41;
+                        msg.arg1 = i+1;
+                        msg.obj = v;
+                        mlHandler.sendMessage(msg);
                     }
                     mHandler.sendEmptyMessage(42);
                 }
@@ -144,7 +150,11 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                         short[] sub = Arrays.copyOfRange(data, i * 10, (i+1)*10);
                         String v = convertShortsArray(sub);
                         Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_H" + (i+1) + "_NM_START as string \"" + v + "\"");
-                        //todo send message, 42 to main thread
+                        Message msg = new Message();
+                        msg.what = 42;
+                        msg.arg1 = i+1;
+                        msg.obj = v;
+                        mlHandler.sendMessage(msg);
                     }
                     mHandler.sendEmptyMessage(43);
                 }
@@ -157,7 +167,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
         }
         if (message.what == 101)
         {
-            short[] convertedString = encodeString((String)message.obj);
+            short[] convertedString = encodeString((String)message.obj, 23);
             ModbusReq.getInstance().writeRegisters(new OnRequestBack<String>() {
                 @Override
                 public void onSuccess(String s) {
@@ -170,13 +180,29 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 }
             }, 1, 387,convertedString);
         }
+        if (message.what == 102)
+        {
+            short[] convertedString = encodeString((String)message.obj, 10);
+            ModbusReq.getInstance().writeRegisters(new OnRequestBack<String>() {
+                @Override
+                public void onSuccess(String s) {
+                    Log.e(TAG, "writeRegisters onSuccess " + s);
+                }
+
+                @Override
+                public void onFailed(String msg) {
+                    Log.e(TAG, "writeRegisters onFailed " + msg);
+                }
+            }, 1,49 + 10 * (message.arg1 -1) ,convertedString);
+        }
+
 
         return true;
     }
 
-    private short[] encodeString(String obj) {
+    private short[] encodeString(String obj, int regsNum) {
         byte[] bytss = obj.getBytes(StandardCharsets.UTF_8);
-        short[] rv = new short[bytss.length/2 + ((bytss.length % 2> 0)?1:0)];
+        short[] rv = new short[regsNum];
         for(int i=0; i < bytss.length/2; i++)
             rv[i] = (short) (bytss[2 * i] +  256 * (short) bytss[2 * i + 1]);
 

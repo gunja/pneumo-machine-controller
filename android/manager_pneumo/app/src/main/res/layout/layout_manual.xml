@@ -20,31 +20,31 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa1"
-                FeedsView:exampleString="Салют"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                FeedsView:own_id="1" />
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa2"
-                FeedsView:exampleString="Салют2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                FeedsView:own_id="2" />
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa3"
-                FeedsView:exampleString="Салют3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                FeedsView:own_id="3" />
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa4"
-                FeedsView:exampleString="Салют4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                FeedsView:own_id="4" />
         </TableRow>
 
         <TableRow
@@ -53,33 +53,31 @@
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa5"
-                FeedsView:exampleString="Салют4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-
-                />
+                FeedsView:own_id="5" />
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa6"
-                FeedsView:exampleString="Салют5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                FeedsView:own_id="6" />
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa7"
-                FeedsView:exampleString="Салют6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                FeedsView:own_id="7" />
 
             <com.example.manager_pneumo.FeedsView
                 android:id="@+id/globa8"
-                FeedsView:exampleString="Салют8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                FeedsView:own_id="8" />
         </TableRow>
 
     </TableLayout>

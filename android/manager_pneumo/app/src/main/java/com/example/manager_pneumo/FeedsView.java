@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.manager_pneumo.databinding.LayoutFeedsBinding;
 
@@ -21,14 +22,9 @@ import com.example.manager_pneumo.databinding.LayoutFeedsBinding;
  * TODO: document your custom view class.
  */
 public class FeedsView extends LinearLayout implements View.OnClickListener {
-    private String mExampleString; // TODO: use a default from R.string...
-    private int mExampleColor = Color.RED; // TODO: use a default from R.color...
-    private float mExampleDimension = 0; // TODO: use a default from R.dimen...
-    private Drawable mExampleDrawable;
 
-    private TextPaint mTextPaint;
-    private float mTextWidth;
-    private float mTextHeight;
+    private int own_id;
+
     private LayoutFeedsBinding binding;
     private EditText title;
     private EditText value;
@@ -51,6 +47,17 @@ public class FeedsView extends LinearLayout implements View.OnClickListener {
 
     private void init(AttributeSet attrs, int defStyle) {
         View.inflate(getContext(), R.layout.layout_feeds, this);
+        TypedArray a = getContext().getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.FeedsView,
+                0, 0);
+
+        try {
+            own_id = a.getInteger(R.styleable.FeedsView_own_id, 0);
+        } finally {
+            a.recycle();
+        }
+
         title = (EditText) findViewById(R.id.feed_title);
         value = (EditText) findViewById(R.id.feed_value);
 

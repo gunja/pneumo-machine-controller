@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.manager_pneumo.databinding.ActivityMainBinding;
@@ -109,6 +110,16 @@ public class MainActivity extends AppCompatActivity
         {
             apName = new String((String) msg.obj);
         }
+        if (msg.what == 41)
+        {
+            //FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
+            //fwm.setTitle((String) msg.obj);
+        }
+        if (msg.what == 42)
+        {
+            FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
+            fwm.setTitle((String) msg.obj);
+        }
         return false;
     }
 
@@ -153,5 +164,15 @@ public class MainActivity extends AppCompatActivity
         msg.what = 101;
         msg.obj = new String (apName);
         mbThread.getHandler().sendMessage(msg);
+    }
+
+    public void sendHeaderProperties(int id, String hdrName, int anInt, int anInt1,
+                                     float aFloat, float aFloat1) {
+        Message msg = new Message();
+        msg.what = 102;
+        msg.arg1 = id;
+        msg.obj = new String (hdrName);
+        mbThread.getHandler().sendMessage(msg);
+        //TODO send parcelable anInt anInt1 aFloat aFloat1
     }
 }

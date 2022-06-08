@@ -3,7 +3,9 @@ package com.example.manager_pneumo;
 import android.icu.text.NumberFormat;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,8 @@ import androidx.core.net.ParseException;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.manager_pneumo.databinding.FragmentFeedsSettingsDialogBinding;
+
+import java.nio.charset.StandardCharsets;
 
 public class HeaderSetterDialogFragment extends DialogFragment {
     private static final String PROP_ID = "Id";
@@ -119,6 +123,33 @@ public class HeaderSetterDialogFragment extends DialogFragment {
         };
         binding.point1AcceptBtn.setOnClickListener(set_value_onc);
         binding.point2AcceptBtn.setOnClickListener(set_value_onc);
+
+        TextWatcher afterTextChangedListener = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // ignore
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // ignore
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String val = s.toString();
+                byte[] converted = val.getBytes(StandardCharsets.UTF_8);
+                if (converted.length > 20) {
+                    while (converted.length > 20) {
+                        val = val.substring(0, val.length() - 1);
+                        converted = val.getBytes(StandardCharsets.UTF_8);
+                    }
+                    s.replace(0, s.length(), val, 0, val.length());
+                    binding.feedNameText.setError("Превышена допустимая длина записи");
+                }
+            }
+        };
+        binding.feedNameText.addTextChangedListener(afterTextChangedListener);
 
         return root;
     }

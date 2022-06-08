@@ -21,6 +21,7 @@ public class pointsSettingsFragment  extends Fragment {
     private PointsSettingsBinding binding;
     private int selectedD;
     private int selectedWD;
+    private MainActivity ma;
 
     private pointsSettingsFragment()
     {
@@ -152,6 +153,10 @@ public class pointsSettingsFragment  extends Fragment {
         binding.editT7.setText(new Integer(170 +  selectedWD * selectedD).toString());
         binding.editT8.setText(new Integer(180 +  selectedWD * selectedD).toString());
 
+    }
+
+    public void setMA(MainActivity _ma) {
+        ma = _ma;
     }
 }
 

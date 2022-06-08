@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.manager_pneumo.databinding.LayoutManualBinding;
 
@@ -26,6 +27,10 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
     public static final String REQ_FEED_HDR_MSG_V1 = "feedVal1";
     public static final String REQ_FEED_HDR_RAW_V2 = "feedRaw2";
     public static final String REQ_FEED_HDR_MSG_V2 = "feedVal2";
+
+    MainActivity ma;
+
+    FeedsViewModel[] fwms;
 
     public static pressureSettingsFragment newInstance() {
         pressureSettingsFragment fragment = new pressureSettingsFragment();
@@ -52,6 +57,36 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
 
         getChildFragmentManager().setFragmentResultListener(REQ_FEED_HDR_RESULT, this, this );
         getChildFragmentManager().setFragmentResultListener(REQ_SENSOR_RESULT, this, this );
+
+        fwms = new FeedsViewModel[]{
+                new ViewModelProvider(requireActivity()).get("1", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("2", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("3", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("4", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("5", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("6", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("7", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("8", FeedsViewModel.class)
+        };
+
+        fwms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa1.setTitleText(title));
+        fwms[1].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa2.setTitleText(title));
+        fwms[2].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa3.setTitleText(title));
+        fwms[3].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa4.setTitleText(title));
+        fwms[4].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa5.setTitleText(title));
+        fwms[5].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa6.setTitleText(title));
+        fwms[6].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa7.setTitleText(title));
+        fwms[7].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa8.setTitleText(title));
+
+        fwms[0].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa1.setValueText(value));
+        fwms[1].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa2.setValueText(value));
+        fwms[2].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa3.setValueText(value));
+        fwms[3].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa4.setValueText(value));
+        fwms[4].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa5.setValueText(value));
+        fwms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa6.setValueText(value));
+        fwms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa7.setValueText(value));
+        fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
+
 
         final Button btn = binding.left1.button2;
         final Button btn_r2 = binding.right1.button2;
@@ -154,18 +189,26 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         {
             case REQ_FEED_HDR_RESULT:
                 System.out.println("feeder header result exited");
-                result.getString(REQ_FEED_HDR_NAME);
-                result.getInt(REQ_FEED_HDR_Id);
+                String hdrName = result.getString(REQ_FEED_HDR_NAME);
+                int id = result.getInt(REQ_FEED_HDR_Id);
                 result.getInt(REQ_FEED_HDR_RAW_V1);
                 result.getFloat(REQ_FEED_HDR_MSG_V1);
                 result.getInt(REQ_FEED_HDR_RAW_V2);
                 result.getFloat(REQ_FEED_HDR_MSG_V2);
                 //TODO отправить это всё на запись в контроллер
+                fwms[id-1].setTitle(hdrName);
+                ma.sendHeaderProperties(id, hdrName, result.getInt(REQ_FEED_HDR_RAW_V1),
+                        result.getInt(REQ_FEED_HDR_RAW_V2),
+                        result.getFloat(REQ_FEED_HDR_MSG_V1), result.getFloat(REQ_FEED_HDR_MSG_V2) );
                 break;
             case REQ_SENSOR_RESULT:
                 System.out.println("sensor result returned");
                 break;
         }
 
+    }
+
+    public void setMA(MainActivity _ma) {
+        ma = _ma;
     }
 }

@@ -23,10 +23,14 @@ public class SettingPagerAdapter extends FragmentStateAdapter {
         switch(position)
         {
             case 0: default:
-                rv = pressureSettingsFragment.newInstance();
+                pressureSettingsFragment rv1 = pressureSettingsFragment.newInstance();
+                rv1.setMA(ma);
+                rv = rv1;
                 break;
             case 1:
-                rv = pointsSettingsFragment.newInstance();
+                pointsSettingsFragment rv2 = pointsSettingsFragment.newInstance();
+                rv2.setMA(ma);
+                rv = rv2;
                 break;
         }
         return rv;
