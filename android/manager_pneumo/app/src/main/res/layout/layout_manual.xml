@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:FeedsView="http://schemas.android.com/apk/res-auto"
+    xmlns:ActuatorView="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_readings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -103,76 +104,76 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <include
+                    <com.example.manager_pneumo.ActuatorView
                         android:id="@+id/left_1"
-                        layout="@layout/layout_reading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        ActuatorView:aw_own_id ="1"/>
 
-                    <include
+                    <com.example.manager_pneumo.ActuatorView
                         android:id="@+id/right_1"
-                        layout="@layout/layout_reading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        ActuatorView:aw_own_id ="2"/>
+
                 </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <include
+                    <com.example.manager_pneumo.ActuatorView
                         android:id="@+id/left_2"
-                        layout="@layout/layout_reading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        ActuatorView:aw_own_id ="3"/>
 
-                    <include
+                    <com.example.manager_pneumo.ActuatorView
                         android:id="@+id/right_2"
-                        layout="@layout/layout_reading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        ActuatorView:aw_own_id ="4"/>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
-
-                    <include
+                    <com.example.manager_pneumo.ActuatorView
                         android:id="@+id/left_3"
-                        layout="@layout/layout_reading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        ActuatorView:aw_own_id ="5"/>
 
-                    <include
+                    <com.example.manager_pneumo.ActuatorView
                         android:id="@+id/right_3"
-                        layout="@layout/layout_reading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        ActuatorView:aw_own_id ="6"/>
+
                 </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
-
-                    <include
+                    <com.example.manager_pneumo.ActuatorView
                         android:id="@+id/left_4"
-                        layout="@layout/layout_reading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        ActuatorView:aw_own_id ="7"/>
 
-                    <include
+                    <com.example.manager_pneumo.ActuatorView
                         android:id="@+id/right_4"
-                        layout="@layout/layout_reading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        ActuatorView:aw_own_id ="8"/>
                 </TableRow>
 
             </TableLayout>

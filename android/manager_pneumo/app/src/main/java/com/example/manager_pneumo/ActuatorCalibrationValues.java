@@ -1,21 +1,21 @@
 package com.example.manager_pneumo;
 
 public class ActuatorCalibrationValues {
-    private int r1_bar;
-    private int r2_bar;
+    private short r1_bar;
+    private short r2_bar;
     private float val1_bar;
     private float val2_bar;
 
-    private int r1_kgs;
-    private int r2_kgs;
+    private short r1_kgs;
+    private short r2_kgs;
     private float val1_kgs;
     private float val2_kgs;
 
-    public int getR1_bar() {
+    public short getR1_bar() {
         return r1_bar;
     }
 
-    public int getR2_bar() {
+    public short getR2_bar() {
         return r2_bar;
     }
 
@@ -27,11 +27,11 @@ public class ActuatorCalibrationValues {
         return val2_bar;
     }
 
-    public int getR1_kgs() {
+    public short getR1_kgs() {
         return r1_kgs;
     }
 
-    public int getR2_kgs() {
+    public short getR2_kgs() {
         return r2_kgs;
     }
 
@@ -57,7 +57,7 @@ public class ActuatorCalibrationValues {
         val2_kgs = 0.f;
     };
 
-    public ActuatorCalibrationValues(int r1b, int r2b, float v1b, float v2b, int r1k, int r2k, float v1k, float v2k)
+    public ActuatorCalibrationValues(short r1b, short r2b, float v1b, float v2b, short r1k, short r2k, float v1k, float v2k)
     {
         r1_bar = r1b;
         r2_bar = r2b;

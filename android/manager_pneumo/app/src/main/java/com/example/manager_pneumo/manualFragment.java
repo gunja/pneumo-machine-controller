@@ -23,6 +23,7 @@ public class manualFragment extends Fragment  {
     //private PageViewModel pageViewModelCHANGE;
     private Boolean desiredDisplayed;
     FeedsViewModel[] fwms;
+    ActuatorViewModel[] awms;
 
     public static manualFragment newInstance(boolean displayDesired) {
         manualFragment fragment = new manualFragment();
@@ -51,10 +52,6 @@ public class manualFragment extends Fragment  {
         binding = LayoutManualBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-         final Button btn = binding.left1.button2;
-        final Button btn_r2 = binding.right1.button2;
-        btn.setText("Ню");
-        btn_r2.setText("Па");
 
         binding.globa1.setTitleText("Насос");
         binding.globa2.setTitleText("Общее давление");
@@ -63,21 +60,16 @@ public class manualFragment extends Fragment  {
         binding.globa1.setValueText("0.0 бар");
         binding.globa2.setValueText("10.0 бар");
         
-        
-        if (! desiredDisplayed) {
-            binding.left1.targetValue.setText(""); binding.left2.targetValue.setText(""); binding.left3.targetValue.setText("");
-            binding.left4.targetValue.setText("");
 
-            binding.left1.targetValue.setInputType(InputType.TYPE_NULL); binding.left2.targetValue.setInputType(InputType.TYPE_NULL); binding.left3.targetValue.setInputType(InputType.TYPE_NULL);
-            binding.left4.targetValue.setInputType(InputType.TYPE_NULL);
+        binding.left1.setShowDesired(desiredDisplayed);
+        binding.left2.setShowDesired(desiredDisplayed);
+        binding.left3.setShowDesired(desiredDisplayed);
+        binding.left4.setShowDesired(desiredDisplayed);
 
-
-            binding.right1.targetValue.setText(""); binding.right2.targetValue.setText(""); binding.right3.targetValue.setText("");
-            binding.right4.targetValue.setText("");
-
-            binding.right1.targetValue.setInputType(InputType.TYPE_NULL); binding.right2.targetValue.setInputType(InputType.TYPE_NULL); binding.right3.targetValue.setInputType(InputType.TYPE_NULL);
-            binding.right4.targetValue.setInputType(InputType.TYPE_NULL);
-        }
+        binding.right1.setShowDesired(desiredDisplayed);
+        binding.right2.setShowDesired(desiredDisplayed);
+        binding.right3.setShowDesired(desiredDisplayed);
+        binding.right4.setShowDesired(desiredDisplayed);
 
         return root;
     }
@@ -114,6 +106,36 @@ public class manualFragment extends Fragment  {
         fwms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa6.setValueText(value));
         fwms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa7.setValueText(value));
         fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
+
+
+        awms = new ActuatorViewModel[] {
+            new ViewModelProvider(requireActivity()).get("1", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("2", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("3", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("4", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("5", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("6", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("7", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("8", ActuatorViewModel.class)
+        };
+
+        awms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.left1.setTitleText(title));
+        awms[1].getTitle().observe(getViewLifecycleOwner(), title -> binding.right1.setTitleText(title));
+        awms[2].getTitle().observe(getViewLifecycleOwner(), title -> binding.left2.setTitleText(title));
+        awms[3].getTitle().observe(getViewLifecycleOwner(), title -> binding.right2.setTitleText(title));
+        awms[4].getTitle().observe(getViewLifecycleOwner(), title -> binding.left3.setTitleText(title));
+        awms[5].getTitle().observe(getViewLifecycleOwner(), title -> binding.right3.setTitleText(title));
+        awms[6].getTitle().observe(getViewLifecycleOwner(), title -> binding.left4.setTitleText(title));
+        awms[7].getTitle().observe(getViewLifecycleOwner(), title -> binding.right4.setTitleText(title));
+
+        awms[0].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left1.setValueText(value));
+        awms[1].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right1.setValueText(value));
+        awms[2].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left2.setValueText(value));
+        awms[3].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right2.setValueText(value));
+        awms[4].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left3.setValueText(value));
+        awms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right3.setValueText(value));
+        awms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left4.setValueText(value));
+        awms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right4.setValueText(value));
     }
 
 }

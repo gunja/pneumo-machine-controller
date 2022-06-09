@@ -2,4 +2,7 @@
     <declare-styleable name="FeedsView">
         <attr name="own_id" format="integer" />
     </declare-styleable>
+    <declare-styleable name="ActuatorView">
+        <attr name="aw_own_id" format="integer" />
+    </declare-styleable>
 </resources>

@@ -203,5 +203,25 @@ public class MainActivity extends AppCompatActivity
         msg.obj = new String (hdrName);
         mbThread.getHandler().sendMessage(msg);
         //TODO send parcelable anInt anInt1 aFloat aFloat1
+        msg = new Message();
+        msg.what = 112;
+        msg.arg1 = id;
+        msg.obj = new FeedCalibrationValues (anInt, anInt1, aFloat, aFloat1);
+        mbThread.getHandler().sendMessage(msg);
+    }
+
+    public void sendActuatorSettings(int id, String hdrName,
+                  int r1_bar, int r2_bar, float fl1_bar, float fl2_bar,
+                  int r1_kgs, int r2_kgs, float fl1_kgs, float fl2_kgs) {
+        Message msg = new Message();
+        msg.what = 103;
+        msg.arg1 = id;
+        msg.obj = new String (hdrName);
+        mbThread.getHandler().sendMessage(msg);
+        msg = new Message();
+        msg.what = 113;
+        msg.arg1 = id;
+        msg.obj = new ActuatorCalibrationValues((short)r1_bar, (short)r2_bar, fl1_bar, fl2_bar, (short)r1_kgs, (short)r2_kgs, fl1_kgs, fl2_kgs);
+        mbThread.getHandler().sendMessage(msg);
     }
 }

@@ -1,17 +1,12 @@
 package com.example.manager_pneumo;
 
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -27,6 +22,11 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
     public static final String REQ_FEED_HDR_MSG_V1 = "feedVal1";
     public static final String REQ_FEED_HDR_RAW_V2 = "feedRaw2";
     public static final String REQ_FEED_HDR_MSG_V2 = "feedVal2";
+
+    public static final String REQ_FEED_HDR_RAW_KGS_V1 = "feedRaw1Kgs";
+    public static final String REQ_FEED_HDR_MSG_KGS_V1 = "feedVal1Kgs";
+    public static final String REQ_FEED_HDR_RAW_KGS_V2 = "feedRaw2Kgs";
+    public static final String REQ_FEED_HDR_MSG_KGS_V2 = "feedVal2Kgs";
 
     MainActivity ma;
 
@@ -87,12 +87,6 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         fwms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa7.setValueText(value));
         fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
 
-
-        final Button btn = binding.left1.button2;
-        final Button btn_r2 = binding.right1.button2;
-        btn.setText("Ню");
-        btn_r2.setText("Па");
-
         binding.globa1.setTitleText("бара");
         binding.globa2.setTitleText("замени");
         binding.globa3.setTitleText("Чё");
@@ -142,41 +136,20 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         {
             @Override
             public void onClick(View view) {
-                ExecutionSensorSettingDialogFragment essdf = null;
-                if (view == binding.left1.getRoot())
-                {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(1,"l", binding.left1.pneumoTitle.getText().toString());
-                } else if (view == binding.right1.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(1,"r", binding.right1.pneumoTitle.getText().toString());
-                } else if (view == binding.left2.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(2,"l", binding.left2.pneumoTitle.getText().toString());
-                }
-                else if (view == binding.right2.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(2,"r", binding.right2.pneumoTitle.getText().toString());
-                }
-                else if (view == binding.left3.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(3,"l", binding.left3.pneumoTitle.getText().toString());
-                } else if (view == binding.right3.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(3,"r", binding.right3.pneumoTitle.getText().toString());
-                }else if (view == binding.left4.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(4,"l", binding.left4.pneumoTitle.getText().toString());
-                } else if (view == binding.right4.getRoot()) {
-                    essdf = ExecutionSensorSettingDialogFragment.newInstance(4,"r", binding.right4.pneumoTitle.getText().toString());
-                }
-
+                ExecutionSensorSettingDialogFragment essdf = ExecutionSensorSettingDialogFragment.newInstance(((ActuatorView)view).getOwnId());
                 essdf.show(getChildFragmentManager(), "");
 
             }
         };
 
-        binding.left1.getRoot().setOnClickListener(sensONC);
-        binding.right1.getRoot().setOnClickListener(sensONC);
-        binding.left2.getRoot().setOnClickListener(sensONC);
-        binding.right2.getRoot().setOnClickListener(sensONC);
-        binding.left3.getRoot().setOnClickListener(sensONC);
-        binding.right3.getRoot().setOnClickListener(sensONC);
-        binding.left4.getRoot().setOnClickListener(sensONC);
-        binding.right4.getRoot().setOnClickListener(sensONC);
+        binding.left1.setOnClickListener(sensONC);
+        binding.right1.setOnClickListener(sensONC);
+        binding.left2.setOnClickListener(sensONC);
+        binding.right2.setOnClickListener(sensONC);
+        binding.left3.setOnClickListener(sensONC);
+        binding.right3.setOnClickListener(sensONC);
+        binding.left4.setOnClickListener(sensONC);
+        binding.right4.setOnClickListener(sensONC);
 
 
 
@@ -202,9 +175,25 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
                         result.getFloat(REQ_FEED_HDR_MSG_V1), result.getFloat(REQ_FEED_HDR_MSG_V2) );
                 break;
             case REQ_SENSOR_RESULT:
-                System.out.println("sensor result returned");
+                onActuatorDialogReturned(result);
+
                 break;
         }
+
+    }
+
+    private void onActuatorDialogReturned(Bundle result) {
+        String hdrName = result.getString(REQ_FEED_HDR_NAME);
+        int id = result.getInt(REQ_FEED_HDR_Id);
+        System.out.println("sensor result returned with name=" + result.getString(REQ_FEED_HDR_NAME) + "  for id=" + result.getInt(REQ_FEED_HDR_Id));
+        ma.sendActuatorSettings(id, hdrName, result.getInt(REQ_FEED_HDR_RAW_V1),
+                result.getInt(REQ_FEED_HDR_RAW_V2),
+                result.getFloat(REQ_FEED_HDR_MSG_V1), result.getFloat(REQ_FEED_HDR_MSG_V2),
+                result.getInt(REQ_FEED_HDR_RAW_KGS_V1),
+                result.getInt(REQ_FEED_HDR_RAW_KGS_V2),
+                result.getFloat(REQ_FEED_HDR_MSG_KGS_V1), result.getFloat(REQ_FEED_HDR_MSG_KGS_V2)
+        );
+        fwms[id-1].setTitle(hdrName);
 
     }
 

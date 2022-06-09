@@ -120,6 +120,12 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             case 103:
                 setStringRegisters(message, 129, 10);
                 break;
+            case 112:
+                setHeaderCalibrationCoefficients(message);
+                break;
+            case 113:
+                setActuatorsCalibrationCoefficients(message);
+                break;
         }
         return true;
     }
@@ -337,4 +343,64 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
         }
         return rv;
     }
+
+    private void setHeaderCalibrationCoefficients(Message message) {
+        //TODO
+        short[] shorts = new short[6];
+        FeedCalibrationValues vals = (FeedCalibrationValues) message.obj;
+        shorts[0] = (short) vals.getR1();
+        shorts[1] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1()).array()).getShort();
+        shorts[2] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1()).array()).getShort(1);
+        shorts[3] = (short) vals.getR2();
+        shorts[4] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2()).array()).getShort();
+        shorts[5] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2()).array()).getShort(1);
+
+        ModbusReq.getInstance().writeRegisters(new OnRequestBack<String>() {
+            @Override
+            public void onSuccess(String s) {
+                Log.e(TAG, "writeRegisters onSuccess setHeaderCalibrationCoefficients  " + s);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "setHeaderCalibrationCoefficients writeRegisters onFailed " + msg);
+            }
+        }, 1, 1+ 6 * (message.arg1 -1) ,shorts);
+    }
+
+    private void setActuatorsCalibrationCoefficients(Message message) {
+        //TODO
+        short[] shorts = new short[12];
+        ActuatorCalibrationValues vals = (ActuatorCalibrationValues) message.obj;
+        shorts[0] =  vals.getR1_bar();
+        ByteBuffer val_float = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1_bar()).array());
+        shorts[1] = val_float.getShort(0);
+        shorts[2] = val_float.getShort(1);
+        shorts[3] = vals.getR2_bar();
+        val_float = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2_bar()).array());
+        shorts[4] = val_float.getShort(0);
+        shorts[5] = val_float.getShort(1);
+
+        shorts[6] = vals.getR1_kgs();
+        val_float = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1_kgs()).array());
+        shorts[7] = val_float.getShort(0);
+        shorts[8] = val_float.getShort(1);
+        shorts[9] = vals.getR2_kgs();
+        val_float = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2_kgs()).array());
+        shorts[10] = val_float.getShort(0);
+        shorts[11] = val_float.getShort(1);
+
+        ModbusReq.getInstance().writeRegisters(new OnRequestBack<String>() {
+            @Override
+            public void onSuccess(String s) {
+                Log.e(TAG, "writeRegisters onSuccess " + s);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "writeRegisters onFailed " + msg);
+            }
+        }, 1, 210+ 12 * (message.arg1 -1) ,shorts);
+    }
+
 }
