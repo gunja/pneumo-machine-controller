@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     private ModbusExchangeThread mbThread;
     private Handler uiHandler;
     private SharedPreferences sharedPref;
+    private ViewModelProvider mvp;
 
     private String apName;
 
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity
             tabs.addTab(tab[i]);
         }
         tabs.addOnTabSelectedListener(this);
+        mvp = new ViewModelProvider(this);
 
     }
 
@@ -116,8 +118,9 @@ public class MainActivity extends AppCompatActivity
             //fwm.setTitle((String) msg.obj);
                 break;
             case 42: //getHeaderNamesHRs
-                FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
-                fwm.setTitle((String) msg.obj);
+                //FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
+                mvp.get(String.format("%d", msg.arg1), FeedsViewModel.class).setTitle((String) msg.obj);
+                //fwm.setTitle((String) msg.obj);
                 break;
             case 43: //getHeaderCalibrationCoefficients
                 break;
@@ -147,8 +150,9 @@ public class MainActivity extends AppCompatActivity
         short[] vals = (short[]) msg.obj;
         for(int i=0; i < 8; ++i)
         {
-            FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", i+1), FeedsViewModel.class);
-            fwm.setValue(vals[i]);
+            //FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", i+1), FeedsViewModel.class);
+            //fwm.setValue(vals[i]);
+            mvp.get(String.format("%d", i+1), FeedsViewModel.class).setValue(vals[i]);
         }
     }
 
