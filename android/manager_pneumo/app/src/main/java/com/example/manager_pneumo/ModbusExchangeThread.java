@@ -23,6 +23,23 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     Handler mHandler;
     Handler mlHandler;
     final static String TAG="ModbusExchangeThread ";
+
+    final public static int GET_ACCESS_POINT_NAME = 30;
+    final public static int GET_ACTUATOR_NAMES =  41;
+    final public static int GET_HEADER_NAMES_HRS = 42;
+    final public static int GET_HEADER_CALIBRATION_COEFFICIENTS = 43;
+    final public static int GET_ACTUATORS_CALIBRATION_COEFFICIENTS = 44;
+    final public static int GET_REACTION_DIRECTION = 45;
+    final public static int GET_POSITIONS_OF_REACTION = 46;
+    final public static int GET_LATEST_SELECTED_TAB = 47;
+    final public static int GET_GOAL_PRESSURES = 48;
+    final public static int  GET_ALL_INPUT_REGS = 99;
+    final public static int GET_ALL_HEADERS_INPUT_REGS = 90;
+    final public static int GET_ALL_DATCHIK_INPUT_REGS = 91;
+    final public static int GET_ALL_ACTUATOR_INPUT_REGS = 92;
+
+
+
     @Override
     public void run() {
         Looper.prepare();
@@ -92,22 +109,32 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                         }
                     });
                 break;
-            case 30:
+            case GET_ACCESS_POINT_NAME:
                 getAccessPointName(41);
                 break;
-            case  41:
+            case  GET_ACTUATOR_NAMES:
                 getActuatorNames(42);
                 break;
-            case 42:
+            case GET_HEADER_NAMES_HRS:
                 getHeaderNamesHRs(43);
                 break;
-            case 43:
+            case GET_HEADER_CALIBRATION_COEFFICIENTS:
                 getHeaderCalibrationCoefficients(44);
                 break;
-            case 44:
-                getActuatorsCalibrationCoefficients(99);
+            case GET_ACTUATORS_CALIBRATION_COEFFICIENTS:
+                getActuatorsCalibrationCoefficients(45);
                 break;
-            case 99:
+            case GET_REACTION_DIRECTION:
+                getReactionDirection(46);
+                break;
+            case GET_POSITIONS_OF_REACTION:
+                getPositionsOfReaction(47);
+                break;
+            case GET_LATEST_SELECTED_TAB:
+                getLatestSelectedTab(48);
+            case GET_GOAL_PRESSURES:
+                getGoalPressures(99);
+            case GET_ALL_INPUT_REGS:
                 getAllInputRegs(99);
                 break;
 
@@ -153,7 +180,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 Log.d(TAG, "readHoldingRegisters onSuccess AP_NAME_" + Arrays.toString(data)+ "as string \"" + apName + "\"");
                 mHandler.sendEmptyMessage(nextWhat);
                 Message msg = new Message();
-                msg.what = 30;
+                msg.what = GET_ACCESS_POINT_NAME;
                 msg.obj = apName;
                 mlHandler.sendMessage(msg);
             }
@@ -176,7 +203,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                     Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_ACT" + (i+1) + "_NM_START as string \"" + v + "\"");
                     //todo send message, 41 to main thread
                     Message msg = new Message();
-                    msg.what = 41;
+                    msg.what = GET_ACTUATOR_NAMES;
                     msg.arg1 = i+1;
                     msg.obj = v;
                     mlHandler.sendMessage(msg);
@@ -201,7 +228,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                     String v = convertShortsArray(sub);
                     Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_H" + (i+1) + "_NM_START as string \"" + v + "\"");
                     Message msg = new Message();
-                    msg.what = 42;
+                    msg.what = GET_HEADER_NAMES_HRS;
                     msg.arg1 = i+1;
                     msg.obj = v;
                     mlHandler.sendMessage(msg);
@@ -228,15 +255,15 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                     for(int s=0; s < 6; ++s) {bts[2*s] = (byte)(sub[s] &0xFF); bts[2*s + 1] = (byte)((sub[s]>>8) &0xFF);}
                     float v1=0, v2=0;
                     try {
-                        v1 = ByteBuffer.wrap(bts, 2, 4).order(BIG_ENDIAN).getFloat();
+                        v1 = ByteBuffer.wrap(bts, 2, 4).getFloat();
                     } catch (Exception e) {};
                     try {
-                        v2 = ByteBuffer.wrap(bts, 8, 4).order(BIG_ENDIAN).getFloat();
+                        v2 = ByteBuffer.wrap(bts, 8, 4).getFloat();
                     } catch (Exception e) {};
 
                     Log.d(TAG, "readHoldingRegisters onSuccess HeaderCalibrationCoefficients of " + (i+1) + "r1 =" + sub[0] + "  r2 = " + sub[3] + "  v1=" + v1 + "  v2 ="+v2);
                     Message msg = new Message();
-                    msg.what = 43;
+                    msg.what = GET_HEADER_CALIBRATION_COEFFICIENTS;
                     msg.arg1 = i+1;
                     msg.obj = new FeedCalibrationValues(sub[0], sub[3], v1, v2);
                     mlHandler.sendMessage(msg);
@@ -276,7 +303,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
 
                     Log.d(TAG, "readHoldingRegisters onSuccess HeaderCalibrationCoefficients of " + (i+1) + "r1 =" + sub[0] + "  r2 = " + sub[3] + "  v1=" + v1b + "  v2 ="+v2b);
                     Message msg = new Message();
-                    msg.what = 44;
+                    msg.what = GET_ACTUATORS_CALIBRATION_COEFFICIENTS;
                     msg.arg1 = i+1;
                     msg.obj = new ActuatorCalibrationValues(sub[0], sub[3], v1b, v2b, sub[6], sub[9], v1k, v2k);
                     mlHandler.sendMessage(msg);
@@ -298,23 +325,23 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             public void onSuccess(short[] data) {
                 short[] sub = Arrays.copyOfRange(data, 0, 8);
                 Message msg = new Message();
-                msg.what = 90;
+                msg.what = GET_ALL_HEADERS_INPUT_REGS;
                 msg.obj = sub;
                 mlHandler.sendMessage(msg);
 
                 short[] subDetail = Arrays.copyOfRange(data, 8, 12);
                 Message msgDet = new Message();
-                msgDet.what = 91;
+                msgDet.what = GET_ALL_DATCHIK_INPUT_REGS;
                 msgDet.obj = subDetail;
                 mlHandler.sendMessage(msgDet);
 
                 short[] subActs = Arrays.copyOfRange(data, 12, 20);
                 Message msgActs = new Message();
-                msgActs.what = 92;
+                msgActs.what = GET_ALL_ACTUATOR_INPUT_REGS;
                 msgActs.obj = subActs;
                 mlHandler.sendMessage(msgActs);
 
-                mHandler.sendEmptyMessageDelayed(nextWhat, 50);
+                mHandler.sendEmptyMessageDelayed(nextWhat, 150);
             }
 
             @Override
@@ -402,5 +429,87 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             }
         }, 1, 210+ 12 * (message.arg1 -1) ,shorts);
     }
+
+
+    private void getReactionDirection(int nextWhat) {
+        ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
+            @Override
+            public void onSuccess(short[] data) {
+                for(int i=0; i < 8; ++i)
+                {
+
+                    Log.d(TAG, "readHoldingRegisters onSuccess getReactionDirection with " + data[0] );
+                    Message msg = new Message();
+                    msg.what = 45;
+                    msg.arg1 = data[0];
+                    mlHandler.sendMessage(msg);
+                }
+                mHandler.sendEmptyMessage(nextWhat);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "readHoldingRegisters onFailed HOLD_REG_ACT2_NM_START" + msg);
+            }
+        }, 1, 306, 1);
+    }
+
+    private void getPositionsOfReaction(int nextWhat) {
+        ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
+            @Override
+            public void onSuccess(short[] data) {
+                    Log.d(TAG, "readHoldingRegisters onSuccess getReactionDirection with " + data[0] );
+                    Message msg = new Message();
+                    msg.what = 46;
+                    msg.obj = data;
+                    mlHandler.sendMessage(msg);
+                mHandler.sendEmptyMessage(nextWhat);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "readHoldingRegisters onFailed HOLD_REG_ACT2_NM_START" + msg);
+            }
+        }, 1, 307, 4*20);
+    }
+
+    private void getLatestSelectedTab(int nextWhat) {
+        ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
+            @Override
+            public void onSuccess(short[] data) {
+                    Log.d(TAG, "readHoldingRegisters onSuccess getReactionDirection with " + data[0] );
+                    Message msg = new Message();
+                    msg.what = 47;
+                    msg.arg1 = data[0];
+                    mlHandler.sendMessage(msg);
+                mHandler.sendEmptyMessage(nextWhat);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "readHoldingRegisters onFailed HOLD_REG_ACT2_NM_START" + msg);
+            }
+        }, 1, 450, 1);
+    }
+
+    private void getGoalPressures(int nextWhat) {
+        ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
+            @Override
+            public void onSuccess(short[] data) {
+                    Log.d(TAG, "readHoldingRegisters onSuccess getGoalPressures with " + data[0] );
+                    Message msg = new Message();
+                    msg.what = GET_GOAL_PRESSURES;
+                    msg.obj = data;
+                    mlHandler.sendMessage(msg);
+                mHandler.sendEmptyMessage(nextWhat);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "readHoldingRegisters onFailed HOLD_REG_ACT2_NM_START" + msg);
+            }
+        }, 1, 410, 5*8);
+    }
+
 
 }

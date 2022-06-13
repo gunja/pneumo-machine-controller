@@ -51,7 +51,7 @@ void getIRSimulated()
   unsigned long now = millis();
   for(int i=1; i <= sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
   {
-    int16_t val = 32000 + 30000 * sin( now/100000. * i);
+    int16_t val = 600 + 400 * sin( now/100000. * i);
     mb.Ireg(i, val);
   }
 }

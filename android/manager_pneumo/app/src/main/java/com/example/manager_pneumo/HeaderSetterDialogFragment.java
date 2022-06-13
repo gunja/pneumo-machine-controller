@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.net.ParseException;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.manager_pneumo.databinding.FragmentFeedsSettingsDialogBinding;
 
@@ -95,7 +96,6 @@ public class HeaderSetterDialogFragment extends DialogFragment {
 
         View.OnClickListener set_value_onc = new View.OnClickListener()
         {
-
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
@@ -150,6 +150,13 @@ public class HeaderSetterDialogFragment extends DialogFragment {
             }
         };
         binding.feedNameText.addTextChangedListener(afterTextChangedListener);
+
+        FeedsViewModel thisFWM = new ViewModelProvider(requireActivity()).get(String.format("%d", property_id ), FeedsViewModel.class);
+        thisFWM.getlastReceivedValue().observe(getViewLifecycleOwner(), value ->
+            {
+                rcValue = value;
+            }
+        );
 
         return root;
     }

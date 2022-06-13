@@ -6,39 +6,29 @@ import androidx.lifecycle.ViewModel;
 
 public class ActuatorViewModel extends ViewModel
 {
-    MutableLiveData<String> titleValue;
-    MutableLiveData<String> actualValueAsText;
-    MutableLiveData<Float> val1Bar;
-    MutableLiveData<Float> val2Bar;
-    MutableLiveData<Integer> raw1bar;
+    MutableLiveData<String> titleValue = new MutableLiveData<>();
+    MutableLiveData<String> actualValueAsText= new MutableLiveData<>();
+    MutableLiveData<Float> val1Bar= new MutableLiveData<>();
+    MutableLiveData<Float> val2Bar= new MutableLiveData<>();
+    MutableLiveData<Integer> raw1bar= new MutableLiveData<>();
+    MutableLiveData<Integer> raw2bar= new MutableLiveData<>();
 
+    MutableLiveData<Float> val1Kg= new MutableLiveData<Float>();
+    MutableLiveData<Float> val2Kg= new MutableLiveData<Float>();
+    MutableLiveData<Integer> raw1Kg= new  MutableLiveData<Integer>();
+    MutableLiveData<Integer> raw2Kg= new  MutableLiveData<Integer>();
 
+    MutableLiveData<Boolean> showInKg= new MutableLiveData<Boolean>(false);
 
-    MutableLiveData<Integer> raw2bar;
+    MutableLiveData<Integer> lastRawReading= new MutableLiveData<Integer>();
 
-    MutableLiveData<Float> val1Kg;
-    MutableLiveData<Float> val2Kg;
-    MutableLiveData<Integer> raw1Kg;
-    MutableLiveData<Integer> raw2Kg;
-
-    MutableLiveData<Boolean> showInKg;
-
-    MutableLiveData<Integer> lastRawReading;
+    MutableLiveData<Integer> requestedValue= new  MutableLiveData<Integer>();
+    MutableLiveData<String> rqValueAsText= new MutableLiveData<>();
+    MutableLiveData<Boolean> reactUpwards= new MutableLiveData<Boolean>();
 
     public ActuatorViewModel(){
         super();
-        titleValue = new MutableLiveData<>();
-        actualValueAsText = new MutableLiveData<>();
-        raw1bar = new MutableLiveData<>();
-        raw2bar = new MutableLiveData<>();
-        val1Bar = new MutableLiveData<>();
-        val2Bar = new MutableLiveData<>();
-        showInKg = new MutableLiveData<Boolean>(false);
-        lastRawReading = new MutableLiveData<Integer>();
-        val1Kg = new MutableLiveData<Float>();
-        val2Kg = new MutableLiveData<Float>();
-        raw1Kg = new  MutableLiveData<Integer>();
-        raw2Kg = new  MutableLiveData<Integer>();
+
     }
     public LiveData<String> getTitle() { return titleValue;};
     public LiveData<String> getValueAsString() { return actualValueAsText;};
@@ -136,5 +126,21 @@ public class ActuatorViewModel extends ViewModel
     public void setShowInKg(boolean showInKg) {
         this.showInKg.setValue(showInKg);
         updateValueDisplayed();
+    }
+
+    public void setCalibrationValues(ActuatorCalibrationValues obj) {
+        raw1bar.setValue((int)obj.getR1_bar());
+        raw2bar.setValue((int)obj.getR2_bar());
+        val1Bar.setValue(obj.getVal1_bar());
+        val2Bar.setValue(obj.getVal2_bar());
+
+        raw1Kg.setValue((int)obj.getR1_kgs());
+        raw2Kg.setValue((int)obj.getR2_kgs());
+        val1Kg.setValue(obj.getVal1_kgs());
+        val2Kg.setValue(obj.getVal2_kgs());
+    }
+
+    public void setReactionDirection(boolean i) {
+        reactUpwards.setValue(i);
     }
 }

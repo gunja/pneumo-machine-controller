@@ -2,6 +2,7 @@ package com.example.manager_pneumo;
 
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,13 +54,13 @@ public class manualFragment extends Fragment  {
         View root = binding.getRoot();
 
 
-        binding.globa1.setTitleText("Насос");
+        /*binding.globa1.setTitleText("Насос");
         binding.globa2.setTitleText("Общее давление");
         binding.globa3.setTitleText("Ресивер");
 
         binding.globa1.setValueText("0.0 бар");
         binding.globa2.setValueText("10.0 бар");
-        
+        */
 
         binding.left1.setShowDesired(desiredDisplayed);
         binding.left2.setShowDesired(desiredDisplayed);
@@ -78,18 +79,29 @@ public class manualFragment extends Fragment  {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         System.out.println("manualFragment::onViewCreated  called");
+        ViewModelProvider vmp = new ViewModelProvider(requireActivity());
+        Log.d("__manualFragment___", "создание fwms при requireActivity=" + requireActivity() + "  для VMP ="+ vmp );
+
+        FeedsViewModel fwm1 = new ViewModelProvider(requireActivity()).get(String.format("%d", 1), FeedsViewModel.class);
+
         fwms = new FeedsViewModel[]{
-                new ViewModelProvider(requireActivity()).get("1", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("2", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("3", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("4", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("5", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("6", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("7", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("8", FeedsViewModel.class)
+                vmp.get("1", FeedsViewModel.class),
+                vmp.get("2", FeedsViewModel.class),
+                vmp.get("3", FeedsViewModel.class),
+                vmp.get("4", FeedsViewModel.class),
+                vmp.get("5", FeedsViewModel.class),
+                vmp.get("6", FeedsViewModel.class),
+                vmp.get("7", FeedsViewModel.class),
+                vmp.get("8", FeedsViewModel.class)
         };
 
-        fwms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa1.setTitleText(title));
+        fwm1.getTitle().observe(getViewLifecycleOwner(), title -> {
+            System.out.println("callback setting  title for globa1. "+ title);
+            binding.globa1.setTitleText(title);});
+
+        fwms[0].getTitle().observe(getViewLifecycleOwner(), title -> {
+            System.out.println("callback setting  title for globa1. "+ title);
+            binding.globa1.setTitleText(title);});
         fwms[1].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa2.setTitleText(title));
         fwms[2].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa3.setTitleText(title));
         fwms[3].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa4.setTitleText(title));
@@ -107,7 +119,7 @@ public class manualFragment extends Fragment  {
         fwms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa7.setValueText(value));
         fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
 
-
+        /*
         awms = new ActuatorViewModel[] {
             new ViewModelProvider(requireActivity()).get("1", ActuatorViewModel.class),
             new ViewModelProvider(requireActivity()).get("2", ActuatorViewModel.class),
@@ -136,6 +148,9 @@ public class manualFragment extends Fragment  {
         awms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right3.setValueText(value));
         awms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left4.setValueText(value));
         awms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right4.setValueText(value));
+
+
+         */
     }
 
 }

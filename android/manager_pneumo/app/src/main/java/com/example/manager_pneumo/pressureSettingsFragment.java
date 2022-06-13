@@ -69,7 +69,11 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
                 new ViewModelProvider(requireActivity()).get("8", FeedsViewModel.class)
         };
 
-        fwms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa1.setTitleText(title));
+        fwms[0].getTitle().observe(getViewLifecycleOwner(), title ->
+        {
+            System.out.println("observer callback if FWM_0 of PressureSettingsFragmwnt");
+            binding.globa1.setTitleText(title);
+        });
         fwms[1].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa2.setTitleText(title));
         fwms[2].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa3.setTitleText(title));
         fwms[3].getTitle().observe(getViewLifecycleOwner(), title -> binding.globa4.setTitleText(title));
@@ -87,13 +91,13 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         fwms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa7.setValueText(value));
         fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
 
-        binding.globa1.setTitleText("бара");
+        /*binding.globa1.setTitleText("бара");
         binding.globa2.setTitleText("замени");
         binding.globa3.setTitleText("Чё");
 
         binding.globa1.setValueText("0.0 бар");
         binding.globa2.setValueText("12.3 бар");
-
+*/
         View.OnClickListener hdrONC = new View.OnClickListener()
         {
             @Override
@@ -136,7 +140,7 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         {
             @Override
             public void onClick(View view) {
-                ExecutionSensorSettingDialogFragment essdf = ExecutionSensorSettingDialogFragment.newInstance(((ActuatorView)view).getOwnId());
+                ActuatorSettingDialogFragment essdf = ActuatorSettingDialogFragment.newInstance(((ActuatorView)view).getOwnId());
                 essdf.show(getChildFragmentManager(), "");
 
             }

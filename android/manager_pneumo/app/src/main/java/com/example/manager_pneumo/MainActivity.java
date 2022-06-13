@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.Window;
+import android.webkit.ConsoleMessage;
 
 import com.example.manager_pneumo.ui.main.ui.login.LoginViewModel;
 import com.google.android.material.tabs.TabLayout;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity
     private SharedPreferences sharedPref;
 
     private String apName;
+    //FeedsViewModel fwms[];
+    //ActuatorViewModel awms[];
 
     public void renderSettingsPage() {
         viewPager.setCurrentItem(3);
@@ -58,12 +61,26 @@ public class MainActivity extends AppCompatActivity
         uiHandler = new Handler(this);
         mbThread = new ModbusExchangeThread();
         mbThread.setMUIHandler(uiHandler);
-        mbThread.start();
+
         //mUiHandler = new Handler(this);
         System.out.println("Main thread = " + Thread.currentThread().getId() );
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        ViewModelProvider vmp = new ViewModelProvider(this);
+        Log.d("MainActivity", "создание от this=" + this + "  при vmp =" + vmp);
+
+        /*awms = new ActuatorViewModel[] {
+                vmp.get("1", ActuatorViewModel.class),
+                vmp.get("2", ActuatorViewModel.class),
+                vmp.get("3", ActuatorViewModel.class),
+                vmp.get("4", ActuatorViewModel.class),
+                vmp.get("5", ActuatorViewModel.class),
+                vmp.get("6", ActuatorViewModel.class),
+                vmp.get("7", ActuatorViewModel.class),
+                vmp.get("8", ActuatorViewModel.class)
+        };
+         */
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this);
         sectionsPagerAdapter.setMA(this);
@@ -78,8 +95,27 @@ public class MainActivity extends AppCompatActivity
         }
         tabs.addOnTabSelectedListener(this);
 
+
     }
 
+    protected void onStart () {
+        super.onStart();
+        ViewModelProvider vmp = new ViewModelProvider(this);
+        Log.d("MainActivity","вызов onStart. Создание fwms для " + this + "  от VMP =" + vmp);
+        /*fwms = new FeedsViewModel[]{
+                vmp.get("1", FeedsViewModel.class),
+                vmp.get("2", FeedsViewModel.class),
+                vmp.get("3", FeedsViewModel.class),
+                vmp.get("4", FeedsViewModel.class),
+                vmp.get("5", FeedsViewModel.class),
+                vmp.get("6", FeedsViewModel.class),
+                vmp.get("7", FeedsViewModel.class),
+                vmp.get("8", FeedsViewModel.class)
+        };
+         */
+
+        mbThread.start();
+    }
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
@@ -106,30 +142,52 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean handleMessage(@NonNull Message msg) {
         //Log.d(TAG, "handleMessage - what = " + msg.what+ "this threadId=" + Thread.currentThread().getId());
+        ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), ActuatorViewModel.class);
+        //FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
         switch(msg.what)
         {
-            case 30:
+            case ModbusExchangeThread.GET_ACCESS_POINT_NAME:
                 apName = new String((String) msg.obj);
                 break;
-            case 41: //getActuatorNames
-            //FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
-            //fwm.setTitle((String) msg.obj);
+            case ModbusExchangeThread.GET_ACTUATOR_NAMES: //getActuatorNames
+                //awms[msg.arg1-1].postTitle((String) msg.obj);
+                //ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), ActuatorViewModel.class);
+                awm.postTitle((String) msg.obj);
                 break;
-            case 42: //getHeaderNamesHRs
+            case ModbusExchangeThread.GET_HEADER_NAMES_HRS: //getHeaderNamesHRs
+                //fwms[msg.arg1-1].postTitle((String) msg.obj);
                 FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
-                fwm.setTitle((String) msg.obj);
+                System.out.println("FWM created for this="+ this );
+                fwm.postTitle((String) msg.obj);
                 break;
-            case 43: //getHeaderCalibrationCoefficients
+            case ModbusExchangeThread.GET_HEADER_CALIBRATION_COEFFICIENTS: //getHeaderCalibrationCoefficients
+                //fwms[msg.arg1-1].setCalibrationValues((FeedCalibrationValues)msg.obj);
+                FeedsViewModel fwm2 = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
+                fwm2.setCalibrationValues((FeedCalibrationValues)msg.obj);
                 break;
-            case 44: //getActuatorsCalibrationCoefficients
+            case ModbusExchangeThread.GET_ACTUATORS_CALIBRATION_COEFFICIENTS: //getActuatorsCalibrationCoefficients
+                //awms[msg.arg1-1].setCalibrationValues((ActuatorCalibrationValues)msg.obj);
+                awm.setCalibrationValues((ActuatorCalibrationValues)msg.obj);
                 break;
-            case 90: //INPUT_REG_READING_Hx
+            case ModbusExchangeThread.GET_REACTION_DIRECTION:
+                setReactionDirections(msg.arg1);
+                break;
+            case ModbusExchangeThread.GET_LATEST_SELECTED_TAB:
+                activateLatestSelectedTab(msg.arg1);
+                break;
+            case ModbusExchangeThread.GET_POSITIONS_OF_REACTION:
+                assignReactionPosition(msg.obj);
+                break;
+            case ModbusExchangeThread.GET_GOAL_PRESSURES:
+                assignGoalPressures(msg.obj);
+                break;
+            case ModbusExchangeThread.GET_ALL_HEADERS_INPUT_REGS: //INPUT_REG_READING_Hx
                 updateInputRegsHeaders(msg);
                 break;
-            case 91: // INPUT_REG_CNT_D1
+            case ModbusExchangeThread.GET_ALL_DATCHIK_INPUT_REGS: // INPUT_REG_CNT_D1
                 updateDetailCounter(msg);
                 break;
-            case 92: // INPUT_REG_READING_ACTx
+            case ModbusExchangeThread.GET_ALL_ACTUATOR_INPUT_REGS: // INPUT_REG_READING_ACTx
                 updateInputRegsActuators(msg);
                 break;
 
@@ -137,18 +195,34 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+    private void assignReactionPosition(Object obj) {
+        //TODO implement method assignReactionPosition
+    }
+
+    private void assignGoalPressures(Object obj) {
+        //TODO implement method assignGoalPressures
+    }
+
     private void updateDetailCounter(Message msg) {
     }
 
     private void updateInputRegsActuators(Message msg) {
+        short[] vals = (short[]) msg.obj;
+        for(int i=0; i < 8; ++i)
+        {
+            ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", i +1), ActuatorViewModel.class);
+            awm.setLastRawReading(vals[i]);
+            //awms[i].setLastRawReading(vals[i]);
+        }
     }
 
     private void updateInputRegsHeaders(Message msg) {
         short[] vals = (short[]) msg.obj;
         for(int i=0; i < 8; ++i)
         {
-            FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", i+1), FeedsViewModel.class);
-            fwm.setValue(vals[i]);
+            FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d",i + 1), FeedsViewModel.class);
+            fwm.postValue(vals[i]);
+            //fwms[i].postValue(vals[i]);
         }
     }
 
@@ -224,4 +298,24 @@ public class MainActivity extends AppCompatActivity
         msg.obj = new ActuatorCalibrationValues((short)r1_bar, (short)r2_bar, fl1_bar, fl2_bar, (short)r1_kgs, (short)r2_kgs, fl1_kgs, fl2_kgs);
         mbThread.getHandler().sendMessage(msg);
     }
+
+
+    private void setReactionDirections(int bitMask) {
+        for(int i=0; i < 8; ++i)
+        {
+            ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", i +1), ActuatorViewModel.class);
+            awm.setReactionDirection( (bitMask & (3<<i)) > 0);
+            //awms[i].setReactionDirection( (bitMask & (3<<i)) > 0);
+        }
+    }
+
+    private void activateLatestSelectedTab(int msg) {
+        if (msg < 0 || msg > 3)
+        {
+            viewPager.setCurrentItem(0);
+            return;
+        }
+        viewPager.setCurrentItem(msg);
+    }
+
 }

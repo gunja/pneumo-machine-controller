@@ -12,6 +12,8 @@ public class FeedsViewModel extends ViewModel {
     MutableLiveData<Integer> raw1;
     MutableLiveData<Integer> raw2;
 
+    MutableLiveData<Integer> lastReceivedValue ;
+
     public FeedsViewModel(){
         super();
         titleValue = new MutableLiveData<>();
@@ -20,7 +22,11 @@ public class FeedsViewModel extends ViewModel {
         raw2 = new MutableLiveData<>();
         val1Bar = new MutableLiveData<>();
         val2Bar = new MutableLiveData<>();
+        lastReceivedValue = new MutableLiveData<>();
+        lastReceivedValue.setValue(0);
     }
+
+    public LiveData<Integer> getlastReceivedValue() { return lastReceivedValue;};
 
     public LiveData<String> getTitle() { return titleValue;};
     public LiveData<String> getValueAsString() { return valueAsText;};
@@ -46,6 +52,20 @@ public class FeedsViewModel extends ViewModel {
         return rv;
     }
 
-    public void setValue(int v)  { valueAsText.setValue(formatString(v));  }
-    public void postValue(int v)  { valueAsText.postValue(formatString(v));  }
+    public void setValue(int v)  {
+        lastReceivedValue.setValue(v);
+        valueAsText.setValue(formatString(lastReceivedValue.getValue()));
+    }
+    public void postValue(int v) {
+        lastReceivedValue.setValue(v);
+        valueAsText.postValue(formatString(lastReceivedValue.getValue()));
+    }
+
+    public void setCalibrationValues(FeedCalibrationValues obj) {
+        raw1.setValue(obj.getR1());
+        raw2.setValue(obj.getR2());
+        val1Bar.setValue(obj.getVal1());
+        val1Bar.setValue(obj.getVal2());
+        setValue(lastReceivedValue.getValue());
+    }
 }

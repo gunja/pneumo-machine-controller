@@ -351,6 +351,7 @@
 #define HOLD_REG_AUTO_D4_TARGET_C7 448
 #define HOLD_REG_AUTO_D4_TARGET_C8 449
 
+#define LAST_SELECTED_MODE 450
 #pragma pack(push, 1)
 struct _input_regs
 {
@@ -436,6 +437,8 @@ struct memory_layout {
     int16_t auto_d2_targets[CYLINDER_PAIRS_COUNT];
     int16_t auto_d3_targets[CYLINDER_PAIRS_COUNT];
     int16_t auto_d4_targets[CYLINDER_PAIRS_COUNT];
+
+    int16_t last_selected_mode;
 };
 
 #pragma pack(pop)
