@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     private SharedPreferences sharedPref;
 
     private String apName;
+    ConnectionDialogFragment cdf;
     //FeedsViewModel fwms[];
     //ActuatorViewModel awms[];
 
@@ -113,8 +114,9 @@ public class MainActivity extends AppCompatActivity
                 vmp.get("8", FeedsViewModel.class)
         };
          */
-
+        cdf = ConnectionDialogFragment.newInstance("", "");
         mbThread.start();
+        cdf.show(getSupportFragmentManager(), "");
     }
 
     @Override
@@ -190,7 +192,17 @@ public class MainActivity extends AppCompatActivity
             case ModbusExchangeThread.GET_ALL_ACTUATOR_INPUT_REGS: // INPUT_REG_READING_ACTx
                 updateInputRegsActuators(msg);
                 break;
-
+            case ModbusExchangeThread.CONN_DONE_MSG:
+                if (cdf != null) {
+                    cdf.setConnectedMessage();
+                }
+                break;
+            case ModbusExchangeThread.CONN_FAIL_MSG:
+                if(cdf != null)
+                {
+                    cdf.enableButtons();
+                }
+                break;
         }
         return false;
     }

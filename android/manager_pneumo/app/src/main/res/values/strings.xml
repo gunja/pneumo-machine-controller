@@ -52,4 +52,6 @@
     <string name="prompt_name_sensor">Введите название датчика</string>
     <string name="inbar_text">Значение в бар</string>
     <string name="inkg_text">Значение в кгс</string>
+    <string name="repeat_txt">Повторить</string>
+    <string name="Stop_app_text">Выйти</string>
 </resources>

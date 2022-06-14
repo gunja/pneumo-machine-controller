@@ -37,6 +37,8 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     final public static int GET_ALL_HEADERS_INPUT_REGS = 90;
     final public static int GET_ALL_DATCHIK_INPUT_REGS = 91;
     final public static int GET_ALL_ACTUATOR_INPUT_REGS = 92;
+    final public static int CONN_FAIL_MSG = 201;
+    final public static int CONN_DONE_MSG = 202;
 
 
 
@@ -101,11 +103,17 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                         public void onSuccess(String s) {
                             Log.d(TAG, "onSuccess " + s);
                             mHandler.sendEmptyMessage(30);
+                            Message msg_connd = new Message();
+                            msg_connd.what = CONN_DONE_MSG;
+                            mlHandler.sendMessage(msg_connd);
                         }
 
                         @Override
                         public void onFailed(String msg) {
                             Log.d(TAG, "onFailed " + msg);
+                            Message msg_fail = new Message();
+                            msg_fail.what = CONN_FAIL_MSG;
+                            mlHandler.sendMessage(msg_fail);
                         }
                     });
                 break;
