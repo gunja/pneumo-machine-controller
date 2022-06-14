@@ -86,8 +86,8 @@ void initEEPROM()
     EEPROM.put((char*)(&ML.ap_name) - (char*)(&ML) +4, 'A');
     EEPROM.put((char*)(&ML.ap_name) - (char*)(&ML) +5, '\0' );
   
-  EEPROM.put((char*)(&ML.header_names[0]) - (char*)(&ML), "Nasos");
-  EEPROM.put((char*)(&ML.header_names[1]) - (char*)(&ML), "общее");
+  EEPROM.put((char*)(&ML.header_names[0]) - (char*)(&ML), "Nasos12");
+  EEPROM.put((char*)(&ML.header_names[1]) - (char*)(&ML), "обще2е2");
   EEPROM.put((char*)(&ML.header_names[2]) - (char*)(&ML), "ресивер");
   EEPROM.put((char*)(&ML.header_names[3]) - (char*)(&ML), "хрень");
   EEPROM.commit();

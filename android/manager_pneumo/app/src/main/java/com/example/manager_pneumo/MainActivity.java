@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
@@ -23,8 +24,7 @@ import com.example.manager_pneumo.databinding.ActivityMainBinding;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity
-        implements  TabLayout.OnTabSelectedListener,  Handler.Callback
-{
+        implements TabLayout.OnTabSelectedListener, Handler.Callback, FragmentResultListener {
 
     private static final String TAG = "EAT";
     private ActivityMainBinding binding;
@@ -36,6 +36,9 @@ public class MainActivity extends AppCompatActivity
     private ModbusExchangeThread mbThread;
     private Handler uiHandler;
     private SharedPreferences sharedPref;
+
+    public static final String EXIT_REQUESTED ="DESIRE_EXIt";
+    public static final String REPEAR_REQUESTED = "DESIRE_REPEAT";
 
     private String apName;
     ConnectionDialogFragment cdf;
@@ -116,6 +119,9 @@ public class MainActivity extends AppCompatActivity
          */
         cdf = ConnectionDialogFragment.newInstance("", "");
         mbThread.start();
+        getSupportFragmentManager().setFragmentResultListener(EXIT_REQUESTED, this, this );
+        getSupportFragmentManager().setFragmentResultListener(REPEAR_REQUESTED, this, this );
+
         cdf.show(getSupportFragmentManager(), "");
     }
 
@@ -185,6 +191,11 @@ public class MainActivity extends AppCompatActivity
                 break;
             case ModbusExchangeThread.GET_ALL_HEADERS_INPUT_REGS: //INPUT_REG_READING_Hx
                 updateInputRegsHeaders(msg);
+                if (cdf != null )
+                {
+                    cdf.dismiss();
+                    cdf = null;
+                }
                 break;
             case ModbusExchangeThread.GET_ALL_DATCHIK_INPUT_REGS: // INPUT_REG_CNT_D1
                 updateDetailCounter(msg);
@@ -233,7 +244,7 @@ public class MainActivity extends AppCompatActivity
         for(int i=0; i < 8; ++i)
         {
             FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d",i + 1), FeedsViewModel.class);
-            fwm.postValue(vals[i]);
+            fwm.setValue(vals[i]);
             //fwms[i].postValue(vals[i]);
         }
     }
@@ -277,6 +288,7 @@ public class MainActivity extends AppCompatActivity
         apName = string.substring(0, string.length()< 23 ? string.length(): 23);
         Message msg = new Message();
         msg.what = 101;
+        msg.arg1 = 1;
         msg.obj = new String (apName);
         mbThread.getHandler().sendMessage(msg);
     }
@@ -330,4 +342,20 @@ public class MainActivity extends AppCompatActivity
         viewPager.setCurrentItem(msg);
     }
 
+    @Override
+    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+        switch (requestKey)
+        {
+            case REPEAR_REQUESTED:
+                mbThread.getHandler().sendEmptyMessage(1);
+                break;
+            case EXIT_REQUESTED:
+                mbThread.getHandler().sendEmptyMessage(1000);
+                finishAffinity();
+                System.exit(0);
+                break;
+
+        }
+
+    }
 }

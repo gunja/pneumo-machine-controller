@@ -76,6 +76,12 @@ public class ConnectionDialogFragment extends DialogFragment implements View.OnC
     {
         binding.cancelConnectionBtn.setOnClickListener(this);
         binding.repeatBnt.setOnClickListener(this);
+        setConnectingState();
+    }
+
+    public void setConnectingState()
+    {
+        binding.btnsLayout.setVisibility(View.GONE);
         binding.messageText.setText("Подключение");
     }
 
@@ -83,15 +89,18 @@ public class ConnectionDialogFragment extends DialogFragment implements View.OnC
     public void onClick(View view) {
         if (view == binding.cancelConnectionBtn)
         {
-            //TODO set return value to 0
+            Bundle result = new Bundle();
+            getParentFragmentManager().setFragmentResult(MainActivity.EXIT_REQUESTED, result);
             dismiss();
         }
         if (view == binding.repeatBnt)
         {
             //TODO set return value to re-initiate connection
-            binding.btnsLayout.setVisibility(View.INVISIBLE);
-            binding.messageText.setText("Подключение");
+            setConnectingState();
+
             //dismiss();
+            Bundle result = new Bundle();
+            getParentFragmentManager().setFragmentResult(MainActivity.REPEAR_REQUESTED, result);
         }
     }
 

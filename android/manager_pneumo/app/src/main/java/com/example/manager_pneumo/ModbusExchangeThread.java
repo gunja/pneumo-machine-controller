@@ -96,7 +96,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                             .setPort(502)
                             .setEncapsulated(false)
                             .setKeepAlive(true)
-                            .setTimeout(2000)
+                            .setTimeout(20000)
                             .setRetries(0))
                     .init(new OnRequestBack<String>() {
                         @Override
@@ -161,6 +161,9 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             case 113:
                 setActuatorsCalibrationCoefficients(message);
                 break;
+            case 1000:
+                Looper.myLooper().quit();
+                break;
         }
         return true;
     }
@@ -170,12 +173,12 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
         ModbusReq.getInstance().writeRegisters(new OnRequestBack<String>() {
             @Override
             public void onSuccess(String s) {
-                Log.e(TAG, "writeRegisters onSuccess " + s);
+                Log.d(TAG, "writeRegisters onSuccess " + s);
             }
 
             @Override
             public void onFailed(String msg) {
-                Log.e(TAG, "writeRegisters onFailed " + msg);
+                Log.d(TAG, "writeRegisters onFailed " + msg);
             }
         }, 1,baseOffset + 10 * (message.arg1 -1) ,convertedString);
     }
