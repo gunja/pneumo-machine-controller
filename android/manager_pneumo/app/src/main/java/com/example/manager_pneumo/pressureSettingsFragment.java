@@ -91,13 +91,6 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         fwms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa7.setValueText(value));
         fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
 
-        /*binding.globa1.setTitleText("бара");
-        binding.globa2.setTitleText("замени");
-        binding.globa3.setTitleText("Чё");
-
-        binding.globa1.setValueText("0.0 бар");
-        binding.globa2.setValueText("12.3 бар");
-*/
         View.OnClickListener hdrONC = new View.OnClickListener()
         {
             @Override
@@ -140,13 +133,13 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         {
             @Override
             public void onClick(View view) {
-                //ActuatorSettingDialogFragment essdf = ActuatorSettingDialogFragment.newInstance(((ActuatorView)view).getOwnId());
-                //essdf.show(getChildFragmentManager(), "");
+                ActuatorSettingDialogFragment essdf = ActuatorSettingDialogFragment.newInstance(((ActuatorView)view).getOwnId());
+                essdf.show(getChildFragmentManager(), "");
 
             }
         };
 
-        /*binding.left1.setOnClickListener(sensONC);
+        binding.left1.setOnClickListener(sensONC);
         binding.right1.setOnClickListener(sensONC);
         binding.left2.setOnClickListener(sensONC);
         binding.right2.setOnClickListener(sensONC);
@@ -154,8 +147,6 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         binding.right3.setOnClickListener(sensONC);
         binding.left4.setOnClickListener(sensONC);
         binding.right4.setOnClickListener(sensONC);
-*/
-
 
         return root;
     }

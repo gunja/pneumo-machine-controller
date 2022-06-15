@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity
     private String apName;
     ConnectionDialogFragment cdf;
     FeedsViewModel fwms[];
-    //ActuatorViewModel awms[];
+    ActuatorViewModel awms[];
 
     public void renderSettingsPage() {
         viewPager.setCurrentItem(3);
@@ -72,18 +72,6 @@ public class MainActivity extends AppCompatActivity
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        /*awms = new ActuatorViewModel[] {
-                vmp.get("1", ActuatorViewModel.class),
-                vmp.get("2", ActuatorViewModel.class),
-                vmp.get("3", ActuatorViewModel.class),
-                vmp.get("4", ActuatorViewModel.class),
-                vmp.get("5", ActuatorViewModel.class),
-                vmp.get("6", ActuatorViewModel.class),
-                vmp.get("7", ActuatorViewModel.class),
-                vmp.get("8", ActuatorViewModel.class)
-        };
-         */
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this);
         sectionsPagerAdapter.setMA(this);
@@ -114,6 +102,17 @@ public class MainActivity extends AppCompatActivity
                 vmp.get("6", FeedsViewModel.class),
                 vmp.get("7", FeedsViewModel.class),
                 vmp.get("8", FeedsViewModel.class)
+        };
+
+        awms = new ActuatorViewModel[] {
+                vmp.get("11", ActuatorViewModel.class),
+                vmp.get("12", ActuatorViewModel.class),
+                vmp.get("13", ActuatorViewModel.class),
+                vmp.get("14", ActuatorViewModel.class),
+                vmp.get("15", ActuatorViewModel.class),
+                vmp.get("16", ActuatorViewModel.class),
+                vmp.get("17", ActuatorViewModel.class),
+                vmp.get("18", ActuatorViewModel.class)
         };
 
         cdf = ConnectionDialogFragment.newInstance("", "");
@@ -148,33 +147,22 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean handleMessage(@NonNull Message msg) {
-        //Log.d(TAG, "handleMessage - what = " + msg.what+ "this threadId=" + Thread.currentThread().getId());
-        //ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), ActuatorViewModel.class);
-        //FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
         switch(msg.what)
         {
             case ModbusExchangeThread.GET_ACCESS_POINT_NAME:
                 apName = new String((String) msg.obj);
                 break;
             case ModbusExchangeThread.GET_ACTUATOR_NAMES: //getActuatorNames
-                //awms[msg.arg1-1].postTitle((String) msg.obj);
-                //ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), ActuatorViewModel.class);
-                //awm.postTitle((String) msg.obj);
+                awms[msg.arg1-1].postTitle((String) msg.obj);
                 break;
             case ModbusExchangeThread.GET_HEADER_NAMES_HRS: //getHeaderNamesHRs
                 fwms[msg.arg1-1].postTitle((String) msg.obj);
-                //FeedsViewModel fwm = mvp.get(String.format("%d", msg.arg1), FeedsViewModel.class);
-                System.out.println("FWM created for this="+ this );
-                //fwm.postTitle((String) msg.obj);
                 break;
             case ModbusExchangeThread.GET_HEADER_CALIBRATION_COEFFICIENTS: //getHeaderCalibrationCoefficients
                 fwms[msg.arg1-1].setCalibrationValues((FeedCalibrationValues)msg.obj);
-                //FeedsViewModel fwm2 = mvp.get(String.format("%d", msg.arg1), FeedsViewModel.class);
-                //fwm2.setCalibrationValues((FeedCalibrationValues)msg.obj);
                 break;
             case ModbusExchangeThread.GET_ACTUATORS_CALIBRATION_COEFFICIENTS: //getActuatorsCalibrationCoefficients
-                //awms[msg.arg1-1].setCalibrationValues((ActuatorCalibrationValues)msg.obj);
-                //awm.setCalibrationValues((ActuatorCalibrationValues)msg.obj);
+                awms[msg.arg1-1].setCalibrationValues((ActuatorCalibrationValues)msg.obj);
                 break;
             case ModbusExchangeThread.GET_REACTION_DIRECTION:
                 setReactionDirections(msg.arg1);
@@ -232,9 +220,7 @@ public class MainActivity extends AppCompatActivity
         short[] vals = (short[]) msg.obj;
         for(int i=0; i < 8; ++i)
         {
-            //ActuatorViewModel awm = mvp.get(String.format("%d", i +1), ActuatorViewModel.class);
-            //awm.setLastRawReading(vals[i]);
-            //awms[i].setLastRawReading(vals[i]);
+            awms[i].setLastRawReading(vals[i]);
         }
     }
 
@@ -242,8 +228,6 @@ public class MainActivity extends AppCompatActivity
         short[] vals = (short[]) msg.obj;
         for(int i=0; i < 8; ++i)
         {
-            //FeedsViewModel fwm = mvp.get(String.format("%d",i + 1), FeedsViewModel.class);
-            //fwm.setValue(vals[i]);
             fwms[i].postValue(vals[i]);
         }
     }

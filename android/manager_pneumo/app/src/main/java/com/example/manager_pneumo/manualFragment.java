@@ -24,7 +24,7 @@ public class manualFragment extends Fragment  {
     //private PageViewModel pageViewModelCHANGE;
     private Boolean desiredDisplayed;
     FeedsViewModel[] fwms;
-    //ActuatorViewModel[] awms;
+    ActuatorViewModel[] awms;
 
     public static manualFragment newInstance(boolean displayDesired) {
         manualFragment fragment = new manualFragment();
@@ -119,16 +119,15 @@ public class manualFragment extends Fragment  {
         fwms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa7.setValueText(value));
         fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
 
-        /*
         awms = new ActuatorViewModel[] {
-            new ViewModelProvider(requireActivity()).get("1", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("2", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("3", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("4", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("5", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("6", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("7", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("8", ActuatorViewModel.class)
+            new ViewModelProvider(requireActivity()).get("11", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("12", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("13", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("14", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("15", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("16", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("17", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("18", ActuatorViewModel.class)
         };
 
         awms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.left1.setTitleText(title));
@@ -148,9 +147,6 @@ public class manualFragment extends Fragment  {
         awms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right3.setValueText(value));
         awms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left4.setValueText(value));
         awms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right4.setValueText(value));
-
-
-         */
     }
 
 }
