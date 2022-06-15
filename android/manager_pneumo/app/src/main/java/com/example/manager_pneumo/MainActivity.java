@@ -36,13 +36,14 @@ public class MainActivity extends AppCompatActivity
     private ModbusExchangeThread mbThread;
     private Handler uiHandler;
     private SharedPreferences sharedPref;
+    private ViewModelProvider mvp;
 
     public static final String EXIT_REQUESTED ="DESIRE_EXIt";
     public static final String REPEAR_REQUESTED = "DESIRE_REPEAT";
 
     private String apName;
     ConnectionDialogFragment cdf;
-    //FeedsViewModel fwms[];
+    FeedsViewModel fwms[];
     //ActuatorViewModel awms[];
 
     public void renderSettingsPage() {
@@ -71,8 +72,6 @@ public class MainActivity extends AppCompatActivity
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        ViewModelProvider vmp = new ViewModelProvider(this);
-        Log.d("MainActivity", "создание от this=" + this + "  при vmp =" + vmp);
 
         /*awms = new ActuatorViewModel[] {
                 vmp.get("1", ActuatorViewModel.class),
@@ -98,7 +97,7 @@ public class MainActivity extends AppCompatActivity
             tabs.addTab(tab[i]);
         }
         tabs.addOnTabSelectedListener(this);
-
+        mvp = new ViewModelProvider(this);
 
     }
 
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
         ViewModelProvider vmp = new ViewModelProvider(this);
         Log.d("MainActivity","вызов onStart. Создание fwms для " + this + "  от VMP =" + vmp);
-        /*fwms = new FeedsViewModel[]{
+        fwms = new FeedsViewModel[]{
                 vmp.get("1", FeedsViewModel.class),
                 vmp.get("2", FeedsViewModel.class),
                 vmp.get("3", FeedsViewModel.class),
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity
                 vmp.get("7", FeedsViewModel.class),
                 vmp.get("8", FeedsViewModel.class)
         };
-         */
+
         cdf = ConnectionDialogFragment.newInstance("", "");
         mbThread.start();
         getSupportFragmentManager().setFragmentResultListener(EXIT_REQUESTED, this, this );
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean handleMessage(@NonNull Message msg) {
         //Log.d(TAG, "handleMessage - what = " + msg.what+ "this threadId=" + Thread.currentThread().getId());
-        ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), ActuatorViewModel.class);
+        //ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), ActuatorViewModel.class);
         //FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
         switch(msg.what)
         {
@@ -160,22 +159,22 @@ public class MainActivity extends AppCompatActivity
             case ModbusExchangeThread.GET_ACTUATOR_NAMES: //getActuatorNames
                 //awms[msg.arg1-1].postTitle((String) msg.obj);
                 //ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), ActuatorViewModel.class);
-                awm.postTitle((String) msg.obj);
+                //awm.postTitle((String) msg.obj);
                 break;
             case ModbusExchangeThread.GET_HEADER_NAMES_HRS: //getHeaderNamesHRs
-                //fwms[msg.arg1-1].postTitle((String) msg.obj);
-                FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
+                fwms[msg.arg1-1].postTitle((String) msg.obj);
+                //FeedsViewModel fwm = mvp.get(String.format("%d", msg.arg1), FeedsViewModel.class);
                 System.out.println("FWM created for this="+ this );
-                fwm.postTitle((String) msg.obj);
+                //fwm.postTitle((String) msg.obj);
                 break;
             case ModbusExchangeThread.GET_HEADER_CALIBRATION_COEFFICIENTS: //getHeaderCalibrationCoefficients
-                //fwms[msg.arg1-1].setCalibrationValues((FeedCalibrationValues)msg.obj);
-                FeedsViewModel fwm2 = new ViewModelProvider(this).get(String.format("%d", msg.arg1), FeedsViewModel.class);
-                fwm2.setCalibrationValues((FeedCalibrationValues)msg.obj);
+                fwms[msg.arg1-1].setCalibrationValues((FeedCalibrationValues)msg.obj);
+                //FeedsViewModel fwm2 = mvp.get(String.format("%d", msg.arg1), FeedsViewModel.class);
+                //fwm2.setCalibrationValues((FeedCalibrationValues)msg.obj);
                 break;
             case ModbusExchangeThread.GET_ACTUATORS_CALIBRATION_COEFFICIENTS: //getActuatorsCalibrationCoefficients
                 //awms[msg.arg1-1].setCalibrationValues((ActuatorCalibrationValues)msg.obj);
-                awm.setCalibrationValues((ActuatorCalibrationValues)msg.obj);
+                //awm.setCalibrationValues((ActuatorCalibrationValues)msg.obj);
                 break;
             case ModbusExchangeThread.GET_REACTION_DIRECTION:
                 setReactionDirections(msg.arg1);
@@ -233,8 +232,8 @@ public class MainActivity extends AppCompatActivity
         short[] vals = (short[]) msg.obj;
         for(int i=0; i < 8; ++i)
         {
-            ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", i +1), ActuatorViewModel.class);
-            awm.setLastRawReading(vals[i]);
+            //ActuatorViewModel awm = mvp.get(String.format("%d", i +1), ActuatorViewModel.class);
+            //awm.setLastRawReading(vals[i]);
             //awms[i].setLastRawReading(vals[i]);
         }
     }
@@ -243,9 +242,9 @@ public class MainActivity extends AppCompatActivity
         short[] vals = (short[]) msg.obj;
         for(int i=0; i < 8; ++i)
         {
-            FeedsViewModel fwm = new ViewModelProvider(this).get(String.format("%d",i + 1), FeedsViewModel.class);
-            fwm.setValue(vals[i]);
-            //fwms[i].postValue(vals[i]);
+            //FeedsViewModel fwm = mvp.get(String.format("%d",i + 1), FeedsViewModel.class);
+            //fwm.setValue(vals[i]);
+            fwms[i].postValue(vals[i]);
         }
     }
 
@@ -327,8 +326,8 @@ public class MainActivity extends AppCompatActivity
     private void setReactionDirections(int bitMask) {
         for(int i=0; i < 8; ++i)
         {
-            ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", i +1), ActuatorViewModel.class);
-            awm.setReactionDirection( (bitMask & (3<<i)) > 0);
+            //ActuatorViewModel awm = new ViewModelProvider(this).get(String.format("%d", i +1), ActuatorViewModel.class);
+            //awm.setReactionDirection( (bitMask & (3<<i)) > 0);
             //awms[i].setReactionDirection( (bitMask & (3<<i)) > 0);
         }
     }

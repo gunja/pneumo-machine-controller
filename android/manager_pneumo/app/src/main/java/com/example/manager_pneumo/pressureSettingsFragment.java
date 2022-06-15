@@ -140,13 +140,13 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         {
             @Override
             public void onClick(View view) {
-                ActuatorSettingDialogFragment essdf = ActuatorSettingDialogFragment.newInstance(((ActuatorView)view).getOwnId());
-                essdf.show(getChildFragmentManager(), "");
+                //ActuatorSettingDialogFragment essdf = ActuatorSettingDialogFragment.newInstance(((ActuatorView)view).getOwnId());
+                //essdf.show(getChildFragmentManager(), "");
 
             }
         };
 
-        binding.left1.setOnClickListener(sensONC);
+        /*binding.left1.setOnClickListener(sensONC);
         binding.right1.setOnClickListener(sensONC);
         binding.left2.setOnClickListener(sensONC);
         binding.right2.setOnClickListener(sensONC);
@@ -154,7 +154,7 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         binding.right3.setOnClickListener(sensONC);
         binding.left4.setOnClickListener(sensONC);
         binding.right4.setOnClickListener(sensONC);
-
+*/
 
 
         return root;

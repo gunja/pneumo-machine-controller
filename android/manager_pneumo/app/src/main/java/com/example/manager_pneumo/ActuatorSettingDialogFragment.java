@@ -20,7 +20,7 @@ import com.example.manager_pneumo.databinding.FragmentExecutionSensorSettingDial
 
 public class ActuatorSettingDialogFragment extends DialogFragment implements View.OnClickListener {
 
-    private ActuatorViewModel mViewModel;
+    //private ActuatorViewModel mViewModel;
     private FragmentExecutionSensorSettingDialogBinding binding;
     public static final String PROP_ID = "PROP_ID";
     private int own_id;
@@ -51,9 +51,9 @@ public class ActuatorSettingDialogFragment extends DialogFragment implements Vie
         binding = FragmentExecutionSensorSettingDialogBinding.inflate(inflater, container, false);
         View v = binding.getRoot();
 
-        mViewModel = new ViewModelProvider(requireActivity()).get(String.format("%d", own_id), ActuatorViewModel.class);
+        //mViewModel = new ViewModelProvider(requireActivity()).get(String.format("%d", own_id), ActuatorViewModel.class);
 
-        mViewModel.getTitle().observe(getViewLifecycleOwner(), title -> binding.sensorNameText.setText(title));
+        //mViewModel.getTitle().observe(getViewLifecycleOwner(), title -> binding.sensorNameText.setText(title));
 
         View.OnClickListener p1_p2_listner = new View.OnClickListener()
         {

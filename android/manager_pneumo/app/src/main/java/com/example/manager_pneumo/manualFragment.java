@@ -24,7 +24,7 @@ public class manualFragment extends Fragment  {
     //private PageViewModel pageViewModelCHANGE;
     private Boolean desiredDisplayed;
     FeedsViewModel[] fwms;
-    ActuatorViewModel[] awms;
+    //ActuatorViewModel[] awms;
 
     public static manualFragment newInstance(boolean displayDesired) {
         manualFragment fragment = new manualFragment();
@@ -85,14 +85,14 @@ public class manualFragment extends Fragment  {
         FeedsViewModel fwm1 = new ViewModelProvider(requireActivity()).get(String.format("%d", 1), FeedsViewModel.class);
 
         fwms = new FeedsViewModel[]{
-                vmp.get("1", FeedsViewModel.class),
-                vmp.get("2", FeedsViewModel.class),
-                vmp.get("3", FeedsViewModel.class),
-                vmp.get("4", FeedsViewModel.class),
-                vmp.get("5", FeedsViewModel.class),
-                vmp.get("6", FeedsViewModel.class),
-                vmp.get("7", FeedsViewModel.class),
-                vmp.get("8", FeedsViewModel.class)
+                new ViewModelProvider(requireActivity()).get("1", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("2", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("3", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("4", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("5", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("6", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("7", FeedsViewModel.class),
+                new ViewModelProvider(requireActivity()).get("8", FeedsViewModel.class)
         };
 
         fwm1.getTitle().observe(getViewLifecycleOwner(), title -> {
