@@ -19,6 +19,7 @@ import com.zgkxzx.modbus4And.requset.OnRequestBack;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -300,15 +301,16 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 for(int i=0; i < 8; ++i)
                 {
                     short[] sub = Arrays.copyOfRange(data, i * 6, (i+1)*6);
-                    byte[] bts = new byte[12];
-                    for(int s=0; s < 6; ++s) {bts[2*s] = (byte)(sub[s] &0xFF); bts[2*s + 1] = (byte)((sub[s]>>8) &0xFF);}
-                    float v1=0, v2=0;
-                    try {
-                        v1 = ByteBuffer.wrap(bts, 2, 4).getFloat();
-                    } catch (Exception e) {};
-                    try {
-                        v2 = ByteBuffer.wrap(bts, 8, 4).getFloat();
-                    } catch (Exception e) {};
+                    ByteBuffer bb = ByteBuffer.allocate(4);
+                    bb.putShort(sub[2]);
+                    bb.putShort(sub[1]);
+                    bb.rewind();
+                    float v1 = bb.getFloat();
+                    bb.rewind();
+                    bb.putShort(sub[5]);
+                    bb.putShort(sub[4]);
+                    bb.rewind();
+                    float v2 = bb.getFloat();
 
                     Log.d(TAG, "readHoldingRegisters onSuccess HeaderCalibrationCoefficients of " + (i+1) + "r1 =" + sub[0] + "  r2 = " + sub[3] + "  v1=" + v1 + "  v2 ="+v2);
                     Message msg = new Message();
@@ -334,23 +336,30 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 for(int i=0; i < 8; ++i)
                 {
                     short[] sub = Arrays.copyOfRange(data, i * 12, (i+1)*12);
-                    byte[] bts = new byte[12];
-                    for(int s=0; s < 6; ++s) {bts[2*s] = (byte)(sub[s] &0xFF); bts[2*s + 1] = (byte)((sub[s]>>8) &0xFF);}
                     float v1k=0, v2k=0, v1b = 0, v2b =0;
-                    try {
-                        v1b = ByteBuffer.wrap(bts, 2, 4).order(BIG_ENDIAN).getFloat();
-                    } catch (Exception e) {};
-                    try {
-                        v1b = ByteBuffer.wrap(bts, 8, 4).order(BIG_ENDIAN).getFloat();
-                    } catch (Exception e) {};
-                    try {
-                        v1k = ByteBuffer.wrap(bts, 14, 4).order(BIG_ENDIAN).getFloat();
-                    } catch (Exception e) {};
-                    try {
-                        v1b = ByteBuffer.wrap(bts, 20, 4).order(BIG_ENDIAN).getFloat();
-                    } catch (Exception e) {};
+                    ByteBuffer bb = ByteBuffer.allocate(4);
+                    bb.putShort(sub[2]);
+                    bb.putShort(sub[1]);
+                    bb.rewind();
+                    v1b = bb.getFloat();
+                    bb.rewind();
+                    bb.putShort(sub[5]);
+                    bb.putShort(sub[4]);
+                    bb.rewind();
+                    v2b = bb.getFloat();
+                    bb.rewind();
+                    bb.putShort(sub[8]);
+                    bb.putShort(sub[7]);
+                    bb.rewind();
+                    v1k = bb.getFloat();
+                    bb.rewind();
+                    bb.putShort(sub[11]);
+                    bb.putShort(sub[10]);
+                    bb.rewind();
+                    v2k = bb.getFloat();
 
-                    Log.d(TAG, "readHoldingRegisters onSuccess HeaderCalibrationCoefficients of " + (i+1) + "r1 =" + sub[0] + "  r2 = " + sub[3] + "  v1=" + v1b + "  v2 ="+v2b);
+                    Log.d(TAG, "readHoldingRegisters onSuccess getActuatorsCalibrationCoefficients of " + (i+1) + "r1 =" + sub[0] + "  r2 = " + sub[3] + "  v1=" + v1b + "  v2 ="+v2b
+                         +"r1k =" + sub[6] + "  r2kg = " + sub[9] + "  v1k=" + v1k + "  v2k ="+v2k);
                     Message msg = new Message();
                     msg.what = GET_ACTUATORS_CALIBRATION_COEFFICIENTS;
                     msg.arg1 = i+1;
@@ -426,11 +435,11 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
         short[] shorts = new short[6];
         FeedCalibrationValues vals = (FeedCalibrationValues) message.obj;
         shorts[0] = (short) vals.getR1();
-        shorts[1] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1()).array()).getShort();
-        shorts[2] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1()).array()).getShort(1);
+        shorts[2] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1()).array()).getShort();
+        shorts[1] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1()).array()).getShort(2);
         shorts[3] = (short) vals.getR2();
-        shorts[4] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2()).array()).getShort();
-        shorts[5] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2()).array()).getShort(1);
+        shorts[5] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2()).array()).getShort();
+        shorts[4] = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2()).array()).getShort(2);
 
         ModbusReq.getInstance().writeRegisters(new OnRequestBack<String>() {
             @Override
@@ -451,21 +460,21 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
         ActuatorCalibrationValues vals = (ActuatorCalibrationValues) message.obj;
         shorts[0] =  vals.getR1_bar();
         ByteBuffer val_float = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1_bar()).array());
-        shorts[1] = val_float.getShort(0);
-        shorts[2] = val_float.getShort(1);
+        shorts[2] = val_float.getShort(0);
+        shorts[1] = val_float.getShort(2);
         shorts[3] = vals.getR2_bar();
         val_float = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2_bar()).array());
-        shorts[4] = val_float.getShort(0);
-        shorts[5] = val_float.getShort(1);
+        shorts[5] = val_float.getShort(0);
+        shorts[4] = val_float.getShort(2);
 
         shorts[6] = vals.getR1_kgs();
         val_float = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal1_kgs()).array());
-        shorts[7] = val_float.getShort(0);
-        shorts[8] = val_float.getShort(1);
+        shorts[8] = val_float.getShort(0);
+        shorts[7] = val_float.getShort(2);
         shorts[9] = vals.getR2_kgs();
         val_float = ByteBuffer.wrap(ByteBuffer.allocate(4).putFloat(vals.getVal2_kgs()).array());
-        shorts[10] = val_float.getShort(0);
-        shorts[11] = val_float.getShort(1);
+        shorts[11] = val_float.getShort(0);
+        shorts[10] = val_float.getShort(2);
 
         ModbusReq.getInstance().writeRegisters(new OnRequestBack<String>() {
             @Override

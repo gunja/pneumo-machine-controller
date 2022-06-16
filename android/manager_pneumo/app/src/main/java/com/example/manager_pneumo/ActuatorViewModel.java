@@ -67,8 +67,6 @@ public class ActuatorViewModel extends ViewModel
         titleValue.postValue(title);
     }
     public void setLastRawReading(int val){
-        if (lastRawReading == null)
-            lastRawReading = new MutableLiveData<Integer>();
         lastRawReading.setValue(val);
         updateValueDisplayed();
     }
@@ -202,4 +200,9 @@ public class ActuatorViewModel extends ViewModel
         lastRawReading.postValue(subAct);
         postUpdateValueDisplayed();
     }
+
+    public LiveData<Integer> getLastRawReading() {
+        return lastRawReading;
+    }
+
 }

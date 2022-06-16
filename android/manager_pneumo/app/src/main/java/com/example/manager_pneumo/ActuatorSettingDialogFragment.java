@@ -20,7 +20,7 @@ import com.example.manager_pneumo.databinding.FragmentExecutionSensorSettingDial
 
 public class ActuatorSettingDialogFragment extends DialogFragment implements View.OnClickListener {
 
-    //private ActuatorViewModel mViewModel;
+    private ActuatorViewModel mViewModel;
     private FragmentExecutionSensorSettingDialogBinding binding;
     public static final String PROP_ID = "PROP_ID";
     private int own_id;
@@ -51,9 +51,30 @@ public class ActuatorSettingDialogFragment extends DialogFragment implements Vie
         binding = FragmentExecutionSensorSettingDialogBinding.inflate(inflater, container, false);
         View v = binding.getRoot();
 
-        //mViewModel = new ViewModelProvider(requireActivity()).get(String.format("%d", own_id), ActuatorViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(String.format("%d", 10 + own_id), ActuatorViewModel.class);
 
-        //mViewModel.getTitle().observe(getViewLifecycleOwner(), title -> binding.sensorNameText.setText(title));
+        mViewModel.getTitle().observe(getViewLifecycleOwner(), title -> binding.sensorNameText.setText(title));
+        mViewModel.getRaw1bar().observe(getViewLifecycleOwner(), val -> rcVal1Bar = val);
+        mViewModel.getRaw2bar().observe(getViewLifecycleOwner(), val -> rcVal2Bar = val);
+        mViewModel.getRaw1Kg().observe(getViewLifecycleOwner(), val -> rcVal1Kgs = val);
+        mViewModel.getRaw2Kg().observe(getViewLifecycleOwner(), val -> rcVal2Kgs = val);
+        mViewModel.getLastRawReading().observe(getViewLifecycleOwner(), val -> rcValue = val);
+        mViewModel.getVal1Bar().observe(getViewLifecycleOwner(), val -> {
+            v1bar = val;
+            binding.p1BarText.setText(String.format("%f", v1bar));
+        });
+        mViewModel.getVal2Bar().observe(getViewLifecycleOwner(), val -> {
+            v2bar = val;
+            binding.p2BarText.setText(String.format("%f", v2bar));
+        });
+        mViewModel.getVal1Kg().observe(getViewLifecycleOwner(), val -> {
+            v1kgs = val;
+            binding.p1KgsText.setText(String.format("%f", v1kgs));
+        });
+        mViewModel.getVal2Kg().observe(getViewLifecycleOwner(), val -> {
+            v2kgs = val;
+            binding.p2KgsText.setText(String.format("%f", v2kgs));
+        });
 
         View.OnClickListener p1_p2_listner = new View.OnClickListener()
         {
@@ -65,20 +86,25 @@ public class ActuatorSettingDialogFragment extends DialogFragment implements Vie
                     rcVal1Kgs = rcValue;
                     try {
                         v1bar =  NumberFormat.getInstance().parse(binding.p1BarText.getText().toString()).floatValue();
+                    } catch (ParseException | java.text.ParseException e) {
+                        v1bar = 0.0f;
+                    }
+                    try {
                         v1kgs =  NumberFormat.getInstance().parse(binding.p1KgsText.getText().toString()).floatValue();
                     } catch (ParseException | java.text.ParseException e) {
-                        v1bar =  0.0f;
                         v1kgs = 0.0f;
                     }
-
                 } else if (view == binding.setP2Btn) {
                     rcVal2Bar = rcValue;
                     rcVal2Kgs = rcValue;
                     try {
                         v2bar =  NumberFormat.getInstance().parse(binding.p2BarText.getText().toString()).floatValue();
+                    } catch (ParseException | java.text.ParseException e) {
+                        v2bar = 0.f;
+                    }
+                    try {
                         v2kgs =  NumberFormat.getInstance().parse(binding.p2KgsText.getText().toString()).floatValue();
                     } catch (ParseException | java.text.ParseException e) {
-                        v2bar =  0.0f;
                         v2kgs = 0.0f;
                     }
                 }

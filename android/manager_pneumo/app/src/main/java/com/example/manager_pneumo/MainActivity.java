@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity
         };
 
         cdf = ConnectionDialogFragment.newInstance("", "");
+        //TODO fix this call from unconditional to comditional
         mbThread.start();
         getSupportFragmentManager().setFragmentResultListener(EXIT_REQUESTED, this, this );
         getSupportFragmentManager().setFragmentResultListener(REPEAR_REQUESTED, this, this );

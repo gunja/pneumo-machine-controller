@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.net.ParseException;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.manager_pneumo.databinding.FragmentFeedsSettingsDialogBinding;
@@ -33,16 +34,17 @@ public class HeaderSetterDialogFragment extends DialogFragment {
     private float v1;
     private float v2;
 
+    FeedsViewModel fwm;
+
     private HeaderSetterDialogFragment()
     {
         System.out.println("HeaderSetterDialogFragment called");
     }
 
-    public static HeaderSetterDialogFragment newInstance(int i, String title) {
+    public static HeaderSetterDialogFragment newInstance(int i) {
         HeaderSetterDialogFragment rv = new HeaderSetterDialogFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(PROP_ID, i);
-        bundle.putString(TITLE_ID, title);
         rv.setArguments(bundle);
         return rv;
     }
@@ -52,8 +54,8 @@ public class HeaderSetterDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         System.out.println("manualFragment::onCreate called " );
         property_id = getArguments().getInt(PROP_ID);
-        title = getArguments().getString(TITLE_ID);
 
+        fwm = new ViewModelProvider(requireActivity()).get(String.format("%d", property_id), FeedsViewModel.class);
         //подвязаться к LiveData с этим id
     }
 
@@ -67,7 +69,20 @@ public class HeaderSetterDialogFragment extends DialogFragment {
         binding = FragmentFeedsSettingsDialogBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        binding.feedNameText.setText(title);
+        fwm.getTitle().observe(getViewLifecycleOwner(), title -> binding.feedNameText.setText(title));
+        fwm.getlastReceivedValue().observe(getViewLifecycleOwner(), val -> rcValue = val );
+        fwm.getRaw1().observe(getViewLifecycleOwner(), val -> rcValue1 = val);
+        fwm.getRaw2().observe(getViewLifecycleOwner(), val -> rcValue2 = val);
+        fwm.getVal1Bar().observe(getViewLifecycleOwner(), val ->
+            {
+                v1 = val;
+                binding.hdrCalibData1.setText(String.format("%f", v1));
+        });
+        fwm.getVal2Bar().observe(getViewLifecycleOwner(), val ->
+            {
+                v2 = val;
+                binding.hdrCalibData2.setText(String.format("%f", v2));
+        });
 
         View.OnClickListener ok_cancel_onc = new View.OnClickListener() {
             @Override

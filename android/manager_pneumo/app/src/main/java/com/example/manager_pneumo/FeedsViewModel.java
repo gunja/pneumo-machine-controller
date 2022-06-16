@@ -8,6 +8,9 @@ public class FeedsViewModel extends ViewModel {
     MutableLiveData<String> titleValue;
     MutableLiveData<String> valueAsText;
     MutableLiveData<Float> val1Bar;
+
+
+
     MutableLiveData<Float> val2Bar;
     MutableLiveData<Integer> raw1;
     MutableLiveData<Integer> raw2;
@@ -101,5 +104,21 @@ public class FeedsViewModel extends ViewModel {
             lastReceivedValue.setValue(0);
         }
         setValue(lastReceivedValue.getValue());
+    }
+
+    public LiveData<Float> getVal1Bar() {
+        return val1Bar;
+    }
+
+    public LiveData<Float> getVal2Bar() {
+        return val2Bar;
+    }
+
+    public LiveData<Integer> getRaw1() {
+        return raw1;
+    }
+
+    public LiveData<Integer> getRaw2() {
+        return raw2;
     }
 }

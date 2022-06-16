@@ -27,14 +27,18 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
     public static final String REQ_FEED_HDR_MSG_KGS_V1 = "feedVal1Kgs";
     public static final String REQ_FEED_HDR_RAW_KGS_V2 = "feedRaw2Kgs";
     public static final String REQ_FEED_HDR_MSG_KGS_V2 = "feedVal2Kgs";
+    public static final String ARG_IN_SETTS = "ReactAsInSettings";
 
     MainActivity ma;
 
     FeedsViewModel[] fwms;
+    ActuatorViewModel[] awms;
+    boolean inSetting;
 
-    public static pressureSettingsFragment newInstance() {
+    public static pressureSettingsFragment newInstance(boolean inSettings) {
         pressureSettingsFragment fragment = new pressureSettingsFragment();
         Bundle bundle = new Bundle();
+        bundle.putBoolean(ARG_IN_SETTS, inSettings);
         fragment.setArguments(bundle);
         System.out.println("newInstance __pressureSettingFragment___ called with " );
         return fragment;
@@ -50,13 +54,14 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        System.out.println("manualFragment::onCreateView called " );
+        System.out.println("manualFragment::onCreateView called ");
+        inSetting = getArguments().getBoolean(ARG_IN_SETTS);
 
         binding = LayoutManualBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        getChildFragmentManager().setFragmentResultListener(REQ_FEED_HDR_RESULT, this, this );
-        getChildFragmentManager().setFragmentResultListener(REQ_SENSOR_RESULT, this, this );
+        getChildFragmentManager().setFragmentResultListener(REQ_FEED_HDR_RESULT, this, this);
+        getChildFragmentManager().setFragmentResultListener(REQ_SENSOR_RESULT, this, this);
 
         fwms = new FeedsViewModel[]{
                 new ViewModelProvider(requireActivity()).get("1", FeedsViewModel.class),
@@ -97,24 +102,7 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
             public void onClick(View view) {
                 com.example.manager_pneumo.FeedsView vv = (com.example.manager_pneumo.FeedsView) view;
                 HeaderSetterDialogFragment ap_name = null;
-                if (view == binding.globa1)
-                {
-                    ap_name = HeaderSetterDialogFragment.newInstance(1, vv.getTitleText());
-                } else if (view == binding.globa2) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(2, vv.getTitleText());
-                } else if (view == binding.globa3) {
-                     ap_name = HeaderSetterDialogFragment.newInstance(3, vv.getTitleText());
-                } else if (view == binding.globa4) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(4, vv.getTitleText());
-                } else if (view == binding.globa5) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(5, vv.getTitleText());
-                } else if (view == binding.globa6) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(6, vv.getTitleText());
-                } else if (view == binding.globa7) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(7, vv.getTitleText());
-                }  else if (view == binding.globa8) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(8, vv.getTitleText());
-                }
+                ap_name = HeaderSetterDialogFragment.newInstance(vv.getOwnId());
                 ap_name.show(getChildFragmentManager(), "");
 
             }
@@ -139,6 +127,15 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
             }
         };
 
+        binding.left1.setInSettingsMode();
+        binding.right1.setInSettingsMode();
+        binding.left2.setInSettingsMode();
+        binding.right2.setInSettingsMode();
+        binding.left3.setInSettingsMode();
+        binding.right3.setInSettingsMode();
+        binding.left4.setInSettingsMode();
+        binding.right4.setInSettingsMode();
+
         binding.left1.setOnClickListener(sensONC);
         binding.right1.setOnClickListener(sensONC);
         binding.left2.setOnClickListener(sensONC);
@@ -147,6 +144,36 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         binding.right3.setOnClickListener(sensONC);
         binding.left4.setOnClickListener(sensONC);
         binding.right4.setOnClickListener(sensONC);
+
+        awms = new ActuatorViewModel[]
+        {
+            new ViewModelProvider(requireActivity()).get("11", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("12", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("13", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("14", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("15", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("16", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("17", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("18", ActuatorViewModel.class)
+        };
+
+        awms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.left1.setTitleText(title));
+        awms[1].getTitle().observe(getViewLifecycleOwner(), title -> binding.right1.setTitleText(title));
+        awms[2].getTitle().observe(getViewLifecycleOwner(), title -> binding.left2.setTitleText(title));
+        awms[3].getTitle().observe(getViewLifecycleOwner(), title -> binding.right2.setTitleText(title));
+        awms[4].getTitle().observe(getViewLifecycleOwner(), title -> binding.left3.setTitleText(title));
+        awms[5].getTitle().observe(getViewLifecycleOwner(), title -> binding.right3.setTitleText(title));
+        awms[6].getTitle().observe(getViewLifecycleOwner(), title -> binding.left4.setTitleText(title));
+        awms[7].getTitle().observe(getViewLifecycleOwner(), title -> binding.right4.setTitleText(title));
+
+        awms[0].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left1.setValueText(value));
+        awms[1].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right1.setValueText(value));
+        awms[2].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left2.setValueText(value));
+        awms[3].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right2.setValueText(value));
+        awms[4].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left3.setValueText(value));
+        awms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right3.setValueText(value));
+        awms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left4.setValueText(value));
+        awms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right4.setValueText(value));
 
         return root;
     }
