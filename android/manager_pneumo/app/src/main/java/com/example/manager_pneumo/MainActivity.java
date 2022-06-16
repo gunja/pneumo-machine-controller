@@ -211,6 +211,15 @@ public class MainActivity extends AppCompatActivity
 
     private void assignReactionPosition(Object obj) {
         //TODO implement method assignReactionPosition
+        short[] data = (short[]) obj;
+        for(int i = 0 ; i <  8; ++i)
+        {
+            awms[i].setRequestedManualValue((int)data[i]);
+            awms[i].requestedValueAuto1.setValue((int)data[i + 1 * 8 ]);
+            awms[i].requestedValueAuto2.setValue((int)data[i + 2 * 8 ]);
+            awms[i].requestedValueAuto3.setValue((int)data[i + 3 * 8 ]);
+            awms[i].requestedValueAuto4.setValue((int)data[i + 4 * 8 ]);
+        }
     }
 
     private void assignGoalPressures(Object obj) {
@@ -296,8 +305,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void sendActuatorSettings(int id, String hdrName,
-                  int r1_bar, int r2_bar, float fl1_bar, float fl2_bar,
-                  int r1_kgs, int r2_kgs, float fl1_kgs, float fl2_kgs) {
+                                     int r1_bar, int r2_bar, float fl1_bar, float fl2_bar,
+                                     int r1_kgs, int r2_kgs, float fl1_kgs, float fl2_kgs, boolean aBoolean) {
         Message msg = new Message();
         msg.what = 103;
         msg.arg1 = id;

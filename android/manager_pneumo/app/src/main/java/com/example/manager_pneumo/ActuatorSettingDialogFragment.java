@@ -4,6 +4,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.net.ParseException;
 import androidx.fragment.app.DialogFragment;
 
+import android.graphics.Color;
 import android.icu.text.NumberFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +36,8 @@ public class ActuatorSettingDialogFragment extends DialogFragment implements Vie
     private float v1kgs;
     private float v2bar;
     private float v2kgs;
+
+    private boolean reactUpwards;
 
     public static ActuatorSettingDialogFragment newInstance(int id) {
         Bundle sts = new Bundle();
@@ -75,6 +78,30 @@ public class ActuatorSettingDialogFragment extends DialogFragment implements Vie
             v2kgs = val;
             binding.p2KgsText.setText(String.format("%f", v2kgs));
         });
+
+        mViewModel.getReactionDirection().observe(getViewLifecycleOwner(), val ->
+            {
+                reactUpwards = val;
+                toggleButtonsForDirection();
+        });
+
+        View.OnClickListener up_dwn_ltnr = new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                if (view == binding.actDownwardsBtn) {
+                    reactUpwards = false;
+                }
+                if (view == binding.actUpwardsBtn)
+                {
+                    reactUpwards = true;
+                }
+                toggleButtonsForDirection();
+            }
+        };
+
+        binding.actUpwardsBtn.setOnClickListener(up_dwn_ltnr);
+        binding.actDownwardsBtn.setOnClickListener(up_dwn_ltnr);
 
         View.OnClickListener p1_p2_listner = new View.OnClickListener()
         {
@@ -119,6 +146,16 @@ public class ActuatorSettingDialogFragment extends DialogFragment implements Vie
         return v;
     }
 
+    private void toggleButtonsForDirection() {
+        if (reactUpwards){
+            binding.actDownwardsBtn.setBackgroundColor(Color.BLUE);
+            binding.actUpwardsBtn.setBackgroundColor(Color.RED);
+        } else {
+            binding.actDownwardsBtn.setBackgroundColor(Color.RED);
+            binding.actUpwardsBtn.setBackgroundColor(Color.BLUE);
+        }
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -135,6 +172,7 @@ public class ActuatorSettingDialogFragment extends DialogFragment implements Vie
             result.putInt(pressureSettingsFragment.REQ_FEED_HDR_RAW_KGS_V2, rcVal2Kgs);
             result.putFloat(pressureSettingsFragment.REQ_FEED_HDR_MSG_KGS_V1, v1kgs);
             result.putFloat(pressureSettingsFragment.REQ_FEED_HDR_MSG_KGS_V2, v2kgs);
+            result.putBoolean(pressureSettingsFragment.REQ_FEED_REACT_UP, reactUpwards);
 
             getParentFragmentManager().setFragmentResult(pressureSettingsFragment.REQ_SENSOR_RESULT, result);
             dismiss();

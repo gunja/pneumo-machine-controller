@@ -24,6 +24,21 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
     private LayoutReadingBinding binding;
     private boolean shouldShow;
 
+    public void setOptionKg(Boolean value) {
+        if(value)
+        {
+            binding.switchUnitBtn.setText("bars");
+        } else {
+            binding.switchUnitBtn.setText("kgs");
+        }
+    }
+
+    public interface tgButtonListener {
+        public void onToggle();
+    };
+
+    private tgButtonListener listener;
+
     public ActuatorView(Context context) {
         super(context);
         init(null, 0);
@@ -48,6 +63,8 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
         a.recycle();
 
         shouldShow = true;
+        listener = null;
+        binding.switchUnitBtn.setOnClickListener(this);
     }
 
     public void setTitleText(String title)
@@ -55,6 +72,10 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
         binding.pneumoTitle.setText(title);
     }
 
+    public void setToggleListener(tgButtonListener ltn)
+    {
+        listener = ltn;
+    }
 
     public void setShowDesired(boolean shouldShow) {
         this.shouldShow = shouldShow;
@@ -73,6 +94,11 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
             return;
         }
         // TODO implement switching of displayed units
+        if (view == binding.switchUnitBtn)
+        {
+            if (listener != null)
+                listener.onToggle();
+        }
     }
 
     public void setValueText(String value) {
@@ -85,6 +111,11 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
         binding.pneumoTitle.setOnClickListener(this);
         binding.actualValue.setOnClickListener(this);
         binding.switchUnitBtn.setOnClickListener(this);
+    }
+
+    public void setTargetValue(String value)
+    {
+        binding.targetValue.setText(value);
     }
 
 }

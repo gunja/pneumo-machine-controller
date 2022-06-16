@@ -27,6 +27,8 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
     public static final String REQ_FEED_HDR_MSG_KGS_V1 = "feedVal1Kgs";
     public static final String REQ_FEED_HDR_RAW_KGS_V2 = "feedRaw2Kgs";
     public static final String REQ_FEED_HDR_MSG_KGS_V2 = "feedVal2Kgs";
+    public static final String REQ_FEED_REACT_UP = "reactUpOnActua";
+
     public static final String ARG_IN_SETTS = "ReactAsInSettings";
 
     MainActivity ma;
@@ -208,14 +210,27 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         String hdrName = result.getString(REQ_FEED_HDR_NAME);
         int id = result.getInt(REQ_FEED_HDR_Id);
         System.out.println("sensor result returned with name=" + result.getString(REQ_FEED_HDR_NAME) + "  for id=" + result.getInt(REQ_FEED_HDR_Id));
+        awms[id-1].setTitle(hdrName);
+        awms[id-1].raw1bar.setValue(result.getInt(REQ_FEED_HDR_RAW_V1));
+        awms[id-1].raw2bar.setValue(result.getInt(REQ_FEED_HDR_RAW_V2));
+        awms[id-1].val1Bar.setValue(result.getFloat(REQ_FEED_HDR_MSG_V1));
+        awms[id-1].val2Bar.setValue(result.getFloat(REQ_FEED_HDR_MSG_V2));
+        awms[id-1].raw1Kg.setValue(result.getInt(REQ_FEED_HDR_RAW_KGS_V1));
+        awms[id-1].raw2Kg.setValue(result.getInt(REQ_FEED_HDR_RAW_KGS_V2));
+        awms[id-1].val1Kg.setValue(result.getFloat(REQ_FEED_HDR_MSG_KGS_V1));
+        awms[id-1].val2Kg.setValue(result.getFloat(REQ_FEED_HDR_MSG_KGS_V2));
+        awms[id-1].setReactionDirection(result.getBoolean(REQ_FEED_REACT_UP));
+
+
         ma.sendActuatorSettings(id, hdrName, result.getInt(REQ_FEED_HDR_RAW_V1),
                 result.getInt(REQ_FEED_HDR_RAW_V2),
                 result.getFloat(REQ_FEED_HDR_MSG_V1), result.getFloat(REQ_FEED_HDR_MSG_V2),
                 result.getInt(REQ_FEED_HDR_RAW_KGS_V1),
                 result.getInt(REQ_FEED_HDR_RAW_KGS_V2),
-                result.getFloat(REQ_FEED_HDR_MSG_KGS_V1), result.getFloat(REQ_FEED_HDR_MSG_KGS_V2)
+                result.getFloat(REQ_FEED_HDR_MSG_KGS_V1), result.getFloat(REQ_FEED_HDR_MSG_KGS_V2),
+                result.getBoolean(REQ_FEED_REACT_UP)
         );
-        fwms[id-1].setTitle(hdrName);
+
 
     }
 

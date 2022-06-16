@@ -487,6 +487,23 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 Log.e(TAG, "writeRegisters onFailed " + msg);
             }
         }, 1, 210+ 12 * (message.arg1 -1) ,shorts);
+
+        short reactDirs = 0;
+        for(int i=0; i < 8; ++i)
+        {
+            reactDirs |= (awms[i].getReactionDirection().getValue()?3:0)<<(2*i);
+        }
+        ModbusReq.getInstance().writeRegister(new OnRequestBack<String>() {
+            @Override
+            public void onSuccess(String s) {
+                Log.e(TAG, "writeRegisters onSuccess " + s);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "writeRegisters onFailed " + msg);
+            }
+        }, 1, 306 , reactDirs);
     }
 
 
@@ -496,12 +513,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             public void onSuccess(short[] data) {
                 for(int i=0; i < 8; ++i)
                 {
-
-                    Log.d(TAG, "readHoldingRegisters onSuccess getReactionDirection with " + data[0] );
-                    Message msg = new Message();
-                    msg.what = 45;
-                    msg.arg1 = data[0];
-                    mlHandler.sendMessage(msg);
+                    awms[i].postReactionDirection((data[0] & (3 <<(2*i))) != 0);
                 }
                 mHandler.sendEmptyMessage(nextWhat);
             }
@@ -519,7 +531,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             public void onSuccess(short[] data) {
                     Log.d(TAG, "readHoldingRegisters onSuccess getReactionDirection with " + data[0] );
                     Message msg = new Message();
-                    msg.what = 46;
+                    msg.what = GET_POSITIONS_OF_REACTION;
                     msg.obj = data;
                     mlHandler.sendMessage(msg);
                 mHandler.sendEmptyMessage(nextWhat);
@@ -538,7 +550,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             public void onSuccess(short[] data) {
                     Log.d(TAG, "readHoldingRegisters onSuccess getReactionDirection with " + data[0] );
                     Message msg = new Message();
-                    msg.what = 47;
+                    msg.what = GET_LATEST_SELECTED_TAB;
                     msg.arg1 = data[0];
                     mlHandler.sendMessage(msg);
                 mHandler.sendEmptyMessage(nextWhat);
