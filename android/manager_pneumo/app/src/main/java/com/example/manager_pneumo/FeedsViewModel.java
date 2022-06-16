@@ -14,6 +14,18 @@ public class FeedsViewModel extends ViewModel {
 
     MutableLiveData<Integer> lastReceivedValue ;
 
+
+    public FeedsViewModel()
+    {
+        titleValue = new MutableLiveData<String>("");
+        valueAsText = new MutableLiveData<String>("");
+        val1Bar= new MutableLiveData<Float>(0.f);
+        val2Bar = new MutableLiveData<Float>(0.f);
+        raw1 = new MutableLiveData<Integer>(0);
+        raw2= new MutableLiveData<Integer>(0);
+        lastReceivedValue= new MutableLiveData<Integer>(0);
+    }
+
     public LiveData<Integer> getlastReceivedValue() { return lastReceivedValue;};
 
     public LiveData<String> getTitle() {
@@ -65,7 +77,7 @@ public class FeedsViewModel extends ViewModel {
     public void postValue(int v) {
         if(lastReceivedValue == null)
             lastReceivedValue = new MutableLiveData<Integer>();
-        lastReceivedValue.setValue(v);
+        lastReceivedValue.postValue(v);
         if (valueAsText ==null)
             valueAsText = new MutableLiveData<String>();
         valueAsText.postValue(formatString(lastReceivedValue.getValue()));

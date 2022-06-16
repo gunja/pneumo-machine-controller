@@ -75,9 +75,13 @@ public class ActuatorViewModel extends ViewModel
 
     private void updateValueDisplayed() {
         //TODO implement this changes
-        if (actualValueAsText == null)
-            actualValueAsText = new MutableLiveData<String>("");
+
         actualValueAsText.setValue(String.format("r %05d", lastRawReading.getValue()));
+    }
+
+    private void postUpdateValueDisplayed() {
+        //TODO implement this changes
+        actualValueAsText.postValue(String.format("r %05d", lastRawReading.getValue()));
     }
 
     public LiveData<Float> getVal1Bar() {
@@ -192,5 +196,10 @@ public class ActuatorViewModel extends ViewModel
 
     public void setReactionDirection(boolean i) {
         reactUpwards.setValue(i);
+    }
+
+    public void postLastRawReading(int subAct) {
+        lastRawReading.postValue(subAct);
+        postUpdateValueDisplayed();
     }
 }

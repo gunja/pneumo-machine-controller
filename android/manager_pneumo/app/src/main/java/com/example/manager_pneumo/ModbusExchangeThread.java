@@ -2,12 +2,15 @@ package com.example.manager_pneumo;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.zgkxzx.modbus4And.requset.ModbusParam;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
@@ -22,6 +25,7 @@ import java.util.Arrays;
 public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     Handler mHandler;
     Handler mlHandler;
+    MainActivity activity;
     final static String TAG="ModbusExchangeThread ";
 
     final public static int GET_ACCESS_POINT_NAME = 30;
@@ -37,10 +41,17 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     final public static int GET_ALL_HEADERS_INPUT_REGS = 90;
     final public static int GET_ALL_DATCHIK_INPUT_REGS = 91;
     final public static int GET_ALL_ACTUATOR_INPUT_REGS = 92;
+    final public static int READ_INPUT_REGS_SUCCESS = 93;
     final public static int CONN_FAIL_MSG = 201;
     final public static int CONN_DONE_MSG = 202;
 
+    ViewModelProvider vmp;
+    FeedsViewModel fwms[];
+    ActuatorViewModel awms[];
 
+    public void setActivity(MainActivity activity) {
+        this.activity = activity;
+    }
 
     @Override
     public void run() {
@@ -50,6 +61,29 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
         if( mlHandler!= null) mlHandler.sendEmptyMessage(5);
         System.out.println("mHandler =" + mHandler);
         System.out.println("mHandler =" + mlHandler);
+        vmp = new ViewModelProvider(activity);
+        fwms = new FeedsViewModel[]{
+                vmp.get("1", FeedsViewModel.class),
+                vmp.get("2", FeedsViewModel.class),
+                vmp.get("3", FeedsViewModel.class),
+                vmp.get("4", FeedsViewModel.class),
+                vmp.get("5", FeedsViewModel.class),
+                vmp.get("6", FeedsViewModel.class),
+                vmp.get("7", FeedsViewModel.class),
+                vmp.get("8", FeedsViewModel.class)
+        };
+
+        awms = new ActuatorViewModel[] {
+                vmp.get("11", ActuatorViewModel.class),
+                vmp.get("12", ActuatorViewModel.class),
+                vmp.get("13", ActuatorViewModel.class),
+                vmp.get("14", ActuatorViewModel.class),
+                vmp.get("15", ActuatorViewModel.class),
+                vmp.get("16", ActuatorViewModel.class),
+                vmp.get("17", ActuatorViewModel.class),
+                vmp.get("18", ActuatorViewModel.class)
+        };
+
         Looper.loop();
     }
 
@@ -211,13 +245,14 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 {
                     short[] sub = Arrays.copyOfRange(data, i * 10, (i+1)*10);
                     String v = convertShortsArray(sub);
-                    Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_ACT" + (i+1) + "_NM_START as string \"" + v + "\"");
+                    //Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_ACT" + (i+1) + "_NM_START as string \"" + v + "\"");
                     //todo send message, 41 to main thread
-                    Message msg = new Message();
-                    msg.what = GET_ACTUATOR_NAMES;
-                    msg.arg1 = i+1;
-                    msg.obj = v;
-                    mlHandler.sendMessage(msg);
+                    //Message msg = new Message();
+                    //msg.what = GET_ACTUATOR_NAMES;
+                    //msg.arg1 = i+1;
+                    //msg.obj = v;
+                    //mlHandler.sendMessage(msg);
+                    awms[i].postTitle(v);
                 }
                 mHandler.sendEmptyMessage(nextWhat);
             }
@@ -237,12 +272,13 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 {
                     short[] sub = Arrays.copyOfRange(data, i * 10, (i+1)*10);
                     String v = convertShortsArray(sub);
-                    Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_H" + (i+1) + "_NM_START as string \"" + v + "\"");
-                    Message msg = new Message();
-                    msg.what = GET_HEADER_NAMES_HRS;
-                    msg.arg1 = i+1;
-                    msg.obj = v;
-                    mlHandler.sendMessage(msg);
+                    //Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_H" + (i+1) + "_NM_START as string \"" + v + "\"");
+                    //Message msg = new Message();
+                    //msg.what = GET_HEADER_NAMES_HRS;
+                    //msg.arg1 = i+1;
+                    //msg.obj = v;
+                    //mlHandler.sendMessage(msg);
+                    fwms[i].postTitle(v);
                 }
                 mHandler.sendEmptyMessage(nextWhat);
             }
@@ -335,10 +371,12 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             @Override
             public void onSuccess(short[] data) {
                 short[] sub = Arrays.copyOfRange(data, 0, 8);
-                Message msg = new Message();
-                msg.what = GET_ALL_HEADERS_INPUT_REGS;
-                msg.obj = sub;
-                mlHandler.sendMessage(msg);
+                //Message msg = new Message();
+                //msg.what = GET_ALL_HEADERS_INPUT_REGS;
+                //msg.obj = sub;
+                //mlHandler.sendMessage(msg);
+                for(int i = 0; i < 8; ++i)
+                    fwms[i].postValue((int)sub[i]);
 
                 short[] subDetail = Arrays.copyOfRange(data, 8, 12);
                 Message msgDet = new Message();
@@ -347,10 +385,17 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 mlHandler.sendMessage(msgDet);
 
                 short[] subActs = Arrays.copyOfRange(data, 12, 20);
-                Message msgActs = new Message();
+                /*Message msgActs = new Message();
                 msgActs.what = GET_ALL_ACTUATOR_INPUT_REGS;
                 msgActs.obj = subActs;
                 mlHandler.sendMessage(msgActs);
+                 */
+                for(int i=0; i < 8; ++i)
+                {
+                    awms[i].postLastRawReading(subActs[i]);
+                }
+
+                mlHandler.sendEmptyMessage(READ_INPUT_REGS_SUCCESS);
 
                 mHandler.sendEmptyMessageDelayed(nextWhat, 150);
             }

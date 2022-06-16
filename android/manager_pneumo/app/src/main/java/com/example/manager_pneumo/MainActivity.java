@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
         uiHandler = new Handler(this);
         mbThread = new ModbusExchangeThread();
         mbThread.setMUIHandler(uiHandler);
+        mbThread.setActivity(this);
 
         //mUiHandler = new Handler(this);
         System.out.println("Main thread = " + Thread.currentThread().getId() );
@@ -176,8 +177,11 @@ public class MainActivity extends AppCompatActivity
             case ModbusExchangeThread.GET_GOAL_PRESSURES:
                 assignGoalPressures(msg.obj);
                 break;
-            case ModbusExchangeThread.GET_ALL_HEADERS_INPUT_REGS: //INPUT_REG_READING_Hx
+            case ModbusExchangeThread.GET_ALL_HEADERS_INPUT_REGS:
                 updateInputRegsHeaders(msg);
+                break;
+            case ModbusExchangeThread.READ_INPUT_REGS_SUCCESS: //INPUT_REG_READING_Hx
+                //updateInputRegsHeaders(msg);
                 if (cdf != null )
                 {
                     cdf.dismiss();
