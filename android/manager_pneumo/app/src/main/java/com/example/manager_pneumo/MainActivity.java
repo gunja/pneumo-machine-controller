@@ -181,7 +181,6 @@ public class MainActivity extends AppCompatActivity
                 updateInputRegsHeaders(msg);
                 break;
             case ModbusExchangeThread.READ_INPUT_REGS_SUCCESS: //INPUT_REG_READING_Hx
-                //updateInputRegsHeaders(msg);
                 if (cdf != null )
                 {
                     cdf.dismiss();

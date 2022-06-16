@@ -48,6 +48,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     ViewModelProvider vmp;
     FeedsViewModel fwms[];
     ActuatorViewModel awms[];
+    boolean needHideDialog;
 
     public void setActivity(MainActivity activity) {
         this.activity = activity;
@@ -140,6 +141,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                             Message msg_connd = new Message();
                             msg_connd.what = CONN_DONE_MSG;
                             mlHandler.sendMessage(msg_connd);
+                            needHideDialog= true;
                         }
 
                         @Override
@@ -370,13 +372,8 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
         ModbusReq.getInstance().readInputRegisters(new OnRequestBack<short[]>() {
             @Override
             public void onSuccess(short[] data) {
-                short[] sub = Arrays.copyOfRange(data, 0, 8);
-                //Message msg = new Message();
-                //msg.what = GET_ALL_HEADERS_INPUT_REGS;
-                //msg.obj = sub;
-                //mlHandler.sendMessage(msg);
                 for(int i = 0; i < 8; ++i)
-                    fwms[i].postValue((int)sub[i]);
+                    fwms[i].postValue((int)data[0 + i]);
 
                 short[] subDetail = Arrays.copyOfRange(data, 8, 12);
                 Message msgDet = new Message();
@@ -384,18 +381,15 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 msgDet.obj = subDetail;
                 mlHandler.sendMessage(msgDet);
 
-                short[] subActs = Arrays.copyOfRange(data, 12, 20);
-                /*Message msgActs = new Message();
-                msgActs.what = GET_ALL_ACTUATOR_INPUT_REGS;
-                msgActs.obj = subActs;
-                mlHandler.sendMessage(msgActs);
-                 */
                 for(int i=0; i < 8; ++i)
                 {
-                    awms[i].postLastRawReading(subActs[i]);
+                    awms[i].postLastRawReading(data[12 + i]);
                 }
 
-                mlHandler.sendEmptyMessage(READ_INPUT_REGS_SUCCESS);
+                if (needHideDialog) {
+                    mlHandler.sendEmptyMessage(READ_INPUT_REGS_SUCCESS);
+                    needHideDialog = false;
+                }
 
                 mHandler.sendEmptyMessageDelayed(nextWhat, 150);
             }
