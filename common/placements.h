@@ -352,6 +352,7 @@
 #define HOLD_REG_AUTO_D4_TARGET_C8 449
 
 #define LAST_SELECTED_MODE 450
+
 #pragma pack(push, 1)
 struct _input_regs
 {

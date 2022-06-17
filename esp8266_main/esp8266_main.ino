@@ -89,7 +89,7 @@ void initEEPROM()
   EEPROM.put((char*)(&ML.header_names[0]) - (char*)(&ML), "Nasos12");
   EEPROM.put((char*)(&ML.header_names[1]) - (char*)(&ML), "обще2е2");
   EEPROM.put((char*)(&ML.header_names[2]) - (char*)(&ML), "ресивер");
-  EEPROM.put((char*)(&ML.header_names[3]) - (char*)(&ML), "хрень");
+  EEPROM.put((char*)(&ML.header_names[3]) - (char*)(&ML), "четвёртый");
   EEPROM.commit();
     }
   
@@ -144,9 +144,11 @@ void setup()
   {
     mb.addIreg(i, (i+1)<<8 + (i +1));
   }
+  uint16_t memReg;
   for(int i=0; i < sizeof(struct memory_layout)/ sizeof(uint16_t); ++i)
   {
-    mb.addHreg(i +1, *((uint16_t*)&ML + i) );
+    EEPROM.get(i * sizeof(uint16_t), memReg);
+    mb.addHreg(i + 1, memReg);
   }
   
   mb.onSetHreg(1, cbModbusSetHreg, sizeof(struct memory_layout)/ sizeof(uint16_t));
@@ -167,7 +169,9 @@ void loop()
   if (eepromWriteRequest && (now - EEPROM_COMMIT_DELAY > eeprom_write_request))
   {
     Serial.println("making EEPROM commit");
-    EEPROM.commit();
-    eepromWriteRequest = false;
+    eepromWriteRequest = ! EEPROM.commit();
+    Serial.print("after commit will need to repeat ?"); Serial.println( eepromWriteRequest? " yes": "no");
+    
+    //eepromWriteRequest = false;
   }
 }
