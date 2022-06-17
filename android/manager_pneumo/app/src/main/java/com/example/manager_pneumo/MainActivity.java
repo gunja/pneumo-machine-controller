@@ -143,7 +143,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
-        System.out.println("reselected tab" + tab.getPosition());
+
+        if (tab.getPosition() == 2)
+        {
+            System.out.println("reselected tab" + tab.getPosition() + " name=" + tab.getText());
+            manualFragment mf = (manualFragment ) getSupportFragmentManager().getFragments().get(viewPager.getCurrentItem());
+            mf.resetButtonsHeader();
+        }
 
     }
 

@@ -1,5 +1,6 @@
 package com.example.manager_pneumo;
 
+import android.graphics.Color;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,8 @@ public class manualFragment extends Fragment  {
     private int mode;
     FeedsViewModel[] fwms;
     ActuatorViewModel[] awms;
+    private int selectedCounter;
+    private int on_off_manual_state;
 
     public static manualFragment newInstance(boolean displayDesired, int t) {
         manualFragment fragment = new manualFragment();
@@ -42,7 +45,7 @@ public class manualFragment extends Fragment  {
         //pageViewModelCHANGE = new ViewModelProvider(this).get(PageViewModel.class);
         desiredDisplayed = getArguments().getBoolean(ARG_SECTION);
         mode = getArguments().getInt(ARG_TYPE);
-        //pageViewModelCHANGE.setIndex(1);
+        selectedCounter = 0;
     }
 
     @Override
@@ -235,6 +238,78 @@ public class manualFragment extends Fragment  {
             binding.autoDetailBtns.setVisibility(View.GONE);
         }
 
+        View.OnClickListener d1_d4_onc = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(view == binding.d1Btn){
+                    selectedCounter = 1;
+                    binding.autoBtns.setVisibility(View.GONE);
+                }
+                if(view == binding.d2Btn){
+                    selectedCounter = 2;
+                    binding.autoBtns.setVisibility(View.GONE);
+                }
+                if(view == binding.d3Btn){
+                    selectedCounter = 3;
+                    binding.autoBtns.setVisibility(View.GONE);
+                }
+                if(view == binding.d4Btn){
+                    selectedCounter = 4;
+                    binding.autoDetailBtns.setVisibility(View.VISIBLE);
+                    binding.d4Btn.setBackgroundColor(Color.RED);
+                    binding.manOffBtn.setEnabled(false);
+                    binding.manOnBtn.setEnabled(true);
+                }
+                informAllViewOnSelectedCounter();
+            }
+        };
+        binding.d1Btn.setOnClickListener(d1_d4_onc);
+        binding.d2Btn.setOnClickListener(d1_d4_onc);
+        binding.d3Btn.setOnClickListener(d1_d4_onc);
+        binding.d4Btn.setOnClickListener(d1_d4_onc);
+
+        View.OnClickListener manPresentSensor_onc = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view == binding.manOnBtn)
+                {
+                    //TODO send message to controller that new detail appeared
+                    binding.manOffBtn.setEnabled(true);
+                    binding.manOnBtn.setEnabled(false);
+                }
+                if (view == binding.manOffBtn)
+                {
+                    //TODO send message to controller that new detail appeared
+                    binding.autoBtns.setVisibility(View.GONE);
+                }
+            }
+        };
+        binding.manOnBtn.setOnClickListener(manPresentSensor_onc);
+        binding.manOffBtn.setOnClickListener(manPresentSensor_onc);
+
     }
 
+    private void informAllViewOnSelectedCounter() {
+        //TODO implement this method
+    }
+
+    public void resetButtonsHeader() {
+        selectedCounter = 0;
+        setCounterButtonBlue();
+        binding.autoDetailBtns.setVisibility(View.GONE);
+        setOnOffConuterBlue();
+        binding.autoBtns.setVisibility(View.VISIBLE);
+    }
+
+    private void setOnOffConuterBlue() {
+        binding.manOffBtn.setBackgroundColor(Color.BLUE);
+        binding.manOnBtn.setBackgroundColor(Color.BLUE);
+    }
+
+    private void setCounterButtonBlue() {
+        binding.d1Btn.setBackgroundColor(Color.BLUE);
+        binding.d2Btn.setBackgroundColor(Color.BLUE);
+        binding.d3Btn.setBackgroundColor(Color.BLUE);
+        binding.d4Btn.setBackgroundColor(Color.BLUE);
+    }
 }
