@@ -188,12 +188,12 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
                 System.out.println("feeder header result exited");
                 String hdrName = result.getString(REQ_FEED_HDR_NAME);
                 int id = result.getInt(REQ_FEED_HDR_Id);
-                result.getInt(REQ_FEED_HDR_RAW_V1);
-                result.getFloat(REQ_FEED_HDR_MSG_V1);
-                result.getInt(REQ_FEED_HDR_RAW_V2);
-                result.getFloat(REQ_FEED_HDR_MSG_V2);
-                //TODO отправить это всё на запись в контроллер
                 fwms[id-1].setTitle(hdrName);
+                fwms[id-1].raw1.setValue(result.getInt(REQ_FEED_HDR_RAW_V1));
+                fwms[id-1].raw2.setValue(result.getInt(REQ_FEED_HDR_RAW_V2));
+                fwms[id-1].val1Bar.setValue(result.getFloat(REQ_FEED_HDR_MSG_V1));
+                fwms[id-1].val2Bar.setValue(result.getFloat(REQ_FEED_HDR_MSG_V2));
+
                 ma.sendHeaderProperties(id, hdrName, result.getInt(REQ_FEED_HDR_RAW_V1),
                         result.getInt(REQ_FEED_HDR_RAW_V2),
                         result.getFloat(REQ_FEED_HDR_MSG_V1), result.getFloat(REQ_FEED_HDR_MSG_V2) );
