@@ -51,14 +51,27 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     ActuatorViewModel awms[];
     boolean needHideDialog;
 
+    boolean looperInitialized;
+
     public void setActivity(MainActivity activity) {
         this.activity = activity;
     }
 
+    public ModbusExchangeThread()
+    {
+        super();
+        looperInitialized = false;
+        mHandler = new Handler(this);
+    }
+
     @Override
     public void run() {
-        Looper.prepare();
-        mHandler = new Handler(this);
+        if (! looperInitialized)
+        {
+            Looper.prepare();
+            looperInitialized = true;
+        }
+
         mHandler.sendEmptyMessage(1);
         if( mlHandler!= null) mlHandler.sendEmptyMessage(5);
         System.out.println("mHandler =" + mHandler);
@@ -121,9 +134,6 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
 
     @Override
     public boolean handleMessage(@NonNull Message message) {
-        //Log.d("ModBus thread", "handleMessage - what = " + message.what + "this threadId=" + Thread.currentThread().getId()) ;
-        if( mlHandler!= null) mlHandler.sendEmptyMessage(6);
-
         switch(message.what)
         {
             case 1:
@@ -199,7 +209,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 setActuatorsCalibrationCoefficients(message);
                 break;
             case 1000:
-                Looper.myLooper().quit();
+                Looper.myLooper().quitSafely();
                 break;
         }
         return true;
@@ -378,21 +388,28 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
 
 
     private void getAllInputRegs(int nextWhat) {
+        if (needHideDialog) {
+            mlHandler.sendEmptyMessage(READ_INPUT_REGS_SUCCESS);
+            needHideDialog = false;
+        }
+        return;
+        /*
         ModbusReq.getInstance().readInputRegisters(new OnRequestBack<short[]>() {
             @Override
             public void onSuccess(short[] data) {
-                for(int i = 0; i < 8; ++i)
-                    fwms[i].postValue((int)data[0 + i]);
+                for(int i = 0; i < 8; ++i) {
+                    //fwms[i].postValue((int)data[0 + i]);
+                }
 
                 short[] subDetail = Arrays.copyOfRange(data, 8, 12);
                 Message msgDet = new Message();
                 msgDet.what = GET_ALL_DATCHIK_INPUT_REGS;
                 msgDet.obj = subDetail;
-                mlHandler.sendMessage(msgDet);
+                //mlHandler.sendMessage(msgDet);
 
                 for(int i=0; i < 8; ++i)
                 {
-                    awms[i].postLastRawReading(data[12 + i]);
+                    //awms[i].postLastRawReading(data[12 + i]);
                 }
 
                 if (needHideDialog) {
@@ -408,6 +425,8 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 Log.e(TAG, "readHoldingRegisters onFailed HOLD_REG_ACT2_NM_START" + msg);
             }
         }, 1, 1, 20);
+
+         */
     }
 
 

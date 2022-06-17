@@ -125,6 +125,12 @@ public class MainActivity extends AppCompatActivity
         cdf.show(getSupportFragmentManager(), "");
     }
 
+    protected void onStop()
+    {
+        //mbThread.getHandler().sendEmptyMessage(1000);
+        super.onStop();
+    }
+
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
        System.out.println("selected tab" + tab.getPosition());
