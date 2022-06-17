@@ -3,4 +3,7 @@
     <style name="Widget.Theme.Manager_pneumo.MyView" parent="">
         <item name="android:background">@color/gray_600</item>
     </style>
+    <style name="MineCustomTabText" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">10sp</item>
+    </style>
 </resources>
