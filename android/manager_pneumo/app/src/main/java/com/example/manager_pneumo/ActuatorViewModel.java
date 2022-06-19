@@ -18,13 +18,23 @@ public class ActuatorViewModel extends ViewModel
     MutableLiveData<Integer> raw1Kg;
     MutableLiveData<Integer> raw2Kg;
 
-    MutableLiveData<Boolean> showInKg;
+    private MutableLiveData<Boolean> showInKg;
 
     MutableLiveData<Integer> lastRawReading;
+    int lRRMirror;
 
-    MutableLiveData<Integer> requestedValue;
+    MutableLiveData<Integer> requestedValueManual;
+    MutableLiveData<Integer> requestedValueAuto1;
+    MutableLiveData<Integer> requestedValueAuto2;
+    MutableLiveData<Integer> requestedValueAuto3;
+    MutableLiveData<Integer> requestedValueAuto4;
+
     MutableLiveData<String> rqValueAsText;
     MutableLiveData<Boolean> reactUpwards;
+
+    MutableLiveData<Integer> mode;
+
+    public Boolean getShowInKgValue() { return showInKg.getValue();}
 
     public ActuatorViewModel()
     {
@@ -44,10 +54,17 @@ public class ActuatorViewModel extends ViewModel
         showInKg = new MutableLiveData<Boolean>(false) ;
 
         lastRawReading= new MutableLiveData<Integer>(0) ;
+        lRRMirror = 0;
 
-        requestedValue= new MutableLiveData<Integer>(0) ;
         rqValueAsText= new MutableLiveData<String>("") ;
         reactUpwards= new MutableLiveData<Boolean>(false) ;
+        requestedValueManual = new MutableLiveData<Integer>(0) ;
+        requestedValueAuto1 = new MutableLiveData<Integer>(0) ;
+        requestedValueAuto2 = new MutableLiveData<Integer>(0) ;
+        requestedValueAuto3 = new MutableLiveData<Integer>(0) ;
+        requestedValueAuto4 = new MutableLiveData<Integer>(0) ;
+
+        mode = new MutableLiveData<Integer>(0) ;
     }
 
     public LiveData<String> getTitle() {
@@ -67,17 +84,43 @@ public class ActuatorViewModel extends ViewModel
         titleValue.postValue(title);
     }
     public void setLastRawReading(int val){
-        if (lastRawReading == null)
-            lastRawReading = new MutableLiveData<Integer>();
+        lRRMirror = val;
         lastRawReading.setValue(val);
         updateValueDisplayed();
     }
 
+    private String getFormattedString()
+    {
+        String rv = String.format("r %05d", lRRMirror);
+        if(showInKg.getValue())
+        {
+            if((raw1Kg.getValue() - raw2Kg.getValue()) != 0)
+            {
+                float valeur = (val2Kg.getValue() - val1Kg.getValue())
+                        /(raw2Kg.getValue() - raw1Kg.getValue()) * (lRRMirror -  raw1Kg.getValue())
+                        + val1Kg.getValue();
+                int rem = (int) valeur/10;
+                rv = String.format("%d кг", rem * 10);
+            }
+        } else {
+            if((raw1bar.getValue() - raw2bar.getValue()) != 0)
+            {
+                float valeur = (val2Bar.getValue() - val1Bar.getValue())
+                        /(raw2bar.getValue() - raw1bar.getValue()) * (lRRMirror -  raw1bar.getValue())
+                        + val1Bar.getValue();
+                rv = String.format("%.2f бар", valeur);
+            }
+        }
+        return rv;
+    }
+
     private void updateValueDisplayed() {
+        actualValueAsText.setValue(getFormattedString());
+    }
+
+    private void postUpdateValueDisplayed() {
         //TODO implement this changes
-        if (actualValueAsText == null)
-            actualValueAsText = new MutableLiveData<String>("");
-        actualValueAsText.setValue(String.format("r %05d", lastRawReading.getValue()));
+        actualValueAsText.postValue(getFormattedString());
     }
 
     public LiveData<Float> getVal1Bar() {
@@ -192,5 +235,50 @@ public class ActuatorViewModel extends ViewModel
 
     public void setReactionDirection(boolean i) {
         reactUpwards.setValue(i);
+    }
+
+    public void postReactionDirection(boolean i) {
+        reactUpwards.postValue(i);
+    }
+
+
+    public void postLastRawReading(int subAct) {
+        lRRMirror = subAct;
+        lastRawReading.postValue(subAct);
+        postUpdateValueDisplayed();
+    }
+
+    public LiveData<Integer> getLastRawReading() {
+        return lastRawReading;
+    }
+
+    public LiveData<Boolean> getReactionDirection() { return reactUpwards;}
+
+    public LiveData<String> getRQValueAsText()
+    {
+        return rqValueAsText;
+    }
+
+    public void postRequestedManualValue(int rqV)
+    {
+        requestedValueManual.postValue(rqV);
+        postUpdateRQValAsText();
+    }
+
+    public void setRequestedManualValue(int rqV)
+    {
+        requestedValueManual.setValue(rqV);
+        updateRQValAsText();
+    }
+
+    private void postUpdateRQValAsText() {
+        rqValueAsText.postValue(rqValToString(requestedValueManual.getValue()));
+    }
+    private void updateRQValAsText() {
+        rqValueAsText.setValue(rqValToString(requestedValueManual.getValue()));
+    }
+
+    private String rqValToString(Integer value) {
+        return String.format("r %d", requestedValueManual.getValue());
     }
 }

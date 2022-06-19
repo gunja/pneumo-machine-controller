@@ -27,14 +27,20 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
     public static final String REQ_FEED_HDR_MSG_KGS_V1 = "feedVal1Kgs";
     public static final String REQ_FEED_HDR_RAW_KGS_V2 = "feedRaw2Kgs";
     public static final String REQ_FEED_HDR_MSG_KGS_V2 = "feedVal2Kgs";
+    public static final String REQ_FEED_REACT_UP = "reactUpOnActua";
+
+    public static final String ARG_IN_SETTS = "ReactAsInSettings";
 
     MainActivity ma;
 
     FeedsViewModel[] fwms;
+    ActuatorViewModel[] awms;
+    boolean inSetting;
 
-    public static pressureSettingsFragment newInstance() {
+    public static pressureSettingsFragment newInstance(boolean inSettings) {
         pressureSettingsFragment fragment = new pressureSettingsFragment();
         Bundle bundle = new Bundle();
+        bundle.putBoolean(ARG_IN_SETTS, inSettings);
         fragment.setArguments(bundle);
         System.out.println("newInstance __pressureSettingFragment___ called with " );
         return fragment;
@@ -50,13 +56,14 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        System.out.println("manualFragment::onCreateView called " );
+        System.out.println("manualFragment::onCreateView called ");
+        inSetting = getArguments().getBoolean(ARG_IN_SETTS);
 
         binding = LayoutManualBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        getChildFragmentManager().setFragmentResultListener(REQ_FEED_HDR_RESULT, this, this );
-        getChildFragmentManager().setFragmentResultListener(REQ_SENSOR_RESULT, this, this );
+        getChildFragmentManager().setFragmentResultListener(REQ_FEED_HDR_RESULT, this, this);
+        getChildFragmentManager().setFragmentResultListener(REQ_SENSOR_RESULT, this, this);
 
         fwms = new FeedsViewModel[]{
                 new ViewModelProvider(requireActivity()).get("1", FeedsViewModel.class),
@@ -97,24 +104,7 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
             public void onClick(View view) {
                 com.example.manager_pneumo.FeedsView vv = (com.example.manager_pneumo.FeedsView) view;
                 HeaderSetterDialogFragment ap_name = null;
-                if (view == binding.globa1)
-                {
-                    ap_name = HeaderSetterDialogFragment.newInstance(1, vv.getTitleText());
-                } else if (view == binding.globa2) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(2, vv.getTitleText());
-                } else if (view == binding.globa3) {
-                     ap_name = HeaderSetterDialogFragment.newInstance(3, vv.getTitleText());
-                } else if (view == binding.globa4) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(4, vv.getTitleText());
-                } else if (view == binding.globa5) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(5, vv.getTitleText());
-                } else if (view == binding.globa6) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(6, vv.getTitleText());
-                } else if (view == binding.globa7) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(7, vv.getTitleText());
-                }  else if (view == binding.globa8) {
-                    ap_name = HeaderSetterDialogFragment.newInstance(8, vv.getTitleText());
-                }
+                ap_name = HeaderSetterDialogFragment.newInstance(vv.getOwnId());
                 ap_name.show(getChildFragmentManager(), "");
 
             }
@@ -139,6 +129,15 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
             }
         };
 
+        binding.left1.setInSettingsMode();
+        binding.right1.setInSettingsMode();
+        binding.left2.setInSettingsMode();
+        binding.right2.setInSettingsMode();
+        binding.left3.setInSettingsMode();
+        binding.right3.setInSettingsMode();
+        binding.left4.setInSettingsMode();
+        binding.right4.setInSettingsMode();
+
         binding.left1.setOnClickListener(sensONC);
         binding.right1.setOnClickListener(sensONC);
         binding.left2.setOnClickListener(sensONC);
@@ -147,6 +146,38 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         binding.right3.setOnClickListener(sensONC);
         binding.left4.setOnClickListener(sensONC);
         binding.right4.setOnClickListener(sensONC);
+
+        awms = new ActuatorViewModel[]
+        {
+            new ViewModelProvider(requireActivity()).get("11", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("12", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("13", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("14", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("15", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("16", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("17", ActuatorViewModel.class),
+            new ViewModelProvider(requireActivity()).get("18", ActuatorViewModel.class)
+        };
+
+        awms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.left1.setTitleText(title));
+        awms[1].getTitle().observe(getViewLifecycleOwner(), title -> binding.right1.setTitleText(title));
+        awms[2].getTitle().observe(getViewLifecycleOwner(), title -> binding.left2.setTitleText(title));
+        awms[3].getTitle().observe(getViewLifecycleOwner(), title -> binding.right2.setTitleText(title));
+        awms[4].getTitle().observe(getViewLifecycleOwner(), title -> binding.left3.setTitleText(title));
+        awms[5].getTitle().observe(getViewLifecycleOwner(), title -> binding.right3.setTitleText(title));
+        awms[6].getTitle().observe(getViewLifecycleOwner(), title -> binding.left4.setTitleText(title));
+        awms[7].getTitle().observe(getViewLifecycleOwner(), title -> binding.right4.setTitleText(title));
+
+        awms[0].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left1.setValueText(value));
+        awms[1].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right1.setValueText(value));
+        awms[2].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left2.setValueText(value));
+        awms[3].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right2.setValueText(value));
+        awms[4].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left3.setValueText(value));
+        awms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right3.setValueText(value));
+        awms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left4.setValueText(value));
+        awms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right4.setValueText(value));
+
+        assignListenersOnMeasureUnitsToggle();
 
         return root;
     }
@@ -159,12 +190,12 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
                 System.out.println("feeder header result exited");
                 String hdrName = result.getString(REQ_FEED_HDR_NAME);
                 int id = result.getInt(REQ_FEED_HDR_Id);
-                result.getInt(REQ_FEED_HDR_RAW_V1);
-                result.getFloat(REQ_FEED_HDR_MSG_V1);
-                result.getInt(REQ_FEED_HDR_RAW_V2);
-                result.getFloat(REQ_FEED_HDR_MSG_V2);
-                //TODO отправить это всё на запись в контроллер
                 fwms[id-1].setTitle(hdrName);
+                fwms[id-1].raw1.setValue(result.getInt(REQ_FEED_HDR_RAW_V1));
+                fwms[id-1].raw2.setValue(result.getInt(REQ_FEED_HDR_RAW_V2));
+                fwms[id-1].val1Bar.setValue(result.getFloat(REQ_FEED_HDR_MSG_V1));
+                fwms[id-1].val2Bar.setValue(result.getFloat(REQ_FEED_HDR_MSG_V2));
+
                 ma.sendHeaderProperties(id, hdrName, result.getInt(REQ_FEED_HDR_RAW_V1),
                         result.getInt(REQ_FEED_HDR_RAW_V2),
                         result.getFloat(REQ_FEED_HDR_MSG_V1), result.getFloat(REQ_FEED_HDR_MSG_V2) );
@@ -181,16 +212,100 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         String hdrName = result.getString(REQ_FEED_HDR_NAME);
         int id = result.getInt(REQ_FEED_HDR_Id);
         System.out.println("sensor result returned with name=" + result.getString(REQ_FEED_HDR_NAME) + "  for id=" + result.getInt(REQ_FEED_HDR_Id));
+        awms[id-1].setTitle(hdrName);
+        awms[id-1].raw1bar.setValue(result.getInt(REQ_FEED_HDR_RAW_V1));
+        awms[id-1].raw2bar.setValue(result.getInt(REQ_FEED_HDR_RAW_V2));
+        awms[id-1].val1Bar.setValue(result.getFloat(REQ_FEED_HDR_MSG_V1));
+        awms[id-1].val2Bar.setValue(result.getFloat(REQ_FEED_HDR_MSG_V2));
+        awms[id-1].raw1Kg.setValue(result.getInt(REQ_FEED_HDR_RAW_KGS_V1));
+        awms[id-1].raw2Kg.setValue(result.getInt(REQ_FEED_HDR_RAW_KGS_V2));
+        awms[id-1].val1Kg.setValue(result.getFloat(REQ_FEED_HDR_MSG_KGS_V1));
+        awms[id-1].val2Kg.setValue(result.getFloat(REQ_FEED_HDR_MSG_KGS_V2));
+        awms[id-1].setReactionDirection(result.getBoolean(REQ_FEED_REACT_UP));
+
+
         ma.sendActuatorSettings(id, hdrName, result.getInt(REQ_FEED_HDR_RAW_V1),
                 result.getInt(REQ_FEED_HDR_RAW_V2),
                 result.getFloat(REQ_FEED_HDR_MSG_V1), result.getFloat(REQ_FEED_HDR_MSG_V2),
                 result.getInt(REQ_FEED_HDR_RAW_KGS_V1),
                 result.getInt(REQ_FEED_HDR_RAW_KGS_V2),
-                result.getFloat(REQ_FEED_HDR_MSG_KGS_V1), result.getFloat(REQ_FEED_HDR_MSG_KGS_V2)
+                result.getFloat(REQ_FEED_HDR_MSG_KGS_V1), result.getFloat(REQ_FEED_HDR_MSG_KGS_V2),
+                result.getBoolean(REQ_FEED_REACT_UP)
         );
-        fwms[id-1].setTitle(hdrName);
+
 
     }
+
+    private void assignListenersOnMeasureUnitsToggle() {
+        ActuatorView.tgButtonListener tgL1 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[0].setShowInKg(! awms[0].getShowInKgValue());
+            }
+        };
+        binding.left1.setToggleListener(tgL1);
+        ActuatorView.tgButtonListener tgR1 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[1].setShowInKg(! awms[1].getShowInKgValue());
+            }
+        };
+
+        binding.right1.setToggleListener(tgR1);
+        ActuatorView.tgButtonListener tgL2 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[2].setShowInKg(! awms[2].getShowInKgValue());
+            }
+        };
+        binding.left2.setToggleListener(tgL2);
+        ActuatorView.tgButtonListener tgR2 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[3].setShowInKg(! awms[3].getShowInKgValue());
+            }
+        };
+
+        binding.right2.setToggleListener(tgR2);
+        ActuatorView.tgButtonListener tgL3 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[4].setShowInKg(! awms[4].getShowInKgValue());
+            }
+        };
+        binding.left3.setToggleListener(tgL3);
+        ActuatorView.tgButtonListener tgR3 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[5].setShowInKg(! awms[5].getShowInKgValue());
+            }
+        };
+        binding.right3.setToggleListener(tgR3);
+        ActuatorView.tgButtonListener tgL4 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[6].setShowInKg(! awms[6].getShowInKgValue());
+            }
+        };
+        binding.left4.setToggleListener(tgL4);
+        ActuatorView.tgButtonListener tgR4 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[7].setShowInKg(! awms[7].getShowInKgValue());
+            }
+        };
+        binding.right4.setToggleListener(tgR4);
+
+        awms[0].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left1.setOptionKg(value));
+        awms[1].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right1.setOptionKg(value));
+        awms[2].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left2.setOptionKg(value));
+        awms[3].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right2.setOptionKg(value));
+        awms[4].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left3.setOptionKg(value));
+        awms[5].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right3.setOptionKg(value));
+        awms[6].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left4.setOptionKg(value));
+        awms[7].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right4.setOptionKg(value));
+    }
+
 
     public void setMA(MainActivity _ma) {
         ma = _ma;

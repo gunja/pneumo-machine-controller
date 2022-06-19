@@ -1,14 +1,12 @@
 package com.example.manager_pneumo;
 
+import android.graphics.Color;
+import android.opengl.Visibility;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,16 +18,21 @@ import com.example.manager_pneumo.databinding.LayoutManualBinding;
 public class manualFragment extends Fragment  {
 
     private static final String ARG_SECTION = "show_desired";
+    private static final String ARG_TYPE = "tab_type";
     private LayoutManualBinding binding;
     //private PageViewModel pageViewModelCHANGE;
     private Boolean desiredDisplayed;
+    private int mode;
     FeedsViewModel[] fwms;
     ActuatorViewModel[] awms;
+    private int selectedCounter;
+    private int on_off_manual_state;
 
-    public static manualFragment newInstance(boolean displayDesired) {
+    public static manualFragment newInstance(boolean displayDesired, int t) {
         manualFragment fragment = new manualFragment();
         Bundle bundle = new Bundle();
         bundle.putBoolean(ARG_SECTION, displayDesired);
+        bundle.putInt(ARG_TYPE, t);
         fragment.setArguments(bundle);
         System.out.println("newInstance __manualFragment___ called with " );
         return fragment;
@@ -41,8 +44,11 @@ public class manualFragment extends Fragment  {
         System.out.println("manualFragment::onCreate called " );
         //pageViewModelCHANGE = new ViewModelProvider(this).get(PageViewModel.class);
         desiredDisplayed = getArguments().getBoolean(ARG_SECTION);
-        //pageViewModelCHANGE.setIndex(1);
+        mode = getArguments().getInt(ARG_TYPE);
+        selectedCounter = 0;
     }
+
+    public int getMode() { return mode;}
 
     @Override
     public View onCreateView(
@@ -147,6 +153,169 @@ public class manualFragment extends Fragment  {
         awms[5].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right3.setValueText(value));
         awms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left4.setValueText(value));
         awms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right4.setValueText(value));
+
+        assignListenersOnMeasureUnitsToggle();
+
+        if (desiredDisplayed)
+        {
+            awms[0].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.left1.setTargetValue(value));
+            awms[1].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.right1.setTargetValue(value));
+            awms[2].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.left2.setTargetValue(value));
+            awms[3].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.right2.setTargetValue(value));
+            awms[4].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.left3.setTargetValue(value));
+            awms[5].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.right3.setTargetValue(value));
+            awms[6].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.left4.setTargetValue(value));
+            awms[7].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.right4.setTargetValue(value));
+        }
+
+        if (mode == 2)
+        {
+            binding.autoBtns.setVisibility(View.VISIBLE);
+            binding.autoDetailBtns.setVisibility(View.GONE);
+        }
+
+        View.OnClickListener d1_d4_onc = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(view == binding.d1Btn){
+                    selectedCounter = 1;
+                    binding.autoBtns.setVisibility(View.GONE);
+                }
+                if(view == binding.d2Btn){
+                    selectedCounter = 2;
+                    binding.autoBtns.setVisibility(View.GONE);
+                }
+                if(view == binding.d3Btn){
+                    selectedCounter = 3;
+                    binding.autoBtns.setVisibility(View.GONE);
+                }
+                if(view == binding.d4Btn){
+                    selectedCounter = 4;
+                    binding.autoDetailBtns.setVisibility(View.VISIBLE);
+                    binding.d4Btn.setBackgroundColor(Color.RED);
+                    binding.manOffBtn.setEnabled(false);
+                    binding.manOnBtn.setEnabled(true);
+                }
+                informAllViewOnSelectedCounter();
+            }
+        };
+        binding.d1Btn.setOnClickListener(d1_d4_onc);
+        binding.d2Btn.setOnClickListener(d1_d4_onc);
+        binding.d3Btn.setOnClickListener(d1_d4_onc);
+        binding.d4Btn.setOnClickListener(d1_d4_onc);
+
+        View.OnClickListener manPresentSensor_onc = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view == binding.manOnBtn)
+                {
+                    //TODO send message to controller that new detail appeared
+                    binding.manOffBtn.setEnabled(true);
+                    binding.manOnBtn.setEnabled(false);
+                }
+                if (view == binding.manOffBtn)
+                {
+                    //TODO send message to controller that new detail appeared
+                    binding.autoBtns.setVisibility(View.GONE);
+                }
+            }
+        };
+        binding.manOnBtn.setOnClickListener(manPresentSensor_onc);
+        binding.manOffBtn.setOnClickListener(manPresentSensor_onc);
+
     }
 
+    private void assignListenersOnMeasureUnitsToggle() {
+        ActuatorView.tgButtonListener tgL1 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[0].setShowInKg(! awms[0].getShowInKgValue());
+            }
+        };
+        binding.left1.setToggleListener(tgL1);
+        ActuatorView.tgButtonListener tgR1 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[1].setShowInKg(! awms[1].getShowInKgValue());
+            }
+        };
+
+        binding.right1.setToggleListener(tgR1);
+        ActuatorView.tgButtonListener tgL2 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[2].setShowInKg(! awms[2].getShowInKgValue());
+            }
+        };
+        binding.left2.setToggleListener(tgL2);
+        ActuatorView.tgButtonListener tgR2 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[3].setShowInKg(! awms[3].getShowInKgValue());
+            }
+        };
+
+        binding.right2.setToggleListener(tgR2);
+        ActuatorView.tgButtonListener tgL3 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[4].setShowInKg(! awms[4].getShowInKgValue());
+            }
+        };
+        binding.left3.setToggleListener(tgL3);
+        ActuatorView.tgButtonListener tgR3 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[5].setShowInKg(! awms[5].getShowInKgValue());
+            }
+        };
+        binding.right3.setToggleListener(tgR3);
+        ActuatorView.tgButtonListener tgL4 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[6].setShowInKg(! awms[6].getShowInKgValue());
+            }
+        };
+        binding.left4.setToggleListener(tgL4);
+        ActuatorView.tgButtonListener tgR4 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[7].setShowInKg(! awms[7].getShowInKgValue());
+            }
+        };
+        binding.right4.setToggleListener(tgR4);
+
+        awms[0].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left1.setOptionKg(value));
+        awms[1].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right1.setOptionKg(value));
+        awms[2].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left2.setOptionKg(value));
+        awms[3].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right2.setOptionKg(value));
+        awms[4].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left3.setOptionKg(value));
+        awms[5].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right3.setOptionKg(value));
+        awms[6].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left4.setOptionKg(value));
+        awms[7].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right4.setOptionKg(value));
+    }
+
+    private void informAllViewOnSelectedCounter() {
+        //TODO implement this method
+    }
+
+    public void resetButtonsHeader() {
+        selectedCounter = 0;
+        setCounterButtonBlue();
+        binding.autoDetailBtns.setVisibility(View.GONE);
+        setOnOffConuterBlue();
+        binding.autoBtns.setVisibility(View.VISIBLE);
+    }
+
+    private void setOnOffConuterBlue() {
+        binding.manOffBtn.setBackgroundColor(Color.BLUE);
+        binding.manOnBtn.setBackgroundColor(Color.BLUE);
+    }
+
+    private void setCounterButtonBlue() {
+        binding.d1Btn.setBackgroundColor(Color.BLUE);
+        binding.d2Btn.setBackgroundColor(Color.BLUE);
+        binding.d3Btn.setBackgroundColor(Color.BLUE);
+        binding.d4Btn.setBackgroundColor(Color.BLUE);
+    }
 }

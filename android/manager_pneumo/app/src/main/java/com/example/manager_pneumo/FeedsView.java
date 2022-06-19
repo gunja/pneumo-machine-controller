@@ -88,4 +88,8 @@ public class FeedsView extends LinearLayout implements View.OnClickListener {
     public void onClick(View view) {
         performClick();
     }
+
+    public int getOwnId() {
+        return own_id;
+    }
 }

@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -22,6 +23,8 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.manager_pneumo.databinding.ActivityMainBinding;
 import com.google.android.material.tabs.TabLayout;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements TabLayout.OnTabSelectedListener, Handler.Callback, FragmentResultListener {
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     private Handler uiHandler;
     private SharedPreferences sharedPref;
     private ViewModelProvider mvp;
+    private SectionsPagerAdapter spa;
 
     public static final String EXIT_REQUESTED ="DESIRE_EXIt";
     public static final String REPEAR_REQUESTED = "DESIRE_REPEAT";
@@ -66,6 +70,7 @@ public class MainActivity extends AppCompatActivity
         uiHandler = new Handler(this);
         mbThread = new ModbusExchangeThread();
         mbThread.setMUIHandler(uiHandler);
+        mbThread.setActivity(this);
 
         //mUiHandler = new Handler(this);
         System.out.println("Main thread = " + Thread.currentThread().getId() );
@@ -73,10 +78,10 @@ public class MainActivity extends AppCompatActivity
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this);
-        sectionsPagerAdapter.setMA(this);
+        spa = new SectionsPagerAdapter(this);
+        spa.setMA(this);
         viewPager = binding.viewPager;
-        viewPager.setAdapter(sectionsPagerAdapter);
+        viewPager.setAdapter(spa);
         viewPager.setUserInputEnabled(false);
         TabLayout tabs = binding.tabs;
         for(int i =0; i < tab.length;++i)
@@ -86,7 +91,6 @@ public class MainActivity extends AppCompatActivity
         }
         tabs.addOnTabSelectedListener(this);
         mvp = new ViewModelProvider(this);
-
     }
 
     protected void onStart () {
@@ -116,11 +120,18 @@ public class MainActivity extends AppCompatActivity
         };
 
         cdf = ConnectionDialogFragment.newInstance("", "");
+        //TODO fix this call from unconditional to comditional
         mbThread.start();
         getSupportFragmentManager().setFragmentResultListener(EXIT_REQUESTED, this, this );
         getSupportFragmentManager().setFragmentResultListener(REPEAR_REQUESTED, this, this );
 
         cdf.show(getSupportFragmentManager(), "");
+    }
+
+    protected void onStop()
+    {
+        //mbThread.getHandler().sendEmptyMessage(1000);
+        super.onStop();
     }
 
     @Override
@@ -131,6 +142,22 @@ public class MainActivity extends AppCompatActivity
            System.out.println("set current 4");
        } else {
            viewPager.setCurrentItem(tab.getPosition());
+           //TODO make in a more proper way
+           if (tab.getPosition() == 2)
+           {
+               List<Fragment> lfrms = getSupportFragmentManager().getFragments();
+               for(int i = 0; i < lfrms.size(); ++i) {
+                   try {
+                       manualFragment mf = (manualFragment) lfrms.get(i);
+                       if (mf.getMode() == 2)
+                           mf.resetButtonsHeader();
+                   } catch (IndexOutOfBoundsException e) {
+                       System.out.println("out of bounds exception");
+                   } catch (ClassCastException cce) {
+                       System.out.println("Class Cast Exception go on");
+                   }
+               }
+           }
        }
     }
 
@@ -141,8 +168,22 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
-        System.out.println("reselected tab" + tab.getPosition());
+        //FICSME TODO make more proper!!!
+        if (tab.getPosition() == 2)
+        {
+            System.out.println("reselected tab" + tab.getPosition() + " name=" + tab.getText());
+            List<Fragment> lfrs = getSupportFragmentManager().getFragments();
+            for(int i = 0; i < lfrs.size(); ++i) {
+                try {
 
+                    manualFragment mf = (manualFragment) getSupportFragmentManager().getFragments().get(i);
+                    if (mf.getMode() == 2)
+                        mf.resetButtonsHeader();
+                } catch (ClassCastException cce) {
+                    System.out.println("CCE");
+                }
+            }
+        }
     }
 
     @Override
@@ -176,8 +217,10 @@ public class MainActivity extends AppCompatActivity
             case ModbusExchangeThread.GET_GOAL_PRESSURES:
                 assignGoalPressures(msg.obj);
                 break;
-            case ModbusExchangeThread.GET_ALL_HEADERS_INPUT_REGS: //INPUT_REG_READING_Hx
+            case ModbusExchangeThread.GET_ALL_HEADERS_INPUT_REGS:
                 updateInputRegsHeaders(msg);
+                break;
+            case ModbusExchangeThread.READ_INPUT_REGS_SUCCESS: //INPUT_REG_READING_Hx
                 if (cdf != null )
                 {
                     cdf.dismiss();
@@ -207,6 +250,15 @@ public class MainActivity extends AppCompatActivity
 
     private void assignReactionPosition(Object obj) {
         //TODO implement method assignReactionPosition
+        short[] data = (short[]) obj;
+        for(int i = 0 ; i <  8; ++i)
+        {
+            awms[i].setRequestedManualValue((int)data[i]);
+            awms[i].requestedValueAuto1.setValue((int)data[i + 1 * 8 ]);
+            awms[i].requestedValueAuto2.setValue((int)data[i + 2 * 8 ]);
+            awms[i].requestedValueAuto3.setValue((int)data[i + 3 * 8 ]);
+            awms[i].requestedValueAuto4.setValue((int)data[i + 4 * 8 ]);
+        }
     }
 
     private void assignGoalPressures(Object obj) {
@@ -292,8 +344,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void sendActuatorSettings(int id, String hdrName,
-                  int r1_bar, int r2_bar, float fl1_bar, float fl2_bar,
-                  int r1_kgs, int r2_kgs, float fl1_kgs, float fl2_kgs) {
+                                     int r1_bar, int r2_bar, float fl1_bar, float fl2_bar,
+                                     int r1_kgs, int r2_kgs, float fl1_kgs, float fl2_kgs, boolean aBoolean) {
         Message msg = new Message();
         msg.what = 103;
         msg.arg1 = id;
