@@ -388,28 +388,29 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
 
 
     private void getAllInputRegs(int nextWhat) {
+        /*
         if (needHideDialog) {
             mlHandler.sendEmptyMessage(READ_INPUT_REGS_SUCCESS);
             needHideDialog = false;
         }
         return;
-        /*
+        */
         ModbusReq.getInstance().readInputRegisters(new OnRequestBack<short[]>() {
             @Override
             public void onSuccess(short[] data) {
                 for(int i = 0; i < 8; ++i) {
-                    //fwms[i].postValue((int)data[0 + i]);
+                    fwms[i].postValue((int)data[0 + i]);
                 }
 
                 short[] subDetail = Arrays.copyOfRange(data, 8, 12);
                 Message msgDet = new Message();
                 msgDet.what = GET_ALL_DATCHIK_INPUT_REGS;
                 msgDet.obj = subDetail;
-                //mlHandler.sendMessage(msgDet);
+                mlHandler.sendMessage(msgDet);
 
                 for(int i=0; i < 8; ++i)
                 {
-                    //awms[i].postLastRawReading(data[12 + i]);
+                    awms[i].postLastRawReading(data[12 + i]);
                 }
 
                 if (needHideDialog) {
@@ -425,8 +426,6 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 Log.e(TAG, "readHoldingRegisters onFailed HOLD_REG_ACT2_NM_START" + msg);
             }
         }, 1, 1, 20);
-
-         */
     }
 
 

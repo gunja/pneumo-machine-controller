@@ -40,19 +40,15 @@ public class SectionsPagerAdapter extends FragmentStateAdapter {
         switch(position)
         {
             case 0: //измерения
-                System.out.println("case 0 in switch");
                 rv = manualFragment.newInstance(false, 0);
                 break;
             case 1: // ручной
-                System.out.println("Измерения вкладка должна открыться");
                 rv = manualFragment.newInstance(true, 1);
                 break;
             case 2: // автомат
-                System.out.println("ручной вкладка должна открыться");
                 rv = manualFragment.newInstance(false, 2);
                 break;
             case 3:
-                System.out.println("автомат вкладка должна открыться. Сначала диалог");
                 rv = SettingsFragment.newInstance("AP_name_fetched", ma.getCurPW());
                 ((SettingsFragment)rv).setMA(ma);
                 break;

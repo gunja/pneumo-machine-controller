@@ -177,6 +177,8 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
         awms[6].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.left4.setValueText(value));
         awms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.right4.setValueText(value));
 
+        assignListenersOnMeasureUnitsToggle();
+
         return root;
     }
 
@@ -233,6 +235,77 @@ public class pressureSettingsFragment extends Fragment  implements FragmentResul
 
 
     }
+
+    private void assignListenersOnMeasureUnitsToggle() {
+        ActuatorView.tgButtonListener tgL1 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[0].setShowInKg(! awms[0].getShowInKgValue());
+            }
+        };
+        binding.left1.setToggleListener(tgL1);
+        ActuatorView.tgButtonListener tgR1 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[1].setShowInKg(! awms[1].getShowInKgValue());
+            }
+        };
+
+        binding.right1.setToggleListener(tgR1);
+        ActuatorView.tgButtonListener tgL2 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[2].setShowInKg(! awms[2].getShowInKgValue());
+            }
+        };
+        binding.left2.setToggleListener(tgL2);
+        ActuatorView.tgButtonListener tgR2 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[3].setShowInKg(! awms[3].getShowInKgValue());
+            }
+        };
+
+        binding.right2.setToggleListener(tgR2);
+        ActuatorView.tgButtonListener tgL3 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[4].setShowInKg(! awms[4].getShowInKgValue());
+            }
+        };
+        binding.left3.setToggleListener(tgL3);
+        ActuatorView.tgButtonListener tgR3 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[5].setShowInKg(! awms[5].getShowInKgValue());
+            }
+        };
+        binding.right3.setToggleListener(tgR3);
+        ActuatorView.tgButtonListener tgL4 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[6].setShowInKg(! awms[6].getShowInKgValue());
+            }
+        };
+        binding.left4.setToggleListener(tgL4);
+        ActuatorView.tgButtonListener tgR4 = new ActuatorView.tgButtonListener() {
+            @Override
+            public void onToggle() {
+                awms[7].setShowInKg(! awms[7].getShowInKgValue());
+            }
+        };
+        binding.right4.setToggleListener(tgR4);
+
+        awms[0].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left1.setOptionKg(value));
+        awms[1].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right1.setOptionKg(value));
+        awms[2].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left2.setOptionKg(value));
+        awms[3].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right2.setOptionKg(value));
+        awms[4].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left3.setOptionKg(value));
+        awms[5].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right3.setOptionKg(value));
+        awms[6].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.left4.setOptionKg(value));
+        awms[7].getShowInKg().observe(getViewLifecycleOwner(), value -> binding.right4.setOptionKg(value));
+    }
+
 
     public void setMA(MainActivity _ma) {
         ma = _ma;

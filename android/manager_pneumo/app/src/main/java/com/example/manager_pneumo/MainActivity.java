@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -22,6 +23,8 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.manager_pneumo.databinding.ActivityMainBinding;
 import com.google.android.material.tabs.TabLayout;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements TabLayout.OnTabSelectedListener, Handler.Callback, FragmentResultListener {
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     private Handler uiHandler;
     private SharedPreferences sharedPref;
     private ViewModelProvider mvp;
+    private SectionsPagerAdapter spa;
 
     public static final String EXIT_REQUESTED ="DESIRE_EXIt";
     public static final String REPEAR_REQUESTED = "DESIRE_REPEAT";
@@ -74,10 +78,10 @@ public class MainActivity extends AppCompatActivity
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this);
-        sectionsPagerAdapter.setMA(this);
+        spa = new SectionsPagerAdapter(this);
+        spa.setMA(this);
         viewPager = binding.viewPager;
-        viewPager.setAdapter(sectionsPagerAdapter);
+        viewPager.setAdapter(spa);
         viewPager.setUserInputEnabled(false);
         TabLayout tabs = binding.tabs;
         for(int i =0; i < tab.length;++i)
@@ -87,7 +91,6 @@ public class MainActivity extends AppCompatActivity
         }
         tabs.addOnTabSelectedListener(this);
         mvp = new ViewModelProvider(this);
-
     }
 
     protected void onStart () {
@@ -139,6 +142,22 @@ public class MainActivity extends AppCompatActivity
            System.out.println("set current 4");
        } else {
            viewPager.setCurrentItem(tab.getPosition());
+           //TODO make in a more proper way
+           if (tab.getPosition() == 2)
+           {
+               List<Fragment> lfrms = getSupportFragmentManager().getFragments();
+               for(int i = 0; i < lfrms.size(); ++i) {
+                   try {
+                       manualFragment mf = (manualFragment) lfrms.get(i);
+                       if (mf.getMode() == 2)
+                           mf.resetButtonsHeader();
+                   } catch (IndexOutOfBoundsException e) {
+                       System.out.println("out of bounds exception");
+                   } catch (ClassCastException cce) {
+                       System.out.println("Class Cast Exception go on");
+                   }
+               }
+           }
        }
     }
 
@@ -149,14 +168,22 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
-
+        //FICSME TODO make more proper!!!
         if (tab.getPosition() == 2)
         {
             System.out.println("reselected tab" + tab.getPosition() + " name=" + tab.getText());
-            manualFragment mf = (manualFragment ) getSupportFragmentManager().getFragments().get(viewPager.getCurrentItem());
-            mf.resetButtonsHeader();
-        }
+            List<Fragment> lfrs = getSupportFragmentManager().getFragments();
+            for(int i = 0; i < lfrs.size(); ++i) {
+                try {
 
+                    manualFragment mf = (manualFragment) getSupportFragmentManager().getFragments().get(i);
+                    if (mf.getMode() == 2)
+                        mf.resetButtonsHeader();
+                } catch (ClassCastException cce) {
+                    System.out.println("CCE");
+                }
+            }
+        }
     }
 
     @Override

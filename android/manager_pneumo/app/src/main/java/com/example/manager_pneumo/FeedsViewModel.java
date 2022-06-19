@@ -9,7 +9,7 @@ public class FeedsViewModel extends ViewModel {
     MutableLiveData<String> valueAsText;
     MutableLiveData<Float> val1Bar;
 
-
+    int lastRecMirror;
 
     MutableLiveData<Float> val2Bar;
     MutableLiveData<Integer> raw1;
@@ -27,6 +27,8 @@ public class FeedsViewModel extends ViewModel {
         raw1 = new MutableLiveData<Integer>(0);
         raw2= new MutableLiveData<Integer>(0);
         lastReceivedValue= new MutableLiveData<Integer>(0);
+
+        lastRecMirror = 0;
     }
 
     public LiveData<Integer> getlastReceivedValue() { return lastReceivedValue;};
@@ -62,12 +64,14 @@ public class FeedsViewModel extends ViewModel {
     }
 
     public void setValue(int v)  {
+        lastRecMirror = v;
         lastReceivedValue.setValue(v);
-        valueAsText.setValue(formatString(lastReceivedValue.getValue()));
+        valueAsText.setValue(formatString(lastRecMirror));
     }
     public void postValue(int v) {
+        lastRecMirror = v;
         lastReceivedValue.postValue(v);
-        valueAsText.postValue(formatString(lastReceivedValue.getValue()));
+        valueAsText.postValue(formatString(lastRecMirror));
     }
 
     public void setCalibrationValues(FeedCalibrationValues obj) {

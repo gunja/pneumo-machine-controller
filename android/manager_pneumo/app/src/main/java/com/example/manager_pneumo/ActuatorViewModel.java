@@ -18,9 +18,10 @@ public class ActuatorViewModel extends ViewModel
     MutableLiveData<Integer> raw1Kg;
     MutableLiveData<Integer> raw2Kg;
 
-    MutableLiveData<Boolean> showInKg;
+    private MutableLiveData<Boolean> showInKg;
 
     MutableLiveData<Integer> lastRawReading;
+    int lRRMirror;
 
     MutableLiveData<Integer> requestedValueManual;
     MutableLiveData<Integer> requestedValueAuto1;
@@ -33,6 +34,7 @@ public class ActuatorViewModel extends ViewModel
 
     MutableLiveData<Integer> mode;
 
+    public Boolean getShowInKgValue() { return showInKg.getValue();}
 
     public ActuatorViewModel()
     {
@@ -52,6 +54,7 @@ public class ActuatorViewModel extends ViewModel
         showInKg = new MutableLiveData<Boolean>(false) ;
 
         lastRawReading= new MutableLiveData<Integer>(0) ;
+        lRRMirror = 0;
 
         rqValueAsText= new MutableLiveData<String>("") ;
         reactUpwards= new MutableLiveData<Boolean>(false) ;
@@ -81,19 +84,20 @@ public class ActuatorViewModel extends ViewModel
         titleValue.postValue(title);
     }
     public void setLastRawReading(int val){
+        lRRMirror = val;
         lastRawReading.setValue(val);
         updateValueDisplayed();
     }
 
     private String getFormattedString()
     {
-        String rv = String.format("r %05d", lastRawReading.getValue());
+        String rv = String.format("r %05d", lRRMirror);
         if(showInKg.getValue())
         {
             if((raw1Kg.getValue() - raw2Kg.getValue()) != 0)
             {
                 float valeur = (val2Kg.getValue() - val1Kg.getValue())
-                        /(raw2Kg.getValue() - raw1Kg.getValue()) * (lastRawReading.getValue() -  raw1Kg.getValue())
+                        /(raw2Kg.getValue() - raw1Kg.getValue()) * (lRRMirror -  raw1Kg.getValue())
                         + val1Kg.getValue();
                 int rem = (int) valeur/10;
                 rv = String.format("%d кг", rem * 10);
@@ -102,7 +106,7 @@ public class ActuatorViewModel extends ViewModel
             if((raw1bar.getValue() - raw2bar.getValue()) != 0)
             {
                 float valeur = (val2Bar.getValue() - val1Bar.getValue())
-                        /(raw2bar.getValue() - raw1bar.getValue()) * (lastRawReading.getValue() -  raw1bar.getValue())
+                        /(raw2bar.getValue() - raw1bar.getValue()) * (lRRMirror -  raw1bar.getValue())
                         + val1Bar.getValue();
                 rv = String.format("%.2f бар", valeur);
             }
@@ -239,6 +243,7 @@ public class ActuatorViewModel extends ViewModel
 
 
     public void postLastRawReading(int subAct) {
+        lRRMirror = subAct;
         lastRawReading.postValue(subAct);
         postUpdateValueDisplayed();
     }
