@@ -26,24 +26,47 @@ char rqInputRegs[] = {'I', 20};
 char rqHoldingRegs[] = {'H', sizeof(struct memory_layout) };
 
 unsigned long lastIRegRq =0;
-#define RQ_INPUTS_PERIOD_MS  20
+#define RQ_INPUTS_PERIOD_MS  100
 
 unsigned long eeprom_write_request = 0;
 #define EEPROM_COMMIT_DELAY 500
 bool eepromWriteRequest;
 
-void getInputRegs()
+int g_input_register_read = -1;
+
+enum exchange_state {
+  ST_NONE,
+  RD_INPUTS = 1
+};
+enum exchange_state STATE = ST_NONE;
+
+bool getInputRegs()
 {
+  if (STATE != ST_NONE)
+    return false;
   Serial.write(rqInputRegs, 2);
-  for(int i=0; i < sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
+  g_input_register_read = 0;
+  STATE = RD_INPUTS;
+  return true;
+}
+
+void getNextInput()
+{
+  if(STATE != RD_INPUTS)
+    return;
+  if (g_input_register_read >= 20)
+     return;
+
+  if (Serial.available() >= 2)
   {
-     int incomingByte1 = 0, incomingByte2 = 0 ;
-     yield();
-     incomingByte1 = Serial.read();
-     yield();
-     incomingByte2 = Serial.read();
-     mb.Ireg(i, ((incomingByte1&0xFF)<<8) + (incomingByte2 & 0xFF));
+      int incomingByte1 = 0, incomingByte2 = 0 ;
+      incomingByte1 = Serial.read();
+      incomingByte2 = Serial.read();
+      mb.Ireg(g_input_register_read, ((incomingByte2&0xFF)<<8) + (incomingByte1 & 0xFF));
+      g_input_register_read++;
   }
+  if (g_input_register_read == 20)
+    STATE = ST_NONE;
 }
 
 void getIRSimulated()
@@ -59,12 +82,10 @@ void getIRSimulated()
 uint16_t cbModbusSetHreg(TRegister* reg, uint16_t val)
 {
   if(reg->address.type !=  TAddress::HREG){
-    Serial.println("callback called not for set HREG");
     return val;
   }
     
   EEPROM.put((reg->address.address - 1) * sizeof(uint16_t), val);
-  Serial.print("Writing register "); Serial.print(reg->address.address); Serial.print(" with value "); Serial.println(val);
   eepromWriteRequest = true;
   eeprom_write_request = millis();
   return val;
@@ -76,7 +97,6 @@ void initEEPROM()
   EEPROM.get(sizeof(struct memory_layout), v);
   if(v != 0)
   {
-    Serial.println("populating initial EEPROM");
    for(int i=0; i <= sizeof(struct memory_layout); ++i)
      EEPROM.put(i, '\0');
     EEPROM.put((char*)(&ML.ap_name) - (char*)(&ML)   , 'S');
@@ -107,37 +127,11 @@ void setup()
   EEPROM.begin(sizeof(struct memory_layout) +1);
   initEEPROM();
 
-  Serial.println(ML.ap_name.name);
-  Serial.println(ML.header_names[0].name);
-  Serial.println(ML.header_names[1].name);
-  Serial.println(ML.header_names[2].name);
-  Serial.println(ML.header_names[3].name);
-  Serial.println(ML.header_names[4].name);
-
   WiFi.softAPConfig(local_IP, gateway, subnet);
   WiFi.softAP(ML.ap_name.name, "");
   
   IPAddress myIP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(myIP);
-/*
-  Serial.write(rqInputRegs, 2);
-  for(int i=0; i < sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
-  {
-     int incomingByte1 = 0, incomingByte2 = 0 ;
-     incomingByte1 = Serial.read();
-     incomingByte2 = Serial.read();
-     mb.addIreg(i, ((incomingByte1&0xFF)<<8) + (incomingByte2 & 0xFF));
-  }
-  Serial.write(rqHoldingRegs, 2);
-  for(int i=0; i < sizeof(struct memory_layout)/ sizeof(uint16_t); ++i)
-  {
-     int incomingByte1 = 0, incomingByte2 = 0;
-     incomingByte1 = Serial.read();
-     incomingByte2 = Serial.read();
-     mb.addHreg(i, ((incomingByte1 & 0xFF)<<8) + (incomingByte2 & 0xFF));
-  }
-*/
+
   eepromWriteRequest = false;
 
   for(int i=1; i <= sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
@@ -162,16 +156,12 @@ void loop()
   unsigned long now = millis();
   if (now - lastIRegRq > RQ_INPUTS_PERIOD_MS)
   {
-    //getInputRegs();
-    getIRSimulated();
-    lastIRegRq = millis();
+    if( getInputRegs())
+      lastIRegRq = millis();
   }
   if (eepromWriteRequest && (now - EEPROM_COMMIT_DELAY > eeprom_write_request))
   {
-    Serial.println("making EEPROM commit");
     eepromWriteRequest = ! EEPROM.commit();
-    Serial.print("after commit will need to repeat ?"); Serial.println( eepromWriteRequest? " yes": "no");
-    
-    //eepromWriteRequest = false;
   }
+  getNextInput();
 }
