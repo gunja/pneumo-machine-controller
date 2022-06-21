@@ -27,6 +27,7 @@ public class manualFragment extends Fragment  {
     ActuatorViewModel[] awms;
     private int selectedCounter;
     private int on_off_manual_state;
+    private MainActivity ma;
 
     public static manualFragment newInstance(boolean displayDesired, int t) {
         manualFragment fragment = new manualFragment();
@@ -36,6 +37,11 @@ public class manualFragment extends Fragment  {
         fragment.setArguments(bundle);
         System.out.println("newInstance __manualFragment___ called with " );
         return fragment;
+    }
+
+    public void setMA(MainActivity ma)
+    {
+        this.ma = ma;
     }
 
     @Override
@@ -179,14 +185,17 @@ public class manualFragment extends Fragment  {
             public void onClick(View view) {
                 if(view == binding.d1Btn){
                     selectedCounter = 1;
+                    ma.setSelectedCounter(selectedCounter);
                     binding.autoBtns.setVisibility(View.GONE);
                 }
                 if(view == binding.d2Btn){
                     selectedCounter = 2;
+                    ma.setSelectedCounter(selectedCounter);
                     binding.autoBtns.setVisibility(View.GONE);
                 }
                 if(view == binding.d3Btn){
                     selectedCounter = 3;
+                    ma.setSelectedCounter(selectedCounter);
                     binding.autoBtns.setVisibility(View.GONE);
                 }
                 if(view == binding.d4Btn){
@@ -217,6 +226,7 @@ public class manualFragment extends Fragment  {
                 {
                     //TODO send message to controller that new detail appeared
                     binding.autoBtns.setVisibility(View.GONE);
+                    ma.setSelectedCounter(selectedCounter);
                 }
             }
         };

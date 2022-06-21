@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
        System.out.println("selected tab" + tab.getPosition());
+        this.tab[2].setText(R.string.tab_auto);
        if (tab.getPosition() == 3) {
            viewPager.setCurrentItem(4);
            System.out.println("set current 4");
@@ -172,6 +173,7 @@ public class MainActivity extends AppCompatActivity
         if (tab.getPosition() == 2)
         {
             System.out.println("reselected tab" + tab.getPosition() + " name=" + tab.getText());
+            tab.setText(R.string.tab_auto);
             List<Fragment> lfrs = getSupportFragmentManager().getFragments();
             for(int i = 0; i < lfrs.size(); ++i) {
                 try {
@@ -392,5 +394,9 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+    }
+
+    public void setSelectedCounter(int selectedCounter) {
+        tab[2].setText(getResources().getString(R.string.tab_auto) + String.format("-%d", selectedCounter));
     }
 }

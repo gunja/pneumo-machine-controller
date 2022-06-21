@@ -44,9 +44,11 @@ public class SectionsPagerAdapter extends FragmentStateAdapter {
                 break;
             case 1: // ручной
                 rv = manualFragment.newInstance(true, 1);
+                ((manualFragment) rv).setMA(ma);
                 break;
             case 2: // автомат
                 rv = manualFragment.newInstance(false, 2);
+                ((manualFragment) rv).setMA(ma);
                 break;
             case 3:
                 rv = SettingsFragment.newInstance("AP_name_fetched", ma.getCurPW());
