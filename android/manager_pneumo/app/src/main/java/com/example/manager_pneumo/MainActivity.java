@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.lifecycle.LiveData;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("MainActivity", "onCreate called");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
@@ -66,11 +68,7 @@ public class MainActivity extends AppCompatActivity
 
         apName = new String("");
 
-
-        uiHandler = new Handler(this);
-        mbThread = new ModbusExchangeThread();
-        mbThread.setMUIHandler(uiHandler);
-        mbThread.setActivity(this);
+        cdf = null;
 
         //mUiHandler = new Handler(this);
         System.out.println("Main thread = " + Thread.currentThread().getId() );
@@ -119,18 +117,26 @@ public class MainActivity extends AppCompatActivity
                 vmp.get("18", ActuatorViewModel.class)
         };
 
-        cdf = ConnectionDialogFragment.newInstance("", "");
-        //TODO fix this call from unconditional to comditional
+
+        uiHandler = new Handler(this);
+        mbThread = new ModbusExchangeThread();
+        mbThread.setMUIHandler(uiHandler);
+        mbThread.setActivity(this);
         mbThread.start();
         getSupportFragmentManager().setFragmentResultListener(EXIT_REQUESTED, this, this );
         getSupportFragmentManager().setFragmentResultListener(REPEAR_REQUESTED, this, this );
 
-        cdf.show(getSupportFragmentManager(), "");
+        if(cdf == null) {
+            cdf = ConnectionDialogFragment.newInstance("", "");
+            cdf.setCancelable(false);
+            cdf.show(getSupportFragmentManager(), "");
+        }
     }
 
     protected void onStop()
     {
         //mbThread.getHandler().sendEmptyMessage(1000);
+        mbThread.lpr.quitSafely();
         super.onStop();
     }
 

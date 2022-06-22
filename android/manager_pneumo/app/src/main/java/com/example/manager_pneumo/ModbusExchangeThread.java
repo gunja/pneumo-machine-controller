@@ -51,7 +51,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     ActuatorViewModel awms[];
     boolean needHideDialog;
 
-    boolean looperInitialized;
+    public Looper lpr;
 
     public void setActivity(MainActivity activity) {
         this.activity = activity;
@@ -60,17 +60,14 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     public ModbusExchangeThread()
     {
         super();
-        looperInitialized = false;
         mHandler = new Handler(this);
     }
 
     @Override
-    public void run() {
-        if (! looperInitialized)
-        {
-            Looper.prepare();
-            looperInitialized = true;
-        }
+    public void run()
+    {
+        Looper.prepare();
+        lpr = Looper.myLooper();
 
         mHandler.sendEmptyMessage(1);
         if( mlHandler!= null) mlHandler.sendEmptyMessage(5);
@@ -209,7 +206,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 setActuatorsCalibrationCoefficients(message);
                 break;
             case 1000:
-                Looper.myLooper().quitSafely();
+                //mbThread.quit();
                 break;
         }
         return true;

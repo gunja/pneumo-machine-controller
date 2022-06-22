@@ -110,7 +110,9 @@ public class ConnectionDialogFragment extends DialogFragment implements View.OnC
         binding.btnsLayout.setVisibility(View.VISIBLE);
     }
 
-    public void setConnectedMessage() {
+    public void setConnectedMessage()
+    {
         binding.messageText.setText("Подключено. Вычитываем");
+        binding.btnsLayout.setVisibility(View.GONE);
     }
 }
