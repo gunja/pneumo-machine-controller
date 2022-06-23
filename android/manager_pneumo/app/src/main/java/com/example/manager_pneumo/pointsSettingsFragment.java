@@ -8,6 +8,7 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -222,6 +223,20 @@ public class pointsSettingsFragment  extends Fragment {
         } catch (ParseException | java.text.ParseException e) { v8 =  0; }  if(selectedWD > 0) { psvm.setFWDValue(selectedD-1, 8, v8); } else { psvm.setBWDValue(selectedD-1, 8, v8 );}
             ma.updateReactionPositionValue(selectedWD > 0, selectedD, 8, v8);
         };});
+
+        binding.editT8.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int v8;
+                try {
+                    v8 =  NumberFormat.getInstance().parse(binding.editT8.getText().toString()).intValue();
+                } catch (ParseException | java.text.ParseException e) { v8 =  0; }
+                if(selectedWD > 0) {
+                    psvm.setFWDValue(selectedD-1, 8, v8); }
+                else { psvm.setBWDValue(selectedD-1, 8, v8 );}
+                ma.updateReactionPositionValue(selectedWD > 0, selectedD, 8, v8);
+            }
+            return false;
+        });
     }
 
     private void enablePointsInput() {
