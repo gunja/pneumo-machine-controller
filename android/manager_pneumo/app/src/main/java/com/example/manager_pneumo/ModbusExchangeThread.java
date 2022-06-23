@@ -46,6 +46,8 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     final public static int CONN_FAIL_MSG = 201;
     final public static int CONN_DONE_MSG = 202;
 
+    final public static int SET_ONE_REGISTER_BY_ADDRESS = 200;
+
     ViewModelProvider vmp;
     FeedsViewModel fwms[];
     ActuatorViewModel awms[];
@@ -205,11 +207,28 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             case 113:
                 setActuatorsCalibrationCoefficients(message);
                 break;
+
+            case SET_ONE_REGISTER_BY_ADDRESS:
+                setRegisterValue(message.arg1, message.arg2);
             case 1000:
                 //mbThread.quit();
                 break;
         }
         return true;
+    }
+
+    private void setRegisterValue(int register, int val) {
+        ModbusReq.getInstance().writeRegister(new OnRequestBack<String>() {
+            @Override
+            public void onSuccess(String s) {
+                Log.d(TAG, "setRegisterValue onSuccess " + s);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.d(TAG, "setRegisterValue onFailed " + msg);
+            }
+        }, 1,register, val);
     }
 
     private void setStringRegisters(Message message, int baseOffset, int sz) {
@@ -255,13 +274,6 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 {
                     short[] sub = Arrays.copyOfRange(data, i * 10, (i+1)*10);
                     String v = convertShortsArray(sub);
-                    //Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_ACT" + (i+1) + "_NM_START as string \"" + v + "\"");
-                    //todo send message, 41 to main thread
-                    //Message msg = new Message();
-                    //msg.what = GET_ACTUATOR_NAMES;
-                    //msg.arg1 = i+1;
-                    //msg.obj = v;
-                    //mlHandler.sendMessage(msg);
                     awms[i].postTitle(v);
                 }
                 mHandler.sendEmptyMessage(nextWhat);
@@ -282,12 +294,6 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
                 {
                     short[] sub = Arrays.copyOfRange(data, i * 10, (i+1)*10);
                     String v = convertShortsArray(sub);
-                    //Log.d(TAG, "readHoldingRegisters onSuccess HOLD_REG_H" + (i+1) + "_NM_START as string \"" + v + "\"");
-                    //Message msg = new Message();
-                    //msg.what = GET_HEADER_NAMES_HRS;
-                    //msg.arg1 = i+1;
-                    //msg.obj = v;
-                    //mlHandler.sendMessage(msg);
                     fwms[i].postTitle(v);
                 }
                 mHandler.sendEmptyMessage(nextWhat);

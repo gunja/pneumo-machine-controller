@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     ConnectionDialogFragment cdf;
     FeedsViewModel fwms[];
     ActuatorViewModel awms[];
+    PointsSettingViewModel psvm;
 
     public void renderSettingsPage() {
         viewPager.setCurrentItem(3);
@@ -117,6 +118,7 @@ public class MainActivity extends AppCompatActivity
                 vmp.get("18", ActuatorViewModel.class)
         };
 
+        psvm = vmp.get("1000", PointsSettingViewModel.class);
 
         uiHandler = new Handler(this);
         mbThread = new ModbusExchangeThread();
@@ -258,19 +260,31 @@ public class MainActivity extends AppCompatActivity
 
     private void assignReactionPosition(Object obj) {
         //TODO implement method assignReactionPosition
-        short[] data = (short[]) obj;
-        for(int i = 0 ; i <  8; ++i)
+        short[] positions = (short[]) obj;
+        for(int x =0; x < 4; ++x)
         {
-            awms[i].setRequestedManualValue((int)data[i]);
-            awms[i].requestedValueAuto1.setValue((int)data[i + 1 * 8 ]);
-            awms[i].requestedValueAuto2.setValue((int)data[i + 2 * 8 ]);
-            awms[i].requestedValueAuto3.setValue((int)data[i + 3 * 8 ]);
-            awms[i].requestedValueAuto4.setValue((int)data[i + 4 * 8 ]);
+            for(int y = 0; y < 10; ++y)
+            {
+                psvm.setFWDValue(x, y, positions[x * 20 + y]);
+            }
+            for(int y = 0; y < 10; ++y)
+            {
+                psvm.setBWDValue(x, y, positions[x * 20 + 10 + y]);
+            }
         }
     }
 
     private void assignGoalPressures(Object obj) {
         //TODO implement method assignGoalPressures
+        short[] data = (short[]) obj;
+        for(int i = 0 ; i <  8; ++i)
+        {
+            awms[i].setGoalPressureValueOfType(0, (int)data[i]);
+            awms[i].setGoalPressureValueOfType(1, (int)data[i + 1 * 8 ]);
+            awms[i].setGoalPressureValueOfType(2, (int)data[i + 2 * 8 ]);
+            awms[i].setGoalPressureValueOfType(3, (int)data[i + 3 * 8 ]);
+            awms[i].setGoalPressureValueOfType(4, (int)data[i + 4 * 8 ]);
+        }
     }
 
     private void updateDetailCounter(Message msg) {
@@ -404,5 +418,13 @@ public class MainActivity extends AppCompatActivity
 
     public void setSelectedCounter(int selectedCounter) {
         tab[2].setText(getResources().getString(R.string.tab_auto) + String.format("-%d", selectedCounter));
+    }
+
+    public void updateReactionPositionValue(boolean b, int selectedD, int i, int v1) {
+        Message msg = new Message();
+        msg.what = ModbusExchangeThread.SET_ONE_REGISTER_BY_ADDRESS;
+        msg.arg1 =307 + 20 * (selectedD - 1) + (b?0:10) + i;
+        msg.arg2 = v1;
+        mbThread.getHandler().sendMessage(msg);
     }
 }

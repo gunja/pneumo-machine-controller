@@ -29,6 +29,13 @@ public class ActuatorViewModel extends ViewModel
     MutableLiveData<Integer> requestedValueAuto3;
     MutableLiveData<Integer> requestedValueAuto4;
 
+    int rqManual;
+    int rqAuto1;
+    int rqAuto2;
+    int rqAuto3;
+    int rqAuto4;
+
+
     MutableLiveData<String> rqValueAsText;
     MutableLiveData<Boolean> reactUpwards;
 
@@ -63,6 +70,12 @@ public class ActuatorViewModel extends ViewModel
         requestedValueAuto2 = new MutableLiveData<Integer>(0) ;
         requestedValueAuto3 = new MutableLiveData<Integer>(0) ;
         requestedValueAuto4 = new MutableLiveData<Integer>(0) ;
+
+        rqManual = 0;
+        rqAuto1 = 0;
+        rqAuto2 = 0;
+        rqAuto3 = 0;
+        rqAuto4 = 0;
 
         mode = new MutableLiveData<Integer>(0) ;
     }
@@ -259,18 +272,6 @@ public class ActuatorViewModel extends ViewModel
         return rqValueAsText;
     }
 
-    public void postRequestedManualValue(int rqV)
-    {
-        requestedValueManual.postValue(rqV);
-        postUpdateRQValAsText();
-    }
-
-    public void setRequestedManualValue(int rqV)
-    {
-        requestedValueManual.setValue(rqV);
-        updateRQValAsText();
-    }
-
     private void postUpdateRQValAsText() {
         rqValueAsText.postValue(rqValToString(requestedValueManual.getValue()));
     }
@@ -280,5 +281,32 @@ public class ActuatorViewModel extends ViewModel
 
     private String rqValToString(Integer value) {
         return String.format("r %d", requestedValueManual.getValue());
+    }
+
+    public void setGoalPressureValueOfType(int i, int datum) {
+        switch(i)
+        {
+            case 0:
+                rqManual = datum;
+                requestedValueManual.setValue(rqManual);
+                break;
+            case 1:
+                rqAuto1 = datum;
+                requestedValueAuto1.setValue(rqAuto1);
+                break;
+            case 2:
+                rqAuto2 = datum;
+                requestedValueAuto2.setValue(rqAuto2);
+                break;
+            case 3:
+                rqAuto3 = datum;
+                requestedValueAuto3.setValue(rqAuto3);
+                break;
+            case 4:
+                rqAuto4 = datum;
+                requestedValueAuto4.setValue(rqAuto4);
+                break;
+        }
+        updateRQValAsText();
     }
 }
