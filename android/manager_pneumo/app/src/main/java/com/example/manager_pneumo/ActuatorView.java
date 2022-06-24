@@ -91,6 +91,7 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
     public void onClick(View view) {
         if (view !=  binding.switchUnitBtn) {
             performClick();
+            //TODO set focus on targetValue and capture input after input is done
             return;
         }
         // TODO implement switching of displayed units

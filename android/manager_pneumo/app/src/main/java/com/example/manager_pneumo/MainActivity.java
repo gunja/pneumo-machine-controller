@@ -146,6 +146,7 @@ public class MainActivity extends AppCompatActivity
     public void onTabSelected(TabLayout.Tab tab) {
        System.out.println("selected tab" + tab.getPosition());
         this.tab[2].setText(R.string.tab_auto);
+        sendTabSelectedValue(tab.getPosition());
        if (tab.getPosition() == 3) {
            viewPager.setCurrentItem(4);
            System.out.println("set current 4");
@@ -168,6 +169,16 @@ public class MainActivity extends AppCompatActivity
                }
            }
        }
+    }
+
+    private void sendTabSelectedValue(int position) {
+        if (position > 2 )
+            return;
+        Message msg = new Message();
+        msg.what = ModbusExchangeThread.SET_ONE_REGISTER_BY_ADDRESS;
+        msg.arg1 = 450;
+        msg.arg2 = 10 * position;
+        mbThread.getHandler().sendMessage(msg);
     }
 
     @Override
@@ -421,6 +432,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void updateReactionPositionValue(boolean b, int selectedD, int i, int v1) {
+        // TODO this is not MA's responsibility
+        // move implementation to ModBus handling class
         Message msg = new Message();
         msg.what = ModbusExchangeThread.SET_ONE_REGISTER_BY_ADDRESS;
         msg.arg1 =307 + 20 * (selectedD - 1) + (b?0:10) + i;
