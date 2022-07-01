@@ -440,4 +440,12 @@ public class MainActivity extends AppCompatActivity
         msg.arg2 = v1;
         mbThread.getHandler().sendMessage(msg);
     }
+
+    public void setRequestedValueInsideController(int i, int mode, int selectedCounter, int latestRequestedValue) {
+        Message msg = new Message();
+        msg.what = ModbusExchangeThread.SET_TARGET_FOR;
+        msg.arg1 =selectedCounter * 8 + i;
+        msg.arg2 = latestRequestedValue;
+        mbThread.getHandler().sendMessage(msg);
+    }
 }

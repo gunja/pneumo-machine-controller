@@ -67,7 +67,27 @@ uint16_t cbModbusSetHreg(TRegister* reg, uint16_t val)
   Serial.print("Writing register "); Serial.print(reg->address.address); Serial.print(" with value "); Serial.println(val);
   eepromWriteRequest = true;
   eeprom_write_request = millis();
+  uint16_t last_sel_mode;
+  EEPROM.get((LAST_SELECTED_MODE -1 ) * sizeof(uint16_t), last_sel_mode);
+  if(reg->address.address >= HOLD_REG_MANUAL_TARGET_C1 && reg->address.address <= HOLD_REG_MANUAL_TARGET_C8 
+      && last_sel_mode == 10)
+  {
+    InformAtmegaOnManualGoalRequest(reg->address.address - HOLD_REG_MANUAL_TARGET_C1, val);
+  }
   return val;
+}
+
+void InformAtmegaOnManualGoalRequest(uint16_t cylinderIndex, uint16_t value)
+{
+  uint8_t data[5];
+  uint16_t reg;
+  EEPROM.get((HOLD_REG_ACT_DIRECTIONS -1)*sizeof(uint16_t), reg);
+  data[0] = 'M';
+  data[1] = (uint8_t) cylinderIndex;
+  data[2] = reg & (3<< cylinderIndex);
+  data[3] = (value >>8) & 0xFF;
+  data[4] = value & 0xFF;
+  //Serial.write(data, 5); //TODO somehow make exchange procedure
 }
 
 void initEEPROM()
@@ -120,24 +140,7 @@ void setup()
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(myIP);
-/*
-  Serial.write(rqInputRegs, 2);
-  for(int i=0; i < sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
-  {
-     int incomingByte1 = 0, incomingByte2 = 0 ;
-     incomingByte1 = Serial.read();
-     incomingByte2 = Serial.read();
-     mb.addIreg(i, ((incomingByte1&0xFF)<<8) + (incomingByte2 & 0xFF));
-  }
-  Serial.write(rqHoldingRegs, 2);
-  for(int i=0; i < sizeof(struct memory_layout)/ sizeof(uint16_t); ++i)
-  {
-     int incomingByte1 = 0, incomingByte2 = 0;
-     incomingByte1 = Serial.read();
-     incomingByte2 = Serial.read();
-     mb.addHreg(i, ((incomingByte1 & 0xFF)<<8) + (incomingByte2 & 0xFF));
-  }
-*/
+
   eepromWriteRequest = false;
 
   for(int i=1; i <= sizeof(struct _input_regs)/sizeof(uint16_t); ++i)

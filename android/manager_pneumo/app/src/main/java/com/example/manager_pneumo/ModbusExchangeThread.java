@@ -45,6 +45,7 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
     final public static int READ_INPUT_REGS_SUCCESS = 93;
     final public static int CONN_FAIL_MSG = 201;
     final public static int CONN_DONE_MSG = 202;
+    public static final int SET_TARGET_FOR = 250;
 
     final public static int SET_ONE_REGISTER_BY_ADDRESS = 200;
 
@@ -213,8 +214,24 @@ public class ModbusExchangeThread extends Thread implements Handler.Callback  {
             case 1000:
                 //mbThread.quit();
                 break;
+            case SET_TARGET_FOR:
+                setGoalPressureValue(message.arg1, message.arg2);
         }
         return true;
+    }
+
+    private void setGoalPressureValue(int offset, int value) {
+        ModbusReq.getInstance().writeRegister(new OnRequestBack<String>() {
+            @Override
+            public void onSuccess(String s) {
+                Log.d(TAG, "setRegisterValue onSuccess " + s);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.d(TAG, "setRegisterValue onFailed " + msg);
+            }
+        }, 1,410 + offset, value);
     }
 
     private void setRegisterValue(int register, int val) {

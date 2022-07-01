@@ -84,6 +84,7 @@ public class manualFragment extends Fragment  {
         binding.right3.setShowDesired(desiredDisplayed);
         binding.right4.setShowDesired(desiredDisplayed);
 
+
         return root;
     }
 
@@ -233,6 +234,45 @@ public class manualFragment extends Fragment  {
         binding.manOnBtn.setOnClickListener(manPresentSensor_onc);
         binding.manOffBtn.setOnClickListener(manPresentSensor_onc);
 
+
+        if (mode == 1 || mode == 2) {
+            assignListenersOnTargetDone();
+        }
+
+    }
+
+    private void assignListenersOnTargetDone() {
+        //TODO
+        ActuatorView.targetEditDoneListener tgt1 = new ActuatorView.targetEditDoneListener() {
+            @Override
+            public void onDone(float val) {
+                awms[0].setRequestedValue(mode, selectedCounter, val);
+                ma.setRequestedValueInsideController(0, mode, selectedCounter, awms[0].getLatestRequestedValue(mode, selectedCounter));
+            }
+        };
+        ActuatorView.targetEditDoneListener tgt2 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[1].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(1, mode, selectedCounter, awms[1].getLatestRequestedValue(mode, selectedCounter)); } };
+        ActuatorView.targetEditDoneListener tgt3 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[2].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(2, mode, selectedCounter, awms[2].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt4 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[3].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(3, mode, selectedCounter, awms[3].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt5 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[4].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(4, mode, selectedCounter, awms[4].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt6 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[5].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(5, mode, selectedCounter, awms[5].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt7 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[6].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(6, mode, selectedCounter, awms[6].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt8 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[7].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(7, mode, selectedCounter, awms[7].getLatestRequestedValue(mode, selectedCounter));} };
+
+        binding.left1.setOnDoneListener(tgt1);
+        binding.right1.setOnDoneListener(tgt2);
+        binding.left2.setOnDoneListener(tgt3);
+        binding.right2.setOnDoneListener(tgt4);
+        binding.left3.setOnDoneListener(tgt5);
+        binding.right3.setOnDoneListener(tgt6);
+        binding.left4.setOnDoneListener(tgt7);
+        binding.right4.setOnDoneListener(tgt8);
     }
 
     private void assignListenersOnMeasureUnitsToggle() {
@@ -307,6 +347,8 @@ public class manualFragment extends Fragment  {
 
     private void informAllViewOnSelectedCounter() {
         //TODO implement this method
+        for(int i = 0; i < 8; ++i)
+            awms[i].setMode(selectedCounter);
     }
 
     public void resetButtonsHeader() {
