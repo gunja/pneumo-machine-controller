@@ -31,6 +31,7 @@ public class pointsSettingsFragment  extends Fragment {
     private int selectedWD;
     private MainActivity ma;
     PointsSettingViewModel psvm;
+    CounterGroupViewModel cgvm;
 
     Observer<Integer> obsrv1;
     Observer<Integer> obsrv2;
@@ -106,6 +107,8 @@ public class pointsSettingsFragment  extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setPointsInputDisabled();
         psvm= new ViewModelProvider(requireActivity()).get("1000", PointsSettingViewModel.class);
+        cgvm = new ViewModelProvider(requireActivity()).get("2010", CounterGroupViewModel.class);
+
 
         View.OnClickListener oncD = new View.OnClickListener()
         {
@@ -193,36 +196,36 @@ public class pointsSettingsFragment  extends Fragment {
                             psvm.setBWDValue(selectedD-1, 1, v1 );
                         }
                         ma.updateReactionPositionValue(selectedWD > 0, selectedD, 1, v1);
-                    };
+                    }
                 });
         binding.editT2.setOnFocusChangeListener( (v, f) ->  {  if (!f){   int v2; try { v2 =  NumberFormat.getInstance().parse(binding.editT2.getText().toString()).intValue();
                 } catch (ParseException | java.text.ParseException e) { v2 =  0; }  if(selectedWD > 0) { psvm.setFWDValue(selectedD-1, 2, v2); } else { psvm.setBWDValue(selectedD-1, 2, v2 );}
                 ma.updateReactionPositionValue(selectedWD > 0, selectedD, 2, v2);
-            };});
+            }});
         binding.editT3.setOnFocusChangeListener( (v, f) ->  {  if (!f){   int v3; try { v3 =  NumberFormat.getInstance().parse(binding.editT3.getText().toString()).intValue();
         } catch (ParseException | java.text.ParseException e) { v3 =  0; }  if(selectedWD > 0) { psvm.setFWDValue(selectedD-1, 3, v3); } else { psvm.setBWDValue(selectedD-1, 3, v3 );}
             ma.updateReactionPositionValue(selectedWD > 0, selectedD, 3, v3);
-        };});
+        }});
         binding.editT4.setOnFocusChangeListener( (v, f) ->  {  if (!f){   int v4; try { v4 =  NumberFormat.getInstance().parse(binding.editT4.getText().toString()).intValue();
         } catch (ParseException | java.text.ParseException e) { v4 =  0; }  if(selectedWD > 0) { psvm.setFWDValue(selectedD-1, 4, v4); } else { psvm.setBWDValue(selectedD-1, 4, v4 );}
             ma.updateReactionPositionValue(selectedWD > 0, selectedD, 4, v4);
-        };});
+        }});
         binding.editT5.setOnFocusChangeListener( (v, f) ->  {  if (!f){   int v5; try { v5 =  NumberFormat.getInstance().parse(binding.editT5.getText().toString()).intValue();
         } catch (ParseException | java.text.ParseException e) { v5 =  0; }  if(selectedWD > 0) { psvm.setFWDValue(selectedD-1, 5, v5); } else { psvm.setBWDValue(selectedD-1, 5, v5 );}
             ma.updateReactionPositionValue(selectedWD > 0, selectedD, 5, v5);
-        };});
+        }});
         binding.editT6.setOnFocusChangeListener( (v, f) ->  {  if (!f){   int v6; try { v6 =  NumberFormat.getInstance().parse(binding.editT6.getText().toString()).intValue();
         } catch (ParseException | java.text.ParseException e) { v6 =  0; }  if(selectedWD > 0) { psvm.setFWDValue(selectedD-1, 6, v6); } else { psvm.setBWDValue(selectedD-1, 6, v6 );}
             ma.updateReactionPositionValue(selectedWD > 0, selectedD, 6, v6);
-        };});
+        }});
         binding.editT7.setOnFocusChangeListener( (v, f) ->  {  if (!f){   int v7; try { v7 =  NumberFormat.getInstance().parse(binding.editT7.getText().toString()).intValue();
         } catch (ParseException | java.text.ParseException e) { v7 =  0; }  if(selectedWD > 0) { psvm.setFWDValue(selectedD-1, 7, v7); } else { psvm.setBWDValue(selectedD-1, 7, v7 );}
             ma.updateReactionPositionValue(selectedWD > 0, selectedD, 7, v7);
-        };});
+        }});
         binding.editT8.setOnFocusChangeListener( (v, f) ->  {  if (!f){   int v8; try { v8 =  NumberFormat.getInstance().parse(binding.editT8.getText().toString()).intValue();
         } catch (ParseException | java.text.ParseException e) { v8 =  0; }  if(selectedWD > 0) { psvm.setFWDValue(selectedD-1, 8, v8); } else { psvm.setBWDValue(selectedD-1, 8, v8 );}
             ma.updateReactionPositionValue(selectedWD > 0, selectedD, 8, v8);
-        };});
+        }});
 
         binding.editT8.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {

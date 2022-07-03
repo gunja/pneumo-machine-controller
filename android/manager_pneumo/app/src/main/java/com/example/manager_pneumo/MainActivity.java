@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "EAT";
     private ActivityMainBinding binding;
     private LoginViewModel loginViewModel;
-    private TabLayout.Tab tab[] = new TabLayout.Tab[SectionsPagerAdapter.TAB_TITLES.length];
+    private TabLayout.Tab[] tab = new TabLayout.Tab[SectionsPagerAdapter.TAB_TITLES.length];
     private ViewPager2 viewPager;
     private final String CUR_PASS_PRM = "CurPass";
     private String cur_pass;
@@ -42,14 +42,15 @@ public class MainActivity extends AppCompatActivity
     private SharedPreferences sharedPref;
     private ViewModelProvider mvp;
     private SectionsPagerAdapter spa;
+    AutoSensorSelectedViewModel ass;
 
     public static final String EXIT_REQUESTED ="DESIRE_EXIt";
     public static final String REPEAR_REQUESTED = "DESIRE_REPEAT";
 
     private String apName;
     ConnectionDialogFragment cdf;
-    FeedsViewModel fwms[];
-    ActuatorViewModel awms[];
+    FeedsViewModel[] fwms;
+    ActuatorViewModel[] awms;
     PointsSettingViewModel psvm;
 
     public void renderSettingsPage() {
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         cur_pass = sharedPref.getString(CUR_PASS_PRM, "1111");
 
-        apName = new String("");
+        apName = ("");
 
         cdf = null;
 
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity
         };
 
         psvm = vmp.get("1000", PointsSettingViewModel.class);
+        ass = mvp.get("2001", AutoSensorSelectedViewModel.class);
 
         uiHandler = new Handler(this);
         mbThread = new ModbusExchangeThread();
@@ -146,6 +148,7 @@ public class MainActivity extends AppCompatActivity
     public void onTabSelected(TabLayout.Tab tab) {
        System.out.println("selected tab" + tab.getPosition());
         this.tab[2].setText(R.string.tab_auto);
+        ass.setVal(0);
         sendTabSelectedValue(tab.getPosition());
        if (tab.getPosition() == 3) {
            viewPager.setCurrentItem(4);
@@ -171,14 +174,19 @@ public class MainActivity extends AppCompatActivity
        }
     }
 
-    private void sendTabSelectedValue(int position) {
+    public void sendTabSelectedValue(int position, int sens) {
         if (position > 2 )
             return;
         Message msg = new Message();
         msg.what = ModbusExchangeThread.SET_ONE_REGISTER_BY_ADDRESS;
         msg.arg1 = 450;
-        msg.arg2 = 10 * position;
+        msg.arg2 = 10 * position + sens;
         mbThread.getHandler().sendMessage(msg);
+    }
+
+
+    private void sendTabSelectedValue(int position) {
+        sendTabSelectedValue(position, 0);
     }
 
     @Override
@@ -212,7 +220,7 @@ public class MainActivity extends AppCompatActivity
         switch(msg.what)
         {
             case ModbusExchangeThread.GET_ACCESS_POINT_NAME:
-                apName = new String((String) msg.obj);
+                apName = ((String) msg.obj);
                 break;
             case ModbusExchangeThread.GET_ACTUATOR_NAMES: //getActuatorNames
                 awms[msg.arg1-1].postTitle((String) msg.obj);
@@ -330,7 +338,7 @@ public class MainActivity extends AppCompatActivity
         outState.putString(CUR_PASS_PRM, cur_pass);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(CUR_PASS_PRM, cur_pass);
-        editor.commit();
+        editor.apply();
         // call superclass to save any view hierarch
         super.onSaveInstanceState(outState);
     }
@@ -353,7 +361,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void sendAPNameToController(String string) {
-        apName = string.substring(0, string.length()< 23 ? string.length(): 23);
+        apName = string.substring(0, Math.min(string.length(), 23));
         Message msg = new Message();
         msg.what = 101;
         msg.arg1 = 1;
@@ -402,12 +410,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void activateLatestSelectedTab(int msg) {
-        if (msg < 0 || msg > 3)
-        {
-            viewPager.setCurrentItem(0);
-            return;
+        switch(msg/10) {
+            case 1:
+                //viewPager.setCurrentItem(1);
+                this.tab[1].select();
+                break;
+            case 2:
+                this.tab[2].select();
+                //viewPager.setCurrentItem(2);
+                break;
+            case 0: default:
+                this.tab[0].select();
+                //viewPager.setCurrentItem(0);
         }
-        viewPager.setCurrentItem(msg);
+        if (msg > 20 && msg < 24)
+        {
+            ass.setVal(msg - 20);
+        }
     }
 
     @Override
@@ -446,6 +465,13 @@ public class MainActivity extends AppCompatActivity
         msg.what = ModbusExchangeThread.SET_TARGET_FOR;
         msg.arg1 =selectedCounter * 8 + i;
         msg.arg2 = latestRequestedValue;
+        mbThread.getHandler().sendMessage(msg);
+    }
+
+    public void toggleManualDetailPresence(boolean b) {
+        Message msg = new Message();
+        msg.what = ModbusExchangeThread.SET_MANUAL_DETAIL_STATE;
+        msg.arg1 = b? 1:0;
         mbThread.getHandler().sendMessage(msg);
     }
 }

@@ -22,7 +22,7 @@ IPAddress subnet(255,255,255,0);
 ModbusTCP mb;
 struct memory_layout ML;
 
-char rqInputRegs[] = {'I', 20};
+char rqInputRegs[] = {'I', 21};
 char rqHoldingRegs[] = {'H', sizeof(struct memory_layout) };
 
 unsigned long lastIRegRq =0;
@@ -48,11 +48,18 @@ void getInputRegs()
 
 void getIRSimulated()
 {
+  static uint16_t presVal =0;
+  static unsigned long lastPresenceToggle = millis();
   unsigned long now = millis();
   for(int i=1; i <= sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
   {
     int16_t val = 600 + 400 * sin( now/100000. * i);
     mb.Ireg(i, val);
+  }
+  if (now - lastPresenceToggle > 2000) {
+    lastPresenceToggle = now;
+    presVal = presVal ? 0: 1;
+    mb.Ireg(21, presVal);
   }
 }
 
@@ -74,6 +81,16 @@ uint16_t cbModbusSetHreg(TRegister* reg, uint16_t val)
   {
     InformAtmegaOnManualGoalRequest(reg->address.address - HOLD_REG_MANUAL_TARGET_C1, val);
   }
+
+  if (reg->address.address == MANUAL_INPUT_DETAIL_DETECTOR )
+  {
+    Serial.print("Manual register state is "); Serial.println(val? " true" : " false");
+  }
+  if (reg->address.address == LAST_SELECTED_MODE )
+  {
+    Serial.print("Received Last Selected mode == "); Serial.println(val);
+  }
+  
   return val;
 }
 

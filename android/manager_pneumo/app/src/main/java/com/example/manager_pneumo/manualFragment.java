@@ -28,6 +28,7 @@ public class manualFragment extends Fragment  {
     private int selectedCounter;
     private int on_off_manual_state;
     private MainActivity ma;
+    AutoSensorSelectedViewModel ass;
 
     public static manualFragment newInstance(boolean displayDesired, int t) {
         manualFragment fragment = new manualFragment();
@@ -65,15 +66,6 @@ public class manualFragment extends Fragment  {
         binding = LayoutManualBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-
-        /*binding.globa1.setTitleText("Насос");
-        binding.globa2.setTitleText("Общее давление");
-        binding.globa3.setTitleText("Ресивер");
-
-        binding.globa1.setValueText("0.0 бар");
-        binding.globa2.setValueText("10.0 бар");
-        */
-
         binding.left1.setShowDesired(desiredDisplayed);
         binding.left2.setShowDesired(desiredDisplayed);
         binding.left3.setShowDesired(desiredDisplayed);
@@ -95,22 +87,16 @@ public class manualFragment extends Fragment  {
         ViewModelProvider vmp = new ViewModelProvider(requireActivity());
         Log.d("__manualFragment___", "создание fwms при requireActivity=" + requireActivity() + "  для VMP ="+ vmp );
 
-        FeedsViewModel fwm1 = new ViewModelProvider(requireActivity()).get(String.format("%d", 1), FeedsViewModel.class);
-
         fwms = new FeedsViewModel[]{
-                new ViewModelProvider(requireActivity()).get("1", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("2", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("3", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("4", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("5", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("6", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("7", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("8", FeedsViewModel.class)
+                vmp.get("1", FeedsViewModel.class),
+                vmp.get("2", FeedsViewModel.class),
+                vmp.get("3", FeedsViewModel.class),
+                vmp.get("4", FeedsViewModel.class),
+                vmp.get("5", FeedsViewModel.class),
+                vmp.get("6", FeedsViewModel.class),
+                vmp.get("7", FeedsViewModel.class),
+                vmp.get("8", FeedsViewModel.class)
         };
-
-        fwm1.getTitle().observe(getViewLifecycleOwner(), title -> {
-            System.out.println("callback setting  title for globa1. "+ title);
-            binding.globa1.setTitleText(title);});
 
         fwms[0].getTitle().observe(getViewLifecycleOwner(), title -> {
             System.out.println("callback setting  title for globa1. "+ title);
@@ -133,14 +119,14 @@ public class manualFragment extends Fragment  {
         fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
 
         awms = new ActuatorViewModel[] {
-            new ViewModelProvider(requireActivity()).get("11", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("12", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("13", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("14", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("15", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("16", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("17", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("18", ActuatorViewModel.class)
+                vmp.get("11", ActuatorViewModel.class),
+                vmp.get("12", ActuatorViewModel.class),
+                vmp.get("13", ActuatorViewModel.class),
+                vmp.get("14", ActuatorViewModel.class),
+                vmp.get("15", ActuatorViewModel.class),
+                vmp.get("16", ActuatorViewModel.class),
+                vmp.get("17", ActuatorViewModel.class),
+                vmp.get("18", ActuatorViewModel.class)
         };
 
         awms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.left1.setTitleText(title));
@@ -175,10 +161,13 @@ public class manualFragment extends Fragment  {
             awms[7].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.right4.setTargetValue(value));
         }
 
+        ass = vmp.get("2001", AutoSensorSelectedViewModel.class);
+
         if (mode == 2)
         {
             binding.autoBtns.setVisibility(View.VISIBLE);
             binding.autoDetailBtns.setVisibility(View.GONE);
+            ass.getVal().observe(getViewLifecycleOwner(), value -> switchSelectedCounter(value));
         }
 
         View.OnClickListener d1_d4_onc = new View.OnClickListener() {
@@ -201,12 +190,14 @@ public class manualFragment extends Fragment  {
                 }
                 if(view == binding.d4Btn){
                     selectedCounter = 4;
+                    ma.setSelectedCounter(selectedCounter);
                     binding.autoDetailBtns.setVisibility(View.VISIBLE);
                     binding.d4Btn.setBackgroundColor(Color.RED);
                     binding.manOffBtn.setEnabled(false);
                     binding.manOnBtn.setEnabled(true);
                 }
                 informAllViewOnSelectedCounter();
+                ma.sendTabSelectedValue(2, selectedCounter);
             }
         };
         binding.d1Btn.setOnClickListener(d1_d4_onc);
@@ -219,15 +210,14 @@ public class manualFragment extends Fragment  {
             public void onClick(View view) {
                 if (view == binding.manOnBtn)
                 {
-                    //TODO send message to controller that new detail appeared
                     binding.manOffBtn.setEnabled(true);
                     binding.manOnBtn.setEnabled(false);
+                    ma.toggleManualDetailPresence(true);
                 }
                 if (view == binding.manOffBtn)
                 {
-                    //TODO send message to controller that new detail appeared
                     binding.autoBtns.setVisibility(View.GONE);
-                    ma.setSelectedCounter(selectedCounter);
+                    ma.toggleManualDetailPresence(false);
                 }
             }
         };
@@ -239,6 +229,24 @@ public class manualFragment extends Fragment  {
             assignListenersOnTargetDone();
         }
 
+    }
+
+    private void switchSelectedCounter(int val) {
+        switch(val)
+        {
+            case 1:
+                binding.d1Btn.performClick();
+                break;
+            case 2:
+                binding.d2Btn.performClick();
+                break;
+            case 3:
+                binding.d3Btn.performClick();
+                break;
+            case 4:
+                binding.d4Btn.performClick();
+                break;
+        }
     }
 
     private void assignListenersOnTargetDone() {
