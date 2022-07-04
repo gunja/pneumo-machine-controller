@@ -51,7 +51,7 @@ void getIRSimulated()
   static uint16_t presVal =0;
   static unsigned long lastPresenceToggle = millis();
   unsigned long now = millis();
-  for(int i=1; i <= sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
+  for(int i=1; i < sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
   {
     int16_t val = 600 + 400 * sin( now/100000. * i);
     mb.Ireg(i, val);
