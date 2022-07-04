@@ -27,6 +27,8 @@ public class manualFragment extends Fragment  {
     ActuatorViewModel[] awms;
     private int selectedCounter;
     private int on_off_manual_state;
+    private MainActivity ma;
+    AutoSensorSelectedViewModel ass;
 
     public static manualFragment newInstance(boolean displayDesired, int t) {
         manualFragment fragment = new manualFragment();
@@ -36,6 +38,11 @@ public class manualFragment extends Fragment  {
         fragment.setArguments(bundle);
         System.out.println("newInstance __manualFragment___ called with " );
         return fragment;
+    }
+
+    public void setMA(MainActivity ma)
+    {
+        this.ma = ma;
     }
 
     @Override
@@ -59,15 +66,6 @@ public class manualFragment extends Fragment  {
         binding = LayoutManualBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-
-        /*binding.globa1.setTitleText("Насос");
-        binding.globa2.setTitleText("Общее давление");
-        binding.globa3.setTitleText("Ресивер");
-
-        binding.globa1.setValueText("0.0 бар");
-        binding.globa2.setValueText("10.0 бар");
-        */
-
         binding.left1.setShowDesired(desiredDisplayed);
         binding.left2.setShowDesired(desiredDisplayed);
         binding.left3.setShowDesired(desiredDisplayed);
@@ -77,6 +75,7 @@ public class manualFragment extends Fragment  {
         binding.right2.setShowDesired(desiredDisplayed);
         binding.right3.setShowDesired(desiredDisplayed);
         binding.right4.setShowDesired(desiredDisplayed);
+
 
         return root;
     }
@@ -88,22 +87,16 @@ public class manualFragment extends Fragment  {
         ViewModelProvider vmp = new ViewModelProvider(requireActivity());
         Log.d("__manualFragment___", "создание fwms при requireActivity=" + requireActivity() + "  для VMP ="+ vmp );
 
-        FeedsViewModel fwm1 = new ViewModelProvider(requireActivity()).get(String.format("%d", 1), FeedsViewModel.class);
-
         fwms = new FeedsViewModel[]{
-                new ViewModelProvider(requireActivity()).get("1", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("2", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("3", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("4", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("5", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("6", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("7", FeedsViewModel.class),
-                new ViewModelProvider(requireActivity()).get("8", FeedsViewModel.class)
+                vmp.get("1", FeedsViewModel.class),
+                vmp.get("2", FeedsViewModel.class),
+                vmp.get("3", FeedsViewModel.class),
+                vmp.get("4", FeedsViewModel.class),
+                vmp.get("5", FeedsViewModel.class),
+                vmp.get("6", FeedsViewModel.class),
+                vmp.get("7", FeedsViewModel.class),
+                vmp.get("8", FeedsViewModel.class)
         };
-
-        fwm1.getTitle().observe(getViewLifecycleOwner(), title -> {
-            System.out.println("callback setting  title for globa1. "+ title);
-            binding.globa1.setTitleText(title);});
 
         fwms[0].getTitle().observe(getViewLifecycleOwner(), title -> {
             System.out.println("callback setting  title for globa1. "+ title);
@@ -126,14 +119,14 @@ public class manualFragment extends Fragment  {
         fwms[7].getValueAsString().observe(getViewLifecycleOwner(), value -> binding.globa8.setValueText(value));
 
         awms = new ActuatorViewModel[] {
-            new ViewModelProvider(requireActivity()).get("11", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("12", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("13", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("14", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("15", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("16", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("17", ActuatorViewModel.class),
-            new ViewModelProvider(requireActivity()).get("18", ActuatorViewModel.class)
+                vmp.get("11", ActuatorViewModel.class),
+                vmp.get("12", ActuatorViewModel.class),
+                vmp.get("13", ActuatorViewModel.class),
+                vmp.get("14", ActuatorViewModel.class),
+                vmp.get("15", ActuatorViewModel.class),
+                vmp.get("16", ActuatorViewModel.class),
+                vmp.get("17", ActuatorViewModel.class),
+                vmp.get("18", ActuatorViewModel.class)
         };
 
         awms[0].getTitle().observe(getViewLifecycleOwner(), title -> binding.left1.setTitleText(title));
@@ -168,10 +161,13 @@ public class manualFragment extends Fragment  {
             awms[7].getRQValueAsText().observe(getViewLifecycleOwner(), value -> binding.right4.setTargetValue(value));
         }
 
+        ass = vmp.get("2001", AutoSensorSelectedViewModel.class);
+
         if (mode == 2)
         {
             binding.autoBtns.setVisibility(View.VISIBLE);
             binding.autoDetailBtns.setVisibility(View.GONE);
+            ass.getVal().observe(getViewLifecycleOwner(), value -> switchSelectedCounter(value));
         }
 
         View.OnClickListener d1_d4_onc = new View.OnClickListener() {
@@ -179,24 +175,29 @@ public class manualFragment extends Fragment  {
             public void onClick(View view) {
                 if(view == binding.d1Btn){
                     selectedCounter = 1;
+                    ma.setSelectedCounter(selectedCounter);
                     binding.autoBtns.setVisibility(View.GONE);
                 }
                 if(view == binding.d2Btn){
                     selectedCounter = 2;
+                    ma.setSelectedCounter(selectedCounter);
                     binding.autoBtns.setVisibility(View.GONE);
                 }
                 if(view == binding.d3Btn){
                     selectedCounter = 3;
+                    ma.setSelectedCounter(selectedCounter);
                     binding.autoBtns.setVisibility(View.GONE);
                 }
                 if(view == binding.d4Btn){
                     selectedCounter = 4;
+                    ma.setSelectedCounter(selectedCounter);
                     binding.autoDetailBtns.setVisibility(View.VISIBLE);
                     binding.d4Btn.setBackgroundColor(Color.RED);
                     binding.manOffBtn.setEnabled(false);
                     binding.manOnBtn.setEnabled(true);
                 }
                 informAllViewOnSelectedCounter();
+                ma.sendTabSelectedValue(2, selectedCounter);
             }
         };
         binding.d1Btn.setOnClickListener(d1_d4_onc);
@@ -209,20 +210,77 @@ public class manualFragment extends Fragment  {
             public void onClick(View view) {
                 if (view == binding.manOnBtn)
                 {
-                    //TODO send message to controller that new detail appeared
                     binding.manOffBtn.setEnabled(true);
                     binding.manOnBtn.setEnabled(false);
+                    ma.toggleManualDetailPresence(true);
                 }
                 if (view == binding.manOffBtn)
                 {
-                    //TODO send message to controller that new detail appeared
                     binding.autoBtns.setVisibility(View.GONE);
+                    ma.toggleManualDetailPresence(false);
                 }
             }
         };
         binding.manOnBtn.setOnClickListener(manPresentSensor_onc);
         binding.manOffBtn.setOnClickListener(manPresentSensor_onc);
 
+
+        if (mode == 1 || mode == 2) {
+            assignListenersOnTargetDone();
+        }
+
+    }
+
+    private void switchSelectedCounter(int val) {
+        switch(val)
+        {
+            case 1:
+                binding.d1Btn.performClick();
+                break;
+            case 2:
+                binding.d2Btn.performClick();
+                break;
+            case 3:
+                binding.d3Btn.performClick();
+                break;
+            case 4:
+                binding.d4Btn.performClick();
+                break;
+        }
+    }
+
+    private void assignListenersOnTargetDone() {
+        //TODO
+        ActuatorView.targetEditDoneListener tgt1 = new ActuatorView.targetEditDoneListener() {
+            @Override
+            public void onDone(float val) {
+                awms[0].setRequestedValue(mode, selectedCounter, val);
+                ma.setRequestedValueInsideController(0, mode, selectedCounter, awms[0].getLatestRequestedValue(mode, selectedCounter));
+            }
+        };
+        ActuatorView.targetEditDoneListener tgt2 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[1].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(1, mode, selectedCounter, awms[1].getLatestRequestedValue(mode, selectedCounter)); } };
+        ActuatorView.targetEditDoneListener tgt3 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[2].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(2, mode, selectedCounter, awms[2].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt4 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[3].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(3, mode, selectedCounter, awms[3].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt5 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[4].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(4, mode, selectedCounter, awms[4].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt6 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[5].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(5, mode, selectedCounter, awms[5].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt7 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[6].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(6, mode, selectedCounter, awms[6].getLatestRequestedValue(mode, selectedCounter));} };
+        ActuatorView.targetEditDoneListener tgt8 = new ActuatorView.targetEditDoneListener() {  @Override public void onDone(float val) { awms[7].setRequestedValue(mode, selectedCounter, val);
+            ma.setRequestedValueInsideController(7, mode, selectedCounter, awms[7].getLatestRequestedValue(mode, selectedCounter));} };
+
+        binding.left1.setOnDoneListener(tgt1);
+        binding.right1.setOnDoneListener(tgt2);
+        binding.left2.setOnDoneListener(tgt3);
+        binding.right2.setOnDoneListener(tgt4);
+        binding.left3.setOnDoneListener(tgt5);
+        binding.right3.setOnDoneListener(tgt6);
+        binding.left4.setOnDoneListener(tgt7);
+        binding.right4.setOnDoneListener(tgt8);
     }
 
     private void assignListenersOnMeasureUnitsToggle() {
@@ -297,6 +355,8 @@ public class manualFragment extends Fragment  {
 
     private void informAllViewOnSelectedCounter() {
         //TODO implement this method
+        for(int i = 0; i < 8; ++i)
+            awms[i].setMode(selectedCounter);
     }
 
     public void resetButtonsHeader() {

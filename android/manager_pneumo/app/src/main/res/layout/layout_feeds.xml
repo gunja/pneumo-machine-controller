@@ -28,6 +28,7 @@
         android:editable="false"
         android:ems="10"
         android:inputType="none"
+        android:maxLines="1"
         android:text="upper line"
         android:textSize="14sp" />
 
@@ -40,5 +41,6 @@
         android:editable="false"
         android:ems="10"
         android:inputType="none"
+        android:maxLines="1"
         android:text="lowerline" />
 </LinearLayout>

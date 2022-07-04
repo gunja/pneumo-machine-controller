@@ -6,12 +6,19 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.icu.text.NumberFormat;
+import android.os.Build;
 import android.text.InputType;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.net.ParseException;
 
 import com.example.manager_pneumo.databinding.LayoutReadingBinding;
 
@@ -23,6 +30,8 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
     private int own_id;
     private LayoutReadingBinding binding;
     private boolean shouldShow;
+    private int latestTarget;
+    private boolean inSettings;
 
     public void setOptionKg(Boolean value) {
         if(value)
@@ -37,7 +46,12 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
         public void onToggle();
     };
 
+    public interface targetEditDoneListener {
+        public void onDone(float val);
+    };
+
     private tgButtonListener listener;
+    private targetEditDoneListener targetListener;
 
     public ActuatorView(Context context) {
         super(context);
@@ -54,6 +68,7 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
         init(attrs, defStyle);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void init(AttributeSet attrs, int defStyle) {
         binding = LayoutReadingBinding.inflate(LayoutInflater.from(getContext()), this, true);
         // Load attributes
@@ -64,7 +79,27 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
 
         shouldShow = true;
         listener = null;
+        targetListener = null;
         binding.switchUnitBtn.setOnClickListener(this);
+        latestTarget = 0;
+        inSettings = false;
+
+        binding.targetValue.setOnClickListener(this);
+        binding.pneumoTitle.setOnClickListener(this);
+        binding.actualValue.setOnClickListener(this);
+        binding.switchUnitBtn.setOnClickListener(this);
+
+        binding.targetValue.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                float v8;
+                try {
+                    v8 =  NumberFormat.getInstance().parse(binding.targetValue.getText().toString()).floatValue();
+                } catch (ParseException | java.text.ParseException e) { v8 =  0.f; }
+                if (targetListener != null)
+                    targetListener.onDone(v8);
+            }
+            return false;
+        });
     }
 
     public void setTitleText(String title)
@@ -76,6 +111,8 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
     {
         listener = ltn;
     }
+
+    public void setOnDoneListener(targetEditDoneListener ltn) {targetListener = ltn;}
 
     public void setShowDesired(boolean shouldShow) {
         this.shouldShow = shouldShow;
@@ -90,7 +127,15 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view !=  binding.switchUnitBtn) {
-            performClick();
+            if (inSettings) {
+                performClick();
+                return;
+            }
+            //TODO set focus on targetValue and capture input after input is done
+            binding.targetValue.requestFocus();
+            binding.targetValue.setSelection(binding.targetValue.getText().length());
+            InputMethodManager imm = (InputMethodManager)  getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             return;
         }
         // TODO implement switching of displayed units
@@ -107,10 +152,7 @@ public class ActuatorView extends LinearLayout implements View.OnClickListener {
 
     public void setInSettingsMode() {
         binding.targetValue.setInputType(InputType.TYPE_NULL);
-        binding.targetValue.setOnClickListener(this);
-        binding.pneumoTitle.setOnClickListener(this);
-        binding.actualValue.setOnClickListener(this);
-        binding.switchUnitBtn.setOnClickListener(this);
+        inSettings = true;
     }
 
     public void setTargetValue(String value)

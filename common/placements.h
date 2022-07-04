@@ -31,6 +31,9 @@
 #define INPUT_REG_READING_ACT7 19
 #define INPUT_REG_READING_ACT8 20
 
+#define INPUT_REG_DETAIL_PRESENCE 21
+
+
 #define HOLD_REG_H1_RAW_1 1
 #define HOLD_REG_H1_VAL_1_LOW 2
 #define HOLD_REG_H1_VAL_1_HGH 3
@@ -353,6 +356,9 @@
 
 #define LAST_SELECTED_MODE 450
 
+#define MANUAL_INPUT_DETAIL_DETECTOR 451
+
+
 #pragma pack(push, 1)
 struct _input_regs
 {
@@ -378,6 +384,9 @@ struct _input_regs
     uint16_t ir_act6;
     uint16_t ir_act7;
     uint16_t ir_act8;
+
+    uint16_t ir_det_pres;
+
 };
 
 union fl_int16 {
@@ -440,6 +449,7 @@ struct memory_layout {
     int16_t auto_d4_targets[CYLINDER_PAIRS_COUNT];
 
     int16_t last_selected_mode;
+    int16_t manual_detector_from_user;
 };
 
 #pragma pack(pop)

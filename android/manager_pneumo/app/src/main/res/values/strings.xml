@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Управление пневматикой</string>
+    <string name="app_name">СРВ</string>
     <string name="tab_measurements">Измерения</string>
     <string name="tab_manual">Ручной</string>
     <string name="tab_auto">Автомат</string>
@@ -21,8 +21,6 @@
     <string name="tab_title_2">Ручной</string>
     <string name="tab_title_3">Автомат</string>
     <string name="tab_title_4">Настройки</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="AP_name" translatable="false">Имя точки доступа</string>
     <string name="settings_page_password">Пароль вкладки Настройки</string>
     <string name="points_text">Точки</string>
@@ -37,7 +35,7 @@
     <string name="d1_name">Датч 1</string>
     <string name="d2_name">Датч 2</string>
     <string name="d3_name">Датч 3</string>
-    <string name="d4_name">Д4-Р</string>
+    <string name="d4_name">Датч 4-Р</string>
     <string name="fwd_name">передний ход</string>
     <string name="bwd_name">задний ход</string>
     <string name="on_name">Вкл</string>

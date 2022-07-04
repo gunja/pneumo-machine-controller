@@ -1,6 +1,6 @@
 #include <EEPROM.h>
 
-uint16_t analogReadings[20];
+uint16_t analogReadings[21];
 
 void setupInputPins()
 {
@@ -37,38 +37,38 @@ void setup()
 void readAllAnalogs()
 {
   int val = analogRead(A0);
-  analogReadings[12] = (uint16_t) val;
+  analogReadings[0] = (uint16_t) val;
   val = analogRead(A1);
-  analogReadings[13] = (uint16_t) val;
+  analogReadings[1] = (uint16_t) val;
   val = analogRead(A2);
-  analogReadings[14] = (uint16_t) val;
+  analogReadings[2] = (uint16_t) val;
   val = analogRead(A3);
-  analogReadings[15] = (uint16_t) val;
+  analogReadings[3] = (uint16_t) val;
   val = analogRead(A4);
-  analogReadings[16] = (uint16_t) val;
+  analogReadings[4] = (uint16_t) val;
   val = analogRead(A5);
-  analogReadings[17] = (uint16_t) val;
+  analogReadings[5] = (uint16_t) val;
   val = analogRead(A6);
-  analogReadings[18] = (uint16_t) val;
+  analogReadings[6] = (uint16_t) val;
   val = analogRead(A7);
-  analogReadings[19] = (uint16_t) val;
+  analogReadings[7] = (uint16_t) val;
   
   val = analogRead(A8);
-  analogReadings[0] = (uint16_t) val;
+  analogReadings[12] = (uint16_t) val;
   val = analogRead(A9);
-  analogReadings[1] = (uint16_t) val;
+  analogReadings[13] = (uint16_t) val;
   val = analogRead(A10);
-  analogReadings[2] = (uint16_t) val;
+  analogReadings[14] = (uint16_t) val;
   val = analogRead(A11);
-  analogReadings[3] = (uint16_t) val;
+  analogReadings[15] = (uint16_t) val;
   val = analogRead(A12);
-  analogReadings[4] = (uint16_t) val;
+  analogReadings[16] = (uint16_t) val;
   val = analogRead(A13);
-  analogReadings[5] = (uint16_t) val;
+  analogReadings[17] = (uint16_t) val;
   val = analogRead(A14);
-  analogReadings[6] = (uint16_t) val;
+  analogReadings[18] = (uint16_t) val;
   val = analogRead(A15);
-  analogReadings[7] = (uint16_t) val;
+  analogReadings[19] = (uint16_t) val;
 }
 
 void  determinedSendInputRegs()

@@ -22,7 +22,7 @@ IPAddress subnet(255,255,255,0);
 ModbusTCP mb;
 struct memory_layout ML;
 
-char rqInputRegs[] = {'I', 20};
+char rqInputRegs[] = {'I', 21};
 char rqHoldingRegs[] = {'H', sizeof(struct memory_layout) };
 
 unsigned long lastIRegRq =0;
@@ -54,7 +54,7 @@ void getNextInput()
 {
   if(STATE != RD_INPUTS)
     return;
-  if (g_input_register_read >= 20)
+  if (g_input_register_read >= 21)
      return;
 
   if (Serial.available() >= 2)
@@ -65,17 +65,24 @@ void getNextInput()
       mb.Ireg(g_input_register_read, ((incomingByte2&0xFF)<<8) + (incomingByte1 & 0xFF));
       g_input_register_read++;
   }
-  if (g_input_register_read == 20)
+  if (g_input_register_read == 21)
     STATE = ST_NONE;
 }
 
 void getIRSimulated()
 {
+  static uint16_t presVal =0;
+  static unsigned long lastPresenceToggle = millis();
   unsigned long now = millis();
-  for(int i=1; i <= sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
+  for(int i=1; i < sizeof(struct _input_regs)/sizeof(uint16_t); ++i)
   {
     int16_t val = 600 + 400 * sin( now/100000. * i);
     mb.Ireg(i, val);
+  }
+  if (now - lastPresenceToggle > 2000) {
+    lastPresenceToggle = now;
+    presVal = presVal ? 0: 1;
+    mb.Ireg(21, presVal);
   }
 }
 
@@ -88,7 +95,37 @@ uint16_t cbModbusSetHreg(TRegister* reg, uint16_t val)
   EEPROM.put((reg->address.address - 1) * sizeof(uint16_t), val);
   eepromWriteRequest = true;
   eeprom_write_request = millis();
+  uint16_t last_sel_mode;
+  EEPROM.get((LAST_SELECTED_MODE -1 ) * sizeof(uint16_t), last_sel_mode);
+  if(reg->address.address >= HOLD_REG_MANUAL_TARGET_C1 && reg->address.address <= HOLD_REG_MANUAL_TARGET_C8 
+      && last_sel_mode == 10)
+  {
+    InformAtmegaOnManualGoalRequest(reg->address.address - HOLD_REG_MANUAL_TARGET_C1, val);
+  }
+
+  if (reg->address.address == MANUAL_INPUT_DETAIL_DETECTOR )
+  {
+    //Serial.print("Manual register state is "); Serial.println(val? " true" : " false");
+  }
+  if (reg->address.address == LAST_SELECTED_MODE )
+  {
+    //Serial.print("Received Last Selected mode == "); Serial.println(val);
+  }
+  
   return val;
+}
+
+void InformAtmegaOnManualGoalRequest(uint16_t cylinderIndex, uint16_t value)
+{
+  uint8_t data[5];
+  uint16_t reg;
+  EEPROM.get((HOLD_REG_ACT_DIRECTIONS -1)*sizeof(uint16_t), reg);
+  data[0] = 'M';
+  data[1] = (uint8_t) cylinderIndex;
+  data[2] = reg & (3<< cylinderIndex);
+  data[3] = (value >>8) & 0xFF;
+  data[4] = value & 0xFF;
+  //Serial.write(data, 5); //TODO somehow make exchange procedure
 }
 
 void initEEPROM()

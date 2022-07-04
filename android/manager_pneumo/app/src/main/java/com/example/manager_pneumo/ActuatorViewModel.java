@@ -29,6 +29,13 @@ public class ActuatorViewModel extends ViewModel
     MutableLiveData<Integer> requestedValueAuto3;
     MutableLiveData<Integer> requestedValueAuto4;
 
+    int rqManual;
+    int rqAuto1;
+    int rqAuto2;
+    int rqAuto3;
+    int rqAuto4;
+
+
     MutableLiveData<String> rqValueAsText;
     MutableLiveData<Boolean> reactUpwards;
 
@@ -63,6 +70,12 @@ public class ActuatorViewModel extends ViewModel
         requestedValueAuto2 = new MutableLiveData<Integer>(0) ;
         requestedValueAuto3 = new MutableLiveData<Integer>(0) ;
         requestedValueAuto4 = new MutableLiveData<Integer>(0) ;
+
+        rqManual = 0;
+        rqAuto1 = 0;
+        rqAuto2 = 0;
+        rqAuto3 = 0;
+        rqAuto4 = 0;
 
         mode = new MutableLiveData<Integer>(0) ;
     }
@@ -116,6 +129,7 @@ public class ActuatorViewModel extends ViewModel
 
     private void updateValueDisplayed() {
         actualValueAsText.setValue(getFormattedString());
+        updateRQValAsText();
     }
 
     private void postUpdateValueDisplayed() {
@@ -202,6 +216,7 @@ public class ActuatorViewModel extends ViewModel
     public void setShowInKg(boolean showInKg) {
         this.showInKg.setValue(showInKg);
         updateValueDisplayed();
+
     }
 
     public void setCalibrationValues(ActuatorCalibrationValues obj) {
@@ -259,26 +274,118 @@ public class ActuatorViewModel extends ViewModel
         return rqValueAsText;
     }
 
-    public void postRequestedManualValue(int rqV)
-    {
-        requestedValueManual.postValue(rqV);
-        postUpdateRQValAsText();
+    private void postUpdateRQValAsText() {
+        rqValueAsText.postValue(rqValToString());
+    }
+    private void updateRQValAsText() {
+        rqValueAsText.setValue(rqValToString());
     }
 
-    public void setRequestedManualValue(int rqV)
-    {
-        requestedValueManual.setValue(rqV);
+    private String rqValToString() {
+        int dispVal = 0;
+        switch(mode.getValue())
+        {
+            case 0:
+                dispVal = rqManual;
+                break;
+            case 1:
+                dispVal = rqAuto1;
+                break;
+            case 2:
+                dispVal = rqAuto2;
+                break;
+            case 3:
+                dispVal = rqAuto3;
+                break;
+            case 4:
+                dispVal = rqAuto4;
+                break;
+        }
+        String rv = String.format("r %d", dispVal);
+        if(showInKg.getValue())
+        {
+            if((raw1Kg.getValue() - raw2Kg.getValue()) != 0)
+            {
+                float valeur = (val2Kg.getValue() - val1Kg.getValue())
+                        /(raw2Kg.getValue() - raw1Kg.getValue()) * (dispVal -  raw1Kg.getValue())
+                        + val1Kg.getValue();
+                int rem = (int) valeur/10;
+                rv = String.format("%d кг", rem * 10);
+            }
+        } else {
+            if((raw1bar.getValue() - raw2bar.getValue()) != 0)
+            {
+                float valeur = (val2Bar.getValue() - val1Bar.getValue())
+                        /(raw2bar.getValue() - raw1bar.getValue()) * (dispVal -  raw1bar.getValue())
+                        + val1Bar.getValue();
+                rv = String.format("%.2f бар", valeur);
+            }
+        }
+        return rv;
+    }
+
+    public void setGoalPressureValueOfType(int i, int datum) {
+        switch(i)
+        {
+            case 0:
+                rqManual = datum;
+                requestedValueManual.setValue(rqManual);
+                break;
+            case 1:
+                rqAuto1 = datum;
+                requestedValueAuto1.setValue(rqAuto1);
+                break;
+            case 2:
+                rqAuto2 = datum;
+                requestedValueAuto2.setValue(rqAuto2);
+                break;
+            case 3:
+                rqAuto3 = datum;
+                requestedValueAuto3.setValue(rqAuto3);
+                break;
+            case 4:
+                rqAuto4 = datum;
+                requestedValueAuto4.setValue(rqAuto4);
+                break;
+        }
         updateRQValAsText();
     }
 
-    private void postUpdateRQValAsText() {
-        rqValueAsText.postValue(rqValToString(requestedValueManual.getValue()));
-    }
-    private void updateRQValAsText() {
-        rqValueAsText.setValue(rqValToString(requestedValueManual.getValue()));
+    public void setMode(int v) {
+        mode.setValue(v);
     }
 
-    private String rqValToString(Integer value) {
-        return String.format("r %d", requestedValueManual.getValue());
+    public void setRequestedValue(int mode, int selectedCounter, float val) {
+        int correspValue = 0;
+        if(getShowInKgValue())
+        {
+            if ((val2Kg.getValue() - val1Kg.getValue()) != 0.)
+                correspValue = (int)((val - val1Kg.getValue() ) / (val2Kg.getValue() - val1Kg.getValue()) * (raw2Kg.getValue() - raw1Kg.getValue()) + raw1Kg.getValue());
+            else
+                correspValue = 0;
+        } else {
+            if ((val2Bar.getValue() - val1Bar.getValue()) != 0.)
+                correspValue = (int)((val - val1Bar.getValue() ) / (val2Bar.getValue() - val1Bar.getValue()) * (raw2bar.getValue() - raw1bar.getValue()) + raw1bar.getValue());
+            else
+                correspValue = 0;
+        }
+        setGoalPressureValueOfType(selectedCounter, correspValue);
+    }
+
+    public int getLatestRequestedValue(int mode, int selectedCounter) {
+        switch(selectedCounter)
+        {
+            case 0:
+                return rqManual;
+            case 1:
+                return rqAuto1;
+            case 2:
+                return rqAuto2;
+            case 3:
+                return rqAuto3;
+            case 4:
+                return rqAuto4;
+        }
+        return 0;
     }
 }

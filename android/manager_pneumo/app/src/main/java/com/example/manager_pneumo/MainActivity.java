@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.lifecycle.LiveData;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "EAT";
     private ActivityMainBinding binding;
     private LoginViewModel loginViewModel;
-    private TabLayout.Tab tab[] = new TabLayout.Tab[SectionsPagerAdapter.TAB_TITLES.length];
+    private TabLayout.Tab[] tab = new TabLayout.Tab[SectionsPagerAdapter.TAB_TITLES.length];
     private ViewPager2 viewPager;
     private final String CUR_PASS_PRM = "CurPass";
     private String cur_pass;
@@ -41,14 +42,16 @@ public class MainActivity extends AppCompatActivity
     private SharedPreferences sharedPref;
     private ViewModelProvider mvp;
     private SectionsPagerAdapter spa;
+    AutoSensorSelectedViewModel ass;
 
     public static final String EXIT_REQUESTED ="DESIRE_EXIt";
     public static final String REPEAR_REQUESTED = "DESIRE_REPEAT";
 
     private String apName;
     ConnectionDialogFragment cdf;
-    FeedsViewModel fwms[];
-    ActuatorViewModel awms[];
+    FeedsViewModel[] fwms;
+    ActuatorViewModel[] awms;
+    PointsSettingViewModel psvm;
 
     public void renderSettingsPage() {
         viewPager.setCurrentItem(3);
@@ -59,18 +62,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("MainActivity", "onCreate called");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         cur_pass = sharedPref.getString(CUR_PASS_PRM, "1111");
 
-        apName = new String("");
+        apName = ("");
 
-
-        uiHandler = new Handler(this);
-        mbThread = new ModbusExchangeThread();
-        mbThread.setMUIHandler(uiHandler);
-        mbThread.setActivity(this);
+        cdf = null;
 
         //mUiHandler = new Handler(this);
         System.out.println("Main thread = " + Thread.currentThread().getId() );
@@ -119,24 +119,37 @@ public class MainActivity extends AppCompatActivity
                 vmp.get("18", ActuatorViewModel.class)
         };
 
-        cdf = ConnectionDialogFragment.newInstance("", "");
-        //TODO fix this call from unconditional to comditional
+        psvm = vmp.get("1000", PointsSettingViewModel.class);
+        ass = mvp.get("2001", AutoSensorSelectedViewModel.class);
+
+        uiHandler = new Handler(this);
+        mbThread = new ModbusExchangeThread();
+        mbThread.setMUIHandler(uiHandler);
+        mbThread.setActivity(this);
         mbThread.start();
         getSupportFragmentManager().setFragmentResultListener(EXIT_REQUESTED, this, this );
         getSupportFragmentManager().setFragmentResultListener(REPEAR_REQUESTED, this, this );
 
-        cdf.show(getSupportFragmentManager(), "");
+        if(cdf == null) {
+            cdf = ConnectionDialogFragment.newInstance("", "");
+            cdf.setCancelable(false);
+            cdf.show(getSupportFragmentManager(), "");
+        }
     }
 
     protected void onStop()
     {
         //mbThread.getHandler().sendEmptyMessage(1000);
+        mbThread.lpr.quitSafely();
         super.onStop();
     }
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
        System.out.println("selected tab" + tab.getPosition());
+        this.tab[2].setText(R.string.tab_auto);
+        ass.setVal(0);
+        sendTabSelectedValue(tab.getPosition());
        if (tab.getPosition() == 3) {
            viewPager.setCurrentItem(4);
            System.out.println("set current 4");
@@ -161,6 +174,21 @@ public class MainActivity extends AppCompatActivity
        }
     }
 
+    public void sendTabSelectedValue(int position, int sens) {
+        if (position > 2 )
+            return;
+        Message msg = new Message();
+        msg.what = ModbusExchangeThread.SET_ONE_REGISTER_BY_ADDRESS;
+        msg.arg1 = 450;
+        msg.arg2 = 10 * position + sens;
+        mbThread.getHandler().sendMessage(msg);
+    }
+
+
+    private void sendTabSelectedValue(int position) {
+        sendTabSelectedValue(position, 0);
+    }
+
     @Override
     public void onTabUnselected(TabLayout.Tab tab) {
 
@@ -172,6 +200,7 @@ public class MainActivity extends AppCompatActivity
         if (tab.getPosition() == 2)
         {
             System.out.println("reselected tab" + tab.getPosition() + " name=" + tab.getText());
+            tab.setText(R.string.tab_auto);
             List<Fragment> lfrs = getSupportFragmentManager().getFragments();
             for(int i = 0; i < lfrs.size(); ++i) {
                 try {
@@ -191,7 +220,7 @@ public class MainActivity extends AppCompatActivity
         switch(msg.what)
         {
             case ModbusExchangeThread.GET_ACCESS_POINT_NAME:
-                apName = new String((String) msg.obj);
+                apName = ((String) msg.obj);
                 break;
             case ModbusExchangeThread.GET_ACTUATOR_NAMES: //getActuatorNames
                 awms[msg.arg1-1].postTitle((String) msg.obj);
@@ -250,19 +279,31 @@ public class MainActivity extends AppCompatActivity
 
     private void assignReactionPosition(Object obj) {
         //TODO implement method assignReactionPosition
-        short[] data = (short[]) obj;
-        for(int i = 0 ; i <  8; ++i)
+        short[] positions = (short[]) obj;
+        for(int x =0; x < 4; ++x)
         {
-            awms[i].setRequestedManualValue((int)data[i]);
-            awms[i].requestedValueAuto1.setValue((int)data[i + 1 * 8 ]);
-            awms[i].requestedValueAuto2.setValue((int)data[i + 2 * 8 ]);
-            awms[i].requestedValueAuto3.setValue((int)data[i + 3 * 8 ]);
-            awms[i].requestedValueAuto4.setValue((int)data[i + 4 * 8 ]);
+            for(int y = 0; y < 10; ++y)
+            {
+                psvm.setFWDValue(x, y, positions[x * 20 + y]);
+            }
+            for(int y = 0; y < 10; ++y)
+            {
+                psvm.setBWDValue(x, y, positions[x * 20 + 10 + y]);
+            }
         }
     }
 
     private void assignGoalPressures(Object obj) {
         //TODO implement method assignGoalPressures
+        short[] data = (short[]) obj;
+        for(int i = 0 ; i <  8; ++i)
+        {
+            awms[i].setGoalPressureValueOfType(0, (int)data[i]);
+            awms[i].setGoalPressureValueOfType(1, (int)data[i + 1 * 8 ]);
+            awms[i].setGoalPressureValueOfType(2, (int)data[i + 2 * 8 ]);
+            awms[i].setGoalPressureValueOfType(3, (int)data[i + 3 * 8 ]);
+            awms[i].setGoalPressureValueOfType(4, (int)data[i + 4 * 8 ]);
+        }
     }
 
     private void updateDetailCounter(Message msg) {
@@ -297,7 +338,7 @@ public class MainActivity extends AppCompatActivity
         outState.putString(CUR_PASS_PRM, cur_pass);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(CUR_PASS_PRM, cur_pass);
-        editor.commit();
+        editor.apply();
         // call superclass to save any view hierarch
         super.onSaveInstanceState(outState);
     }
@@ -320,7 +361,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void sendAPNameToController(String string) {
-        apName = string.substring(0, string.length()< 23 ? string.length(): 23);
+        apName = string.substring(0, Math.min(string.length(), 23));
         Message msg = new Message();
         msg.what = 101;
         msg.arg1 = 1;
@@ -369,12 +410,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void activateLatestSelectedTab(int msg) {
-        if (msg < 0 || msg > 3)
-        {
-            viewPager.setCurrentItem(0);
-            return;
+        switch(msg/10) {
+            case 1:
+                //viewPager.setCurrentItem(1);
+                this.tab[1].select();
+                break;
+            case 2:
+                this.tab[2].select();
+                //viewPager.setCurrentItem(2);
+                break;
+            case 0: default:
+                this.tab[0].select();
+                //viewPager.setCurrentItem(0);
         }
-        viewPager.setCurrentItem(msg);
+        if (msg > 20 && msg < 24)
+        {
+            ass.setVal(msg - 20);
+        }
     }
 
     @Override
@@ -392,5 +444,34 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+    }
+
+    public void setSelectedCounter(int selectedCounter) {
+        tab[2].setText(getResources().getString(R.string.tab_auto) + String.format("-%d", selectedCounter));
+    }
+
+    public void updateReactionPositionValue(boolean b, int selectedD, int i, int v1) {
+        // TODO this is not MA's responsibility
+        // move implementation to ModBus handling class
+        Message msg = new Message();
+        msg.what = ModbusExchangeThread.SET_ONE_REGISTER_BY_ADDRESS;
+        msg.arg1 =307 + 20 * (selectedD - 1) + (b?0:10) + i;
+        msg.arg2 = v1;
+        mbThread.getHandler().sendMessage(msg);
+    }
+
+    public void setRequestedValueInsideController(int i, int mode, int selectedCounter, int latestRequestedValue) {
+        Message msg = new Message();
+        msg.what = ModbusExchangeThread.SET_TARGET_FOR;
+        msg.arg1 =selectedCounter * 8 + i;
+        msg.arg2 = latestRequestedValue;
+        mbThread.getHandler().sendMessage(msg);
+    }
+
+    public void toggleManualDetailPresence(boolean b) {
+        Message msg = new Message();
+        msg.what = ModbusExchangeThread.SET_MANUAL_DETAIL_STATE;
+        msg.arg1 = b? 1:0;
+        mbThread.getHandler().sendMessage(msg);
     }
 }
