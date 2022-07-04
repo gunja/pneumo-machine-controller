@@ -42,6 +42,9 @@ public class pointsSettingsFragment  extends Fragment {
     Observer<Integer> obsrv7;
     Observer<Integer> obsrv8;
 
+    Observer<Integer> counterObs;
+    Observer<Integer> presenceObs;
+
     private pointsSettingsFragment()
     {
         super();
@@ -93,12 +96,18 @@ public class pointsSettingsFragment  extends Fragment {
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        System.out.println("manualFragment::onCreateView called " );
+        System.out.println("pointsSettingsFragment::onCreateView called " );
 
         binding = PointsSettingsBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        return binding.getRoot();
+    }
 
-        return root;
+    private void unobserveCounters()
+    {
+        cgvm.getD1().removeObserver(counterObs);
+        cgvm.getD2().removeObserver(counterObs);
+        cgvm.getD3().removeObserver(counterObs);
+        cgvm.getD4().removeObserver(counterObs);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -109,6 +118,28 @@ public class pointsSettingsFragment  extends Fragment {
         psvm= new ViewModelProvider(requireActivity()).get("1000", PointsSettingViewModel.class);
         cgvm = new ViewModelProvider(requireActivity()).get("2010", CounterGroupViewModel.class);
 
+        counterObs = new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer val) {
+                binding.countsText.setText(String.format("%d", val));
+            }
+        };
+
+        presenceObs = new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer val) {
+                if (val > 0) {
+                    binding.sensorOnButton.setBackgroundColor(Color.RED);
+                    binding.sensorOffButton.setBackgroundColor(Color.BLUE);
+                } else
+                {
+                    binding.sensorOnButton.setBackgroundColor(Color.BLUE);
+                    binding.sensorOffButton.setBackgroundColor(Color.RED);
+                }
+            }
+        };
+
+
 
         View.OnClickListener oncD = new View.OnClickListener()
         {
@@ -117,14 +148,25 @@ public class pointsSettingsFragment  extends Fragment {
                 final Button b = (Button) view;
                 unMarkDXButtons();
                 b.setBackgroundColor(Color.RED);
+                unobserveCounters();
+                cgvm.presence().removeObservers(getViewLifecycleOwner());
                 if (b == binding.d1Button) {
                     selectedD = 1;
+                    cgvm.getD1().observe(getViewLifecycleOwner(), counterObs);
+                    cgvm.presence().observe(getViewLifecycleOwner(), presenceObs);
                 } else if (b == binding.d2Button) {
                     selectedD = 2;
+                    cgvm.getD2().observe(getViewLifecycleOwner(), counterObs);
+                    cgvm.presence().observe(getViewLifecycleOwner(), presenceObs);
                 } else if (b == binding.d3Button) {
                     selectedD = 3;
+                    cgvm.getD3().observe(getViewLifecycleOwner(), counterObs);
+                    cgvm.presence().observe(getViewLifecycleOwner(), presenceObs);
                 } else if (b == binding.d4Button) {
                     selectedD = 4;
+                    cgvm.getD4().observe(getViewLifecycleOwner(), counterObs);
+                    binding.sensorOnButton.setBackgroundColor(Color.BLUE);
+                    binding.sensorOffButton.setBackgroundColor(Color.BLUE);
                 }
                 if (selectedD != 0 && selectedWD != 0) {
                     enablePointsInput();
