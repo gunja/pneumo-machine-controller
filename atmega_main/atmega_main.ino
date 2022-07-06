@@ -1,6 +1,14 @@
 #include <EEPROM.h>
+#include <stdint.h>
+
+#include "atm_esp_exchange.h"
 
 uint16_t analogReadings[21];
+
+uint8_t g_RunningMode;
+uint8_t g_CanRunManual;
+uint8_t g_CanRunAuto;
+
 
 void setupInputPins()
 {
@@ -22,6 +30,14 @@ void setupInputPins()
   pinMode(A15, INPUT);
 }
 
+void setupDigitalInputs()
+{
+}
+
+void setupDigitalOutputs()
+{
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -31,7 +47,12 @@ void setup()
   Serial1.println("Hello from serial1 line");
 
   setupInputPins();
+  setupDigitalInputs();
+  setupDigitalOutputs();
 
+    g_RunningMode = 0;
+    g_CanRunManual = 0;
+    g_CanRunAuto = 0;
 }
 
 void readAllAnalogs()
@@ -77,21 +98,80 @@ void  determinedSendInputRegs()
   Serial3.write((char*)analogReadings, sizeof(analogReadings));
 }
 
-void analyzeSer3Input()
+int handleInputRqCode(char *buffer, uint8_t buf_u)
 {
-  static int state = 0;
-  unsigned long now = millis();
-  if( Serial3.available() < 1)
-    return;
-  int v = Serial3.read();
-  switch(v)
-  {
-    case 'I':
+    if(buf_u < 2)
+        return 0;
+
       Serial.print(now); Serial.println(" received I request. Sending raw data");
       determinedSendInputRegs();
-      break;
+
+    return 2;
+}
+
+int handleModeCode(char *buffer, uint8_t b_u)
+{
+    if (b_u < 4)
+        return 0;
+
+    switch(buffer[1])
+    {
+        case 0:
+            g_RunningMode = 0;
+            break;
+        case 10:
+            if(g_CanRunManual > 0)
+                g_RunningMode = 10;
+            break;
+        case 20: 21: 22: 23: 24:
+            if (g_CanRunAuto)
+                g_RunningMode = buffer[1];
+            break;
+    }
+
+    return 4;
+}
+
+void analyzeSer3Input()
+{
+    //TODO rework this method to final state machine
+    // consider timeouts on data receive
+    // consider full message reading
+  static uint8_t state = 0;
+  static char buffer[200];
+  static uint8_t buffer_used = 0;
+
+    // TODO add timeout estimator. in case of too long no data - reset indexes
+
+  while( Serial3.available() > 0)
+  {
+    int val = Serial3.read();
+    buffer[buffer_used++] = (char)(val & 0xFF);
   }
-  
+
+  if (buffer_used == 0)
+      return;
+
+  unsigned long now = millis();
+  uint8_t consumed = 0;
+  switch(buffer[0])
+  {
+    case INPUTS_RQ_CODE:
+      consumed = handleInputRqCode(buffer, buffer_used);
+      break;
+    case MODE_CODE:
+        //TODO
+        consumed = handleModeCode(buffer, buffer_used);
+        break;
+    // TODO create set manual settings
+    // TODO set auto settings
+    // TODO other messages
+  }
+  if (consumed > 0)
+  {
+    memmove(buffer, buffer + consumed, buffer_used - consumed);
+    buffer_used -= consumed;
+  }
 }
 
 
@@ -99,5 +179,24 @@ void loop()
 {
   readAllAnalogs();
   analyzeSer3Input();
-  
+  switch(g_RunningMode) {
+    case 0:
+        disableOutputs();
+        break;
+    case 10:
+        makeManualSet();
+        break;
+    case 21: 22: 23: 24:
+        makeAutoSet();
+        break;
+    }
+}
+
+void disableOutputs()
+{
+    for( i =0; i < 8; ++i)
+    {
+        cylinders[i].setPinLow(0);
+        cylinders[i].setPinLow(1);
+    }
 }

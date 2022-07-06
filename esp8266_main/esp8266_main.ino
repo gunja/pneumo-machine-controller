@@ -6,6 +6,7 @@
 #endif
 #include <ModbusTCP.h>
 #include "placements.h"
+#include "atm_esp_exchange.h"
 #include <math.h>
 
 #ifndef APSSID
@@ -22,7 +23,7 @@ IPAddress subnet(255,255,255,0);
 ModbusTCP mb;
 struct memory_layout ML;
 
-char rqInputRegs[] = {'I', 21};
+char rqInputRegs[] = {INPUTS_RQ_CODE, 21};
 char rqHoldingRegs[] = {'H', sizeof(struct memory_layout) };
 
 unsigned long lastIRegRq =0;
@@ -103,15 +104,17 @@ uint16_t cbModbusSetHreg(TRegister* reg, uint16_t val)
     InformAtmegaOnManualGoalRequest(reg->address.address - HOLD_REG_MANUAL_TARGET_C1, val);
   }
 
-  if (reg->address.address == MANUAL_INPUT_DETAIL_DETECTOR )
+  switch(reg->address.address)
   {
-    //Serial.print("Manual register state is "); Serial.println(val? " true" : " false");
+    case MANUAL_INPUT_DETAIL_DETECTOR:
+        //TODO send data to Atmega, so that it can start counting
+        sendManualDetectorValue(val);
+        break;
+    case LAST_SELECTED_MODE:
+        // TODO send to Atmega to switch operating mode
+        sendOperatingMode(val);
   }
-  if (reg->address.address == LAST_SELECTED_MODE )
-  {
-    //Serial.print("Received Last Selected mode == "); Serial.println(val);
-  }
-  
+
   return val;
 }
 
@@ -202,3 +205,17 @@ void loop()
   }
   getNextInput();
 }
+
+void sendManualDetectorValue(uint16_t val)
+{
+    // TODO implement this method
+    //Serial.print("Manual register state is "); Serial.println(val? " true" : " false");
+}
+
+void sendOperatingMode(uint16_t val)
+{
+    //Serial.print("Received Last Selected mode == "); Serial.println(val);
+    uint8_t data[]={MODE_CODE, val & 0xFF, 0, 0};
+    Serial.write(data, sizeof(data));
+}
+

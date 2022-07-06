@@ -149,11 +149,12 @@ public class MainActivity extends AppCompatActivity
        System.out.println("selected tab" + tab.getPosition());
         this.tab[2].setText(R.string.tab_auto);
         ass.setVal(0);
-        sendTabSelectedValue(tab.getPosition());
        if (tab.getPosition() == 3) {
+           sendTabSelectedValue(0);
            viewPager.setCurrentItem(4);
            System.out.println("set current 4");
        } else {
+           sendTabSelectedValue(tab.getPosition());
            viewPager.setCurrentItem(tab.getPosition());
            //TODO make in a more proper way
            if (tab.getPosition() == 2)
