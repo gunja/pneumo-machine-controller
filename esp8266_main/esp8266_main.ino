@@ -23,7 +23,7 @@ ModbusTCP mb;
 struct memory_layout ML;
 
 char rqInputRegs[] = {'I', 21};
-char rqHoldingRegs[] = {'H', sizeof(struct memory_layout) };
+//char rqHoldingRegs[] = {'H', sizeof(struct memory_layout) };
 
 unsigned long lastIRegRq =0;
 #define RQ_INPUTS_PERIOD_MS  100
@@ -40,11 +40,23 @@ enum exchange_state {
 };
 enum exchange_state STATE = ST_NONE;
 
+unsigned long sent_message_moment;
+#define WAIT_TIMEOUT_MS   500UL
+
 bool getInputRegs()
 {
   if (STATE != ST_NONE)
+  {
+    unsigned long now = millis();
+    if(now - sent_message_moment > WAIT_TIMEOUT_MS )
+    {
+      STATE = ST_NONE;
+      g_input_register_read = 0;
+    }
     return false;
+  }
   Serial.write(rqInputRegs, 2);
+  sent_message_moment = millis();
   g_input_register_read = 0;
   STATE = RD_INPUTS;
   return true;
