@@ -74,7 +74,7 @@ void getNextInput()
       int incomingByte1 = 0, incomingByte2 = 0 ;
       incomingByte1 = Serial.read();
       incomingByte2 = Serial.read();
-      mb.Ireg(g_input_register_read, ((incomingByte2&0xFF)<<8) + (incomingByte1 & 0xFF));
+      mb.Ireg(g_input_register_read + 1, ((incomingByte2&0xFF)<<8) + (incomingByte1 & 0xFF));
       g_input_register_read++;
   }
   if (g_input_register_read == 21)
