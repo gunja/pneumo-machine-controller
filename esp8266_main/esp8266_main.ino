@@ -22,6 +22,15 @@ IPAddress subnet(255,255,255,0);
 ModbusTCP mb;
 struct memory_layout ML;
 
+struct _readings {
+  union _btt {
+    uint16_t analogReadings[21];
+    uint8_t bytes[21 * 2];
+  } u;
+    uint16_t crc16;
+};
+
+
 char rqInputRegs[] = {'I', 21};
 //char rqHoldingRegs[] = {'H', sizeof(struct memory_layout) };
 
@@ -33,6 +42,7 @@ unsigned long eeprom_write_request = 0;
 bool eepromWriteRequest;
 
 int g_input_register_read = -1;
+bool g_needFlush = false;
 
 enum exchange_state {
   ST_NONE,
@@ -55,6 +65,10 @@ bool getInputRegs()
     }
     return false;
   }
+  if (g_needFlush) {
+    g_needFlush = false;
+    flushSerial();
+  }
   Serial.write(rqInputRegs, 2);
   sent_message_moment = millis();
   g_input_register_read = 0;
@@ -62,23 +76,57 @@ bool getInputRegs()
   return true;
 }
 
+uint16_t crc16_update(uint16_t crc, uint8_t a)
+{
+int i;
+crc ^= a;
+for (i = 0; i < 8; ++i)
+{
+    if (crc & 1)
+    crc = (crc >> 1) ^ 0xA001;
+    else
+    crc = (crc >> 1);
+}
+return crc;
+}
+
 void getNextInput()
 {
+    static struct _readings rdBuff{ {{0}},0xFFFF} ;
+    static uint8_t currentByte =0;
+
   if(STATE != RD_INPUTS)
     return;
-  if (g_input_register_read >= 21)
-     return;
 
-  if (Serial.available() >= 2)
+    while( Serial.available() && currentByte < 2 * 21)
+    {
+        int bt = Serial.read();
+        rdBuff.u.bytes[currentByte] = (uint8_t) bt;
+        rdBuff.crc16 = crc16_update(rdBuff.crc16, rdBuff.u.bytes[currentByte]);
+        currentByte++;
+    }
+
+  if (Serial.available() >= 2 && currentByte == 2 * 21)
   {
       int incomingByte1 = 0, incomingByte2 = 0 ;
       incomingByte1 = Serial.read();
       incomingByte2 = Serial.read();
-      mb.Ireg(g_input_register_read + 1, ((incomingByte2&0xFF)<<8) + (incomingByte1 & 0xFF));
-      g_input_register_read++;
+      uint16_t crc = (uint16_t)((incomingByte2&0xFF)<<8) + (incomingByte1 & 0xFF);
+      if (crc == rdBuff.crc16)
+      {
+        rdBuff.crc16 = 0xFFFF;
+        for(uint8_t i = 0; i < 21; ++i)
+        {
+            mb.Ireg(i + 1, rdBuff.u.analogReadings[i]);
+        }
+        STATE = ST_NONE;
+        currentByte = 0;
+      } else {
+        currentByte = 0;
+        rdBuff.crc16 = 0xFFFF;
+        g_needFlush = true;
+      }
   }
-  if (g_input_register_read == 21)
-    STATE = ST_NONE;
 }
 
 void getIRSimulated()
@@ -213,4 +261,12 @@ void loop()
     eepromWriteRequest = ! EEPROM.commit();
   }
   getNextInput();
+}
+
+void flushSerial()
+{
+    while( Serial.available())
+    {
+        Serial.read();
+    }
 }
