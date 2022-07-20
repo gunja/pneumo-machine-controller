@@ -2,8 +2,17 @@
 #include <stdint.h>
 
 #include "atm_esp_exchange.h"
+#include <util/crc16.h>
 
-uint16_t analogReadings[21];
+struct _readings {
+  union _btt {
+    uint16_t analogReadings[21];
+    uint8_t bytes[21 * 2];
+  } u;
+    uint16_t crc16;
+};
+
+struct _readings RDNGs;
 
 uint8_t g_RunningMode;
 uint8_t g_CanRunManual;
@@ -58,44 +67,49 @@ void setup()
 void readAllAnalogs()
 {
   int val = analogRead(A0);
-  analogReadings[0] = (uint16_t) val;
+  RDNGs.u.analogReadings[0] = (uint16_t) val;
   val = analogRead(A1);
-  analogReadings[1] = (uint16_t) val;
+  RDNGs.u.analogReadings[1] = (uint16_t) val;
   val = analogRead(A2);
-  analogReadings[2] = (uint16_t) val;
+  RDNGs.u.analogReadings[2] = (uint16_t) val;
   val = analogRead(A3);
-  analogReadings[3] = (uint16_t) val;
+  RDNGs.u.analogReadings[3] = (uint16_t) val;
   val = analogRead(A4);
-  analogReadings[4] = (uint16_t) val;
+  RDNGs.u.analogReadings[4] = (uint16_t) val;
   val = analogRead(A5);
-  analogReadings[5] = (uint16_t) val;
+  RDNGs.u.analogReadings[5] = (uint16_t) val;
   val = analogRead(A6);
-  analogReadings[6] = (uint16_t) val;
+  RDNGs.u.analogReadings[6] = (uint16_t) val;
   val = analogRead(A7);
-  analogReadings[7] = (uint16_t) val;
+  RDNGs.u.analogReadings[7] = (uint16_t) val;
   
   val = analogRead(A8);
-  analogReadings[12] = (uint16_t) val;
+  RDNGs.u.analogReadings[12] = (uint16_t) val;
   val = analogRead(A9);
-  analogReadings[13] = (uint16_t) val;
+  RDNGs.u.analogReadings[13] = (uint16_t) val;
   val = analogRead(A10);
-  analogReadings[14] = (uint16_t) val;
+  RDNGs.u.analogReadings[14] = (uint16_t) val;
   val = analogRead(A11);
-  analogReadings[15] = (uint16_t) val;
+  RDNGs.u.analogReadings[15] = (uint16_t) val;
   val = analogRead(A12);
-  analogReadings[16] = (uint16_t) val;
+  RDNGs.u.analogReadings[16] = (uint16_t) val;
   val = analogRead(A13);
-  analogReadings[17] = (uint16_t) val;
+  RDNGs.u.analogReadings[17] = (uint16_t) val;
   val = analogRead(A14);
-  analogReadings[18] = (uint16_t) val;
+  RDNGs.u.analogReadings[18] = (uint16_t) val;
   val = analogRead(A15);
-  analogReadings[19] = (uint16_t) val;
+  RDNGs.u.analogReadings[19] = (uint16_t) val;
 }
 
 void  determinedSendInputRegs()
 {
-  Serial.print("sizeof (analogReadings)="); Serial.println(sizeof(analogReadings));
-  Serial3.write((char*)analogReadings, sizeof(analogReadings));
+  RDNGs.crc16 = 0xFFFF;
+  for(uint8_t i=0; i < sizeof(RDNGs.u.analogReadings); ++i)
+  {
+      RDNGs.crc16 = _crc16_update( RDNGs.crc16, RDNGs.u.bytes[i]);
+  }
+  Serial.print("sizeof (analogReadings)="); Serial.println(sizeof(RDNGs));
+  Serial3.write((char*)&RDNGs, sizeof(RDNGs));
 }
 
 int handleInputRqCode(char *buffer, uint8_t buf_u)
