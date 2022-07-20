@@ -30,6 +30,7 @@ struct _readings {
     uint8_t bytes[21 * 2];
   } u;
     uint16_t crc16;
+};
 
 unsigned long lastIRegRq =0;
 #define RQ_INPUTS_PERIOD_MS  100
@@ -271,7 +272,35 @@ void sendManualDetectorValue(uint16_t val)
 void sendOperatingMode(uint16_t val)
 {
     //Serial.print("Received Last Selected mode == "); Serial.println(val);
+    //TODO introduce state machine on sending settings and after correct reply - send mode_code
+    if (val == MANUAL_MODE_CODE)
+    {
+        struct _manual_settings_message manual_sets;
+        for(int i =0; i < 8; ++i)
+        {
+            EEPROM.get(HOLD_REG_MANUAL_TARGET_C1 -1 -1, manual_sets.u.ms.manual_target_value[i])
+        }
+        EEPROM.get(HOLD_REG_ACT_DIRECTIONS - 1,  manual_sets.u.ms.directions);
+        manual_sets.msg_code = MANUAL_SETS_CODE;
+        uint16_t crc = 0xFFFF;
+        for(int i =0; i < sizeof(struct _manual_settings) + 1; ++i)
+        {
+            crc = crc16_update(crc, *( (uint8_t*)&manual_sets + i));
+        }
+        manual_sets.crc = crc;
+        Serial.write( (uint8_t*)&manual_sets, sizeof(struct _manual_settings_message));
+        //TODO confirm somehow
+    } else if (val >= 21 && val <= 24)
+    {
+        //TODO implement method
+    }
+
     uint8_t data[]={MODE_CODE, val & 0xFF, 0, 0};
+    int16_t crc = 0xFFFF;
+    crc = crc16_update(crc, data[0]);
+    crc = crc16_update(crc, data[1]);
+    *((uint16_t *)(data +2)) = crc;
+
     Serial.write(data, sizeof(data));
 }
 
