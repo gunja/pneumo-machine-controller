@@ -1,10 +1,24 @@
 #ifndef CYLINDER_H
 #define CYLINDER_H
 
+#include <stdint.h>
+
 class Cylinder {
-    int pinForward, pinBackwards, pinAnalog;
+    int pinManaged, pinPermanent;
+    const uint16_t &analogValue;
+    uint16_t target;
+    uint8_t reactionDirection;
+    uint16_t f_position1;
+    uint16_t f_position2;
+    uint16_t b_position1;
+    uint16_t b_position2;
   public:
-    Cylinder(const int &pf,const int &pb, const int &pa);
+    Cylinder(const int &pf,const int &pb, const uint16_t &pa);
+    void setPinLow(uint8_t);
+    void performAction();
+    void performAction(const uint8_t &md, const uint16_t &cntr);
+    void setTarget(const uint16_t v) { target = v;};
+    void setDirection(const uint16_t v) { reactionDirection = v;};
 };
 
 #endif

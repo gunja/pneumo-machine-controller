@@ -3,6 +3,8 @@
 
 #include "atm_esp_exchange.h"
 #include <util/crc16.h>
+#include "Cylinder.h"
+#include "placements.h"
 
 struct _readings {
   union _btt {
@@ -18,6 +20,10 @@ uint8_t g_RunningMode;
 uint8_t g_CanRunManual;
 uint8_t g_CanRunAuto;
 
+uint8_t g_moveDirection;
+uint8_t g_counterVal;
+
+Cylinder *cyls;
 
 void setupInputPins()
 {
@@ -62,6 +68,18 @@ void setup()
     g_RunningMode = 0;
     g_CanRunManual = 0;
     g_CanRunAuto = 0;
+
+    Cylinder _cyls[] {
+        Cylinder{22, 23, RDNGs.u.analogReadings[0]},
+        Cylinder{24, 25, RDNGs.u.analogReadings[1]},
+        Cylinder{26, 27, RDNGs.u.analogReadings[2]},
+        Cylinder{28, 29, RDNGs.u.analogReadings[3]},
+        Cylinder{30, 31, RDNGs.u.analogReadings[4]},
+        Cylinder{32, 33, RDNGs.u.analogReadings[5]},
+        Cylinder{34, 35, RDNGs.u.analogReadings[6]},
+        Cylinder{36, 37, RDNGs.u.analogReadings[7]},
+    };
+    cyls = _cyls;
 }
 
 void readAllAnalogs()
@@ -114,6 +132,7 @@ void  determinedSendInputRegs()
 
 int handleInputRqCode(char *buffer, uint8_t buf_u)
 {
+  unsigned long now = millis();
     if(buf_u < 2)
         return 0;
 
@@ -125,6 +144,8 @@ int handleInputRqCode(char *buffer, uint8_t buf_u)
 
 int handleModeCode(char *buffer, uint8_t b_u)
 {
+    uint8_t data[]= {MODE_CODE, 0, 0, 0 };
+
     if (b_u < 4)
         return 0;
 
@@ -137,11 +158,13 @@ int handleModeCode(char *buffer, uint8_t b_u)
             if(g_CanRunManual > 0)
                 g_RunningMode = 10;
             break;
-        case 20: 21: 22: 23: 24:
+        case 20: case 21: case 22: case 23: case 24:
             if (g_CanRunAuto)
                 g_RunningMode = buffer[1];
             break;
     }
+    Serial3.write(data, 4);
+    Serial.print("Running mode switched to code "); Serial.println((int)buffer[1]);
 
     return 4;
 }
@@ -177,7 +200,12 @@ void analyzeSer3Input()
         //TODO
         consumed = handleModeCode(buffer, buffer_used);
         break;
-    // TODO create set manual settings
+    case MANUAL_SETS_CODE:
+        consumed = handleManualSettingsReceive(buffer, buffer_used);
+        break;
+    case AUTO_SETS_CODE:
+        consumed = handleAutomaticSettingsReceived(buffer, buffer_used);
+        break;
     // TODO set auto settings
     // TODO other messages
   }
@@ -200,7 +228,7 @@ void loop()
     case 10:
         makeManualSet();
         break;
-    case 21: 22: 23: 24:
+    case 21: case 22: case 23: case 24:
         makeAutoSet();
         break;
     }
@@ -208,9 +236,98 @@ void loop()
 
 void disableOutputs()
 {
-    for( i =0; i < 8; ++i)
+    for(uint8_t i =0; i < CYLINDER_PAIRS_COUNT; ++i)
     {
-        cylinders[i].setPinLow(0);
-        cylinders[i].setPinLow(1);
+        cyls[i].setPinLow(0);
+        cyls[i].setPinLow(1);
     }
 }
+
+void makeManualSet()
+{
+    for(uint8_t i=0; i < CYLINDER_PAIRS_COUNT; ++i)
+    {
+        cyls[i].performAction();
+    }
+}
+
+void makeAutoSet()
+{
+  //TODO implement this method
+    for(uint8_t i =0; i < CYLINDER_PAIRS_COUNT; ++i)
+    {
+        cyls[i].performAction(g_moveDirection, g_counterVal);
+    }
+  return;
+}
+
+int handleManualSettingsReceive(char *buffer, uint8_t buf_u)
+{
+    struct _manual_settings_message *msg = (struct _manual_settings_message*)buffer;
+    if(buf_u < sizeof(struct _manual_settings_message))
+        return 0;
+    uint16_t crc = 0xFFFF;
+    uint8_t data[] = {MANUAL_SETS_CODE, 0, 0, 0};
+
+    for(int i=0; i <= sizeof(struct _manual_settings); ++i)
+    {
+        crc = _crc16_update(crc, buffer+i);
+    }
+    if (crc != msg->crc) {
+        Serial.println("While receiving Manual Setting CRC16 diverged");
+        //TODO update CRC
+        Serial3.write(data, 4);
+        g_CanRunManual = 0;
+        g_CanRunAuto = 0;
+        return 1;// assume that only 1 byte can be consumed
+    }
+    for(uint8_t i = 0; i < CYLINDER_PAIRS_COUNT; ++i)
+    {
+        cyls[i].setTarget( msg->u.ms.manual_target_value[i]);
+        cyls[i].setDirection((msg->u.ms.directions & (3<<(2*i))) != 0);
+    }
+    g_CanRunManual = 1;
+    Serial.println("Setting for manual management applied");
+    data[1] = 1;
+    // TODO update CRC
+    Serial3.write(data, 4);
+
+    return sizeof(struct _manual_settings_message);
+}
+
+int handleAutomaticSettingsReceived(char *buffer, uint8_t buf_u)
+{
+    struct _automatic_settings_message *msg = (struct _automatic_settings_message*)buffer;
+    if(buf_u < sizeof(struct _automatic_settings_message))
+        return 0;
+    uint16_t crc = 0xFFFF;
+    uint8_t data[] = {AUTO_SETS_CODE, 0, 0, 0};
+
+    for(int i=0; i <= sizeof(struct _automatic_settings); ++i)
+    {
+        crc = _crc16_update(crc, buffer+i);
+    }
+    if (crc != msg->crc) {
+        Serial.println("While receiving Automatic Setting CRC16 diverged");
+        //TODO update CRC
+        Serial3.write(data, 4);
+        g_CanRunManual = 0;
+        g_CanRunAuto = 0;
+        return 1;// assume that only 1 byte can be consumed
+    }
+    for(uint8_t i = 0; i < CYLINDER_PAIRS_COUNT; ++i)
+    {
+        cyls[i].setTarget( msg->u.ms.tgts_dirs.manual_target_value[i]);
+        cyls[i].setDirection((msg->u.ms.tgts_dirs.directions & (3<<(2*i))) != 0);
+    }
+    // TODO find a proper way to assign points of reaction
+    g_CanRunManual = 0;
+    g_CanRunAuto = 1;
+    Serial.println("Setting for automatic management applied");
+    data[1] = 1;
+    // TODO update CRC
+    Serial3.write(data, 4);
+
+    return sizeof(struct _automatic_settings_message);
+}
+
