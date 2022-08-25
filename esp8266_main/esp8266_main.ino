@@ -43,10 +43,15 @@ int g_input_register_read = -1;
 bool g_needFlush = false;
 
 enum exchange_state {
-  ST_NONE,
+  ST_NONE =0,
   RD_INPUTS = 1
+  , WR_MANUAL_SET
+  , WR_AUTO_SET
+  , RD_MODE_CNF
+  , TGT_PRESSURE_CHANGED
 };
 enum exchange_state STATE = ST_NONE;
+uint8_t g_uint8_MODE;
 
 unsigned long sent_message_moment;
 #define WAIT_TIMEOUT_MS   500UL
@@ -89,6 +94,30 @@ return crc;
 }
 
 void getNextInput()
+{
+    switch( STATE) {
+        case ST_NONE:
+            break;
+        case RD_INPUTS:
+            getNext2ReadInputs();
+            break;
+        case WR_MANUAL_SET:
+            getSettingsConfirm_RqMode(MANUAL_SETS_CODE);
+            break;
+        case WR_AUTO_SET:
+            getSettingsConfirm_RqMode(AUTO_SETS_CODE);
+            break;
+        case RD_MODE_CNF:
+            getCMDConfirm(MODE_CODE);
+            break;
+        case TGT_PRESSURE_CHANGED:
+            getCMDConfirm(ALTER_PRESSURE_TGT);
+            break;
+    }
+    return;
+}
+
+void getNext2ReadInputs()
 {
     static struct _readings rdBuff{ {{0}},0xFFFF} ;
     static uint8_t currentByte =0;
@@ -169,7 +198,7 @@ uint16_t cbModbusSetHreg(TRegister* reg, uint16_t val)
         break;
     case LAST_SELECTED_MODE:
         // TODO send to Atmega to switch operating mode
-        sendOperatingMode(val);
+        sendOperatingModeSettings(val);
   }
 
   return val;
@@ -177,15 +206,16 @@ uint16_t cbModbusSetHreg(TRegister* reg, uint16_t val)
 
 void InformAtmegaOnManualGoalRequest(uint16_t cylinderIndex, uint16_t value)
 {
-  uint8_t data[5];
-  uint16_t reg;
-  EEPROM.get((HOLD_REG_ACT_DIRECTIONS -1)*sizeof(uint16_t), reg);
-  data[0] = 'M';
-  data[1] = (uint8_t) cylinderIndex;
-  data[2] = reg & (3<< cylinderIndex);
-  data[3] = (value >>8) & 0xFF;
-  data[4] = value & 0xFF;
-  //Serial.write(data, 5); //TODO somehow make exchange procedure
+  uint16_t crc = 0xFFFF;
+  struct _alter_pressure_tgt msg { ALTER_PRESSURE_TGT, (uint8_t) cylinderIndex, value, 0};
+  for(int i = 0; i < 5; ++i)
+  {
+    crc = crc16_update(crc, *( (uint8_t*)&msg + i));
+  }
+  msg.crc = crc;
+  Serial.write((uint8_t*)&msg, sizeof(struct _alter_pressure_tgt));
+
+  STATE = TGT_PRESSURE_CHANGED;
 }
 
 void initEEPROM()
@@ -269,7 +299,7 @@ void sendManualDetectorValue(uint16_t val)
     //Serial.print("Manual register state is "); Serial.println(val? " true" : " false");
 }
 
-void sendOperatingMode(uint16_t val)
+void sendOperatingModeSettings(uint16_t val)
 {
     //Serial.print("Received Last Selected mode == "); Serial.println(val);
     //TODO introduce state machine on sending settings and after correct reply - send mode_code
@@ -278,7 +308,7 @@ void sendOperatingMode(uint16_t val)
         struct _manual_settings_message manual_sets;
         for(int i =0; i < 8; ++i)
         {
-            EEPROM.get(HOLD_REG_MANUAL_TARGET_C1 -1 -1, manual_sets.u.ms.manual_target_value[i])
+            EEPROM.get(HOLD_REG_MANUAL_TARGET_C1 -1 -1, manual_sets.u.ms.manual_target_value[i]);
         }
         EEPROM.get(HOLD_REG_ACT_DIRECTIONS - 1,  manual_sets.u.ms.directions);
         manual_sets.msg_code = MANUAL_SETS_CODE;
@@ -289,13 +319,19 @@ void sendOperatingMode(uint16_t val)
         }
         manual_sets.crc = crc;
         Serial.write( (uint8_t*)&manual_sets, sizeof(struct _manual_settings_message));
+        g_uint8_MODE = val & 0xFF;
+        STATE = WR_MANUAL_SET;
         //TODO confirm somehow
     } else if (val >= 21 && val <= 24)
     {
         //TODO implement method
     }
 
-    uint8_t data[]={MODE_CODE, val & 0xFF, 0, 0};
+}
+
+void sendOperatingModeVal(uint8_t val)
+{
+    uint8_t data[]={MODE_CODE, val, 0, 0};
     int16_t crc = 0xFFFF;
     crc = crc16_update(crc, data[0]);
     crc = crc16_update(crc, data[1]);
@@ -311,3 +347,57 @@ void flushSerial()
         Serial.read();
     }
 }
+
+void getSettingsConfirm_RqMode(uint8_t MODE_SET_CODE)
+{
+    static uint8_t data[4] = {0, 0, 0, 0};
+    static uint8_t currentByte =0;
+
+    while( Serial.available() && currentByte < 4)
+    {
+        int bt = Serial.read();
+        data[currentByte++] = (uint8_t)bt;
+    }
+    if (currentByte < 4)
+        return;
+    // TODO check CRC
+    if (data[0] != MODE_SET_CODE)
+    {
+        // FIXME WTF? here should be another reply
+        // How to inform on this issue?
+    }
+    if (data[1] == 0) {
+    // there's an error, but how to handle it?
+    }
+    
+    // FIXME sending setting of mode in any case
+    sendOperatingModeVal(g_uint8_MODE);
+    STATE = RD_MODE_CNF;
+}
+
+void getCMDConfirm(uint8_t code)
+{
+    static uint8_t data[4] = {0, 0, 0, 0};
+    static uint8_t currentByte =0;
+
+    while( Serial.available() && currentByte < 4)
+    {
+        int bt = Serial.read();
+        data[currentByte++] = (uint8_t)bt;
+    }
+    if (currentByte < 4)
+        return;
+    // TODO check CRC
+    if (data[0] != code)
+    {
+        // FIXME WTF? here should be another reply
+        // How to inform on this issue?
+    }
+    if (data[1] == 0) {
+    // there's an error, but how to handle it?
+    }
+    
+    // FIXME sending setting of mode in any case
+    STATE = ST_NONE;
+}
+

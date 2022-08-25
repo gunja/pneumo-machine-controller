@@ -126,7 +126,7 @@ void  determinedSendInputRegs()
   {
       RDNGs.crc16 = _crc16_update( RDNGs.crc16, RDNGs.u.bytes[i]);
   }
-  Serial.print("sizeof (analogReadings)="); Serial.println(sizeof(RDNGs));
+  //Serial.print("sizeof (analogReadings)="); Serial.println(sizeof(RDNGs));
   Serial3.write((char*)&RDNGs, sizeof(RDNGs));
 }
 
@@ -206,6 +206,8 @@ void analyzeSer3Input()
     case AUTO_SETS_CODE:
         consumed = handleAutomaticSettingsReceived(buffer, buffer_used);
         break;
+    default:
+        consumed = 1;
     // TODO set auto settings
     // TODO other messages
   }
@@ -275,6 +277,7 @@ int handleManualSettingsReceive(char *buffer, uint8_t buf_u)
     }
     if (crc != msg->crc) {
         Serial.println("While receiving Manual Setting CRC16 diverged");
+        Serial.print("calced ="); Serial.print(crc); Serial.print("   expected "); Serial.println(msg->crc);
         //TODO update CRC
         Serial3.write(data, 4);
         g_CanRunManual = 0;
@@ -330,4 +333,3 @@ int handleAutomaticSettingsReceived(char *buffer, uint8_t buf_u)
 
     return sizeof(struct _automatic_settings_message);
 }
-
