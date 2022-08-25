@@ -120,20 +120,20 @@ void getNextInput()
 void getNext2ReadInputs()
 {
     static struct _readings rdBuff{ {{0}},0xFFFF} ;
-    static uint8_t currentByte =0;
+    //static uint8_t currentByte =0;
 
   if(STATE != RD_INPUTS)
     return;
 
-    while( Serial.available() && currentByte < 2 * 21)
+    while( Serial.available() && g_input_register_read < 2 * 21)
     {
         int bt = Serial.read();
-        rdBuff.u.bytes[currentByte] = (uint8_t) bt;
-        rdBuff.crc16 = crc16_update(rdBuff.crc16, rdBuff.u.bytes[currentByte]);
-        currentByte++;
+        rdBuff.u.bytes[g_input_register_read] = (uint8_t) bt;
+        rdBuff.crc16 = crc16_update(rdBuff.crc16, rdBuff.u.bytes[g_input_register_read]);
+        g_input_register_read++;
     }
 
-  if (Serial.available() >= 2 && currentByte == 2 * 21)
+  if (Serial.available() >= 2 && g_input_register_read == 2 * 21)
   {
       int incomingByte1 = 0, incomingByte2 = 0 ;
       incomingByte1 = Serial.read();
@@ -147,9 +147,9 @@ void getNext2ReadInputs()
             mb.Ireg(i + 1, rdBuff.u.analogReadings[i]);
         }
         STATE = ST_NONE;
-        currentByte = 0;
+        g_input_register_read = 0;
       } else {
-        currentByte = 0;
+        g_input_register_read = 0;
         rdBuff.crc16 = 0xFFFF;
         g_needFlush = true;
       }
@@ -372,6 +372,7 @@ void getSettingsConfirm_RqMode(uint8_t MODE_SET_CODE)
     
     // FIXME sending setting of mode in any case
     sendOperatingModeVal(g_uint8_MODE);
+    currentByte = 0;
     STATE = RD_MODE_CNF;
 }
 
@@ -399,5 +400,6 @@ void getCMDConfirm(uint8_t code)
     
     // FIXME sending setting of mode in any case
     STATE = ST_NONE;
+    currentByte = 0;
 }
 
