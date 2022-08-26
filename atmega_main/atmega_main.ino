@@ -70,16 +70,20 @@ void setup()
     g_CanRunAuto = 0;
 
     Cylinder _cyls[] {
-        Cylinder{22, 23, RDNGs.u.analogReadings[0]},
-        Cylinder{24, 25, RDNGs.u.analogReadings[1]},
-        Cylinder{26, 27, RDNGs.u.analogReadings[2]},
-        Cylinder{28, 29, RDNGs.u.analogReadings[3]},
-        Cylinder{30, 31, RDNGs.u.analogReadings[4]},
-        Cylinder{32, 33, RDNGs.u.analogReadings[5]},
-        Cylinder{34, 35, RDNGs.u.analogReadings[6]},
-        Cylinder{36, 37, RDNGs.u.analogReadings[7]},
+        Cylinder{1, 22, 23, RDNGs.u.analogReadings[0]},
+        Cylinder{2, 24, 25, RDNGs.u.analogReadings[1]},
+        Cylinder{3, 26, 27, RDNGs.u.analogReadings[2]},
+        Cylinder{4, 28, 29, RDNGs.u.analogReadings[3]},
+        Cylinder{5, 30, 31, RDNGs.u.analogReadings[4]},
+        Cylinder{6, 32, 33, RDNGs.u.analogReadings[5]},
+        Cylinder{7, 34, 35, RDNGs.u.analogReadings[6]},
+        Cylinder{8, 36, 37, RDNGs.u.analogReadings[7]},
     };
     cyls = _cyls;
+    for(uint8_t i = 0; i < CYLINDER_PAIRS_COUNT; ++i)
+    {
+        //cyls[i].setPropId(i);
+    }
 }
 
 void readAllAnalogs()
@@ -136,7 +140,7 @@ int handleInputRqCode(char *buffer, uint8_t buf_u)
     if(buf_u < 2)
         return 0;
 
-      Serial.print(now); Serial.println(" received I request. Sending raw data");
+      //Serial.print(now); Serial.println(" received I request. Sending raw data");
       determinedSendInputRegs();
 
     return 2;
@@ -165,6 +169,7 @@ int handleModeCode(char *buffer, uint8_t b_u)
     }
     Serial3.write(data, 4);
     Serial.print("Running mode switched to code "); Serial.println((int)buffer[1]);
+    Serial.print("value of g_RunningMode="); Serial.print(g_RunningMode); Serial.print("value of g_CanRunManual="); Serial.println(g_CanRunManual);
 
     return 4;
 }
@@ -247,8 +252,10 @@ void disableOutputs()
 
 void makeManualSet()
 {
+  Serial.print("call to makeManualSet with MIN_SIGNAL_ATMEGA="); Serial.println(MIN_SIGNAL_ATMEGA);
     for(uint8_t i=0; i < CYLINDER_PAIRS_COUNT; ++i)
     {
+      Serial.print("cylinder #"); Serial.print((int)i);
         cyls[i].performAction();
     }
 }
@@ -273,10 +280,11 @@ int handleManualSettingsReceive(char *buffer, uint8_t buf_u)
 
     for(int i=0; i <= sizeof(struct _manual_settings); ++i)
     {
-        crc = _crc16_update(crc, buffer+i);
+        crc = _crc16_update(crc, buffer[i]);
     }
     if (crc != msg->crc) {
         Serial.println("While receiving Manual Setting CRC16 diverged");
+        Serial.print("sizeof(struct _manual_settings)="); Serial.println(sizeof(struct _manual_settings));
         Serial.print("calced ="); Serial.print(crc); Serial.print("   expected "); Serial.println(msg->crc);
         //TODO update CRC
         Serial3.write(data, 4);
@@ -284,7 +292,7 @@ int handleManualSettingsReceive(char *buffer, uint8_t buf_u)
         g_CanRunAuto = 0;
         return 1;// assume that only 1 byte can be consumed
     }
-    for(uint8_t i = 0; i < CYLINDER_PAIRS_COUNT; ++i)
+    for(int i = 0; i < CYLINDER_PAIRS_COUNT; ++i)
     {
         cyls[i].setTarget( msg->u.ms.manual_target_value[i]);
         cyls[i].setDirection((msg->u.ms.directions & (3<<(2*i))) != 0);

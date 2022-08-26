@@ -3,14 +3,16 @@
 
 #include "atm_esp_exchange.h"
 
-Cylinder::Cylinder(const int &pf,const int &pb, const uint16_t &pa):
-    pinManaged(pf), pinPermanent(pb), analogValue(pa), target(0), reactionDirection(0)
+Cylinder::Cylinder(const int &id, const int pf,const int pb, const uint16_t &pa):
+    pinManaged(pf), pinPermanent(pb), analogValue(pa), target(0), reactionDirection(0), prop_id(id)
 {
     pinMode(pinManaged, OUTPUT);
     pinMode(pinPermanent, OUTPUT);
 
     digitalWrite(pinManaged, LOW);
     digitalWrite(pinPermanent, LOW);
+
+    Serial.print("id="); Serial.print(prop_id); Serial.print("  pinManaged="); Serial.print(pinManaged); Serial.print("  pinPermanent="); Serial.println(pinPermanent);
 }
 
 void Cylinder::setPinLow(uint8_t val)
@@ -28,6 +30,8 @@ void Cylinder::setPinLow(uint8_t val)
 
 void Cylinder::performAction()
 {
+  Serial.print("performAction tgt="); Serial.print(target); Serial.print("  analogValue="); Serial.print(analogValue); Serial.print(" reactionDirection="); Serial.print((int)reactionDirection);
+  Serial.print("  pinPerm="); Serial.print(pinPermanent); Serial.print("  pinManaged="); Serial.print(pinManaged); 
     if (target > MIN_SIGNAL_ATMEGA)
     {
         digitalWrite(pinPermanent, HIGH);
@@ -40,6 +44,7 @@ void Cylinder::performAction()
         digitalWrite(pinManaged, LOW);
         digitalWrite(pinPermanent, LOW);
     }
+    Serial.println("");
 }
 
 void Cylinder::performAction(const uint8_t &md, const uint16_t &cntr)
@@ -70,3 +75,14 @@ void Cylinder::performAction(const uint8_t &md, const uint16_t &cntr)
     }
 }
 
+void Cylinder::setTarget(const uint16_t v)
+{
+  target = v;
+    Serial.print("cyl #"); Serial.print((int)prop_id); Serial.print("  target="); Serial.print(target); Serial.print("  from v="); Serial.println(v);
+};
+
+void Cylinder::setDirection(const uint16_t v)
+{
+  reactionDirection = v;
+  Serial.print("cyl #"); Serial.print((int)prop_id); Serial.print("  reactiondir="); Serial.print(reactionDirection); Serial.print("  from v="); Serial.println(v);
+};

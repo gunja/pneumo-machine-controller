@@ -11,6 +11,9 @@
 
 #define MIN_SIGNAL_ATMEGA   67
 
+
+#pragma pack(push, 1)
+
 struct _manual_settings {
     uint16_t manual_target_value[8];
     uint16_t directions;
@@ -46,5 +49,7 @@ struct _alter_pressure_tgt {
     uint16_t newVal;
     uint16_t crc;
 };
+
+#pragma pack(pop)
 
 #endif //ATM_ESP_EXCHANGE_H
