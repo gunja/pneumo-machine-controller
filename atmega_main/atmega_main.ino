@@ -8,7 +8,7 @@
 
 struct _readings {
   union _btt {
-    uint16_t analogReadings[21];
+    int16_t analogReadings[21];
     uint8_t bytes[21 * 2];
   } u;
     uint16_t crc16;
@@ -70,14 +70,15 @@ void setup()
     g_CanRunAuto = 0;
 
     Cylinder _cyls[] {
-        Cylinder{1, 22, 23, RDNGs.u.analogReadings[0]},
-        Cylinder{2, 24, 25, RDNGs.u.analogReadings[1]},
-        Cylinder{3, 26, 27, RDNGs.u.analogReadings[2]},
-        Cylinder{4, 28, 29, RDNGs.u.analogReadings[3]},
-        Cylinder{5, 30, 31, RDNGs.u.analogReadings[4]},
-        Cylinder{6, 32, 33, RDNGs.u.analogReadings[5]},
-        Cylinder{7, 34, 35, RDNGs.u.analogReadings[6]},
-        Cylinder{8, 36, 37, RDNGs.u.analogReadings[7]},
+        Cylinder{0, 22, 23, RDNGs.u.analogReadings[12]},
+        Cylinder{1, 22, 23, RDNGs.u.analogReadings[12]},   
+        Cylinder{2, 24, 25, RDNGs.u.analogReadings[13]},
+        Cylinder{3, 26, 27, RDNGs.u.analogReadings[14]},
+        Cylinder{4, 28, 29, RDNGs.u.analogReadings[15]},
+        Cylinder{5, 30, 31, RDNGs.u.analogReadings[16]},
+        Cylinder{6, 32, 33, RDNGs.u.analogReadings[17]},
+        Cylinder{7, 34, 35, RDNGs.u.analogReadings[18]},
+        Cylinder{8, 36, 37, RDNGs.u.analogReadings[19]}
     };
     cyls = _cyls;
     for(uint8_t i = 0; i < CYLINDER_PAIRS_COUNT; ++i)
@@ -89,38 +90,38 @@ void setup()
 void readAllAnalogs()
 {
   int val = analogRead(A0);
-  RDNGs.u.analogReadings[0] = (uint16_t) val;
+  RDNGs.u.analogReadings[0] = (int16_t) val;
   val = analogRead(A1);
-  RDNGs.u.analogReadings[1] = (uint16_t) val;
+  RDNGs.u.analogReadings[1] = (int16_t) val;
   val = analogRead(A2);
-  RDNGs.u.analogReadings[2] = (uint16_t) val;
+  RDNGs.u.analogReadings[2] = (int16_t) val;
   val = analogRead(A3);
-  RDNGs.u.analogReadings[3] = (uint16_t) val;
+  RDNGs.u.analogReadings[3] = (int16_t) val;
   val = analogRead(A4);
-  RDNGs.u.analogReadings[4] = (uint16_t) val;
+  RDNGs.u.analogReadings[4] = (int16_t) val;
   val = analogRead(A5);
-  RDNGs.u.analogReadings[5] = (uint16_t) val;
+  RDNGs.u.analogReadings[5] = (int16_t) val;
   val = analogRead(A6);
-  RDNGs.u.analogReadings[6] = (uint16_t) val;
+  RDNGs.u.analogReadings[6] = (int16_t) val;
   val = analogRead(A7);
-  RDNGs.u.analogReadings[7] = (uint16_t) val;
+  RDNGs.u.analogReadings[7] = (int16_t) val;
   
   val = analogRead(A8);
-  RDNGs.u.analogReadings[12] = (uint16_t) val;
+  RDNGs.u.analogReadings[12] = (int16_t) val;
   val = analogRead(A9);
-  RDNGs.u.analogReadings[13] = (uint16_t) val;
+  RDNGs.u.analogReadings[13] = (int16_t) val;
   val = analogRead(A10);
-  RDNGs.u.analogReadings[14] = (uint16_t) val;
+  RDNGs.u.analogReadings[14] = (int16_t) val;
   val = analogRead(A11);
-  RDNGs.u.analogReadings[15] = (uint16_t) val;
+  RDNGs.u.analogReadings[15] = (int16_t) val;
   val = analogRead(A12);
-  RDNGs.u.analogReadings[16] = (uint16_t) val;
+  RDNGs.u.analogReadings[16] = (int16_t) val;
   val = analogRead(A13);
-  RDNGs.u.analogReadings[17] = (uint16_t) val;
+  RDNGs.u.analogReadings[17] = (int16_t) val;
   val = analogRead(A14);
-  RDNGs.u.analogReadings[18] = (uint16_t) val;
+  RDNGs.u.analogReadings[18] = (int16_t) val;
   val = analogRead(A15);
-  RDNGs.u.analogReadings[19] = (uint16_t) val;
+  RDNGs.u.analogReadings[19] = (int16_t) val;
 }
 
 void  determinedSendInputRegs()
@@ -185,9 +186,10 @@ void analyzeSer3Input()
 
     // TODO add timeout estimator. in case of too long no data - reset indexes
 
-  while( Serial3.available() > 0)
+  while( Serial3.available() > 0 && buffer_used < 199)
   {
     int val = Serial3.read();
+    //TODO buffer overrun
     buffer[buffer_used++] = (char)(val & 0xFF);
   }
 
@@ -210,6 +212,9 @@ void analyzeSer3Input()
         break;
     case AUTO_SETS_CODE:
         consumed = handleAutomaticSettingsReceived(buffer, buffer_used);
+        break;
+    case ALTER_PRESSURE_TGT:
+        consumed = handleManualTgtReceive(buffer, buffer_used);
         break;
     default:
         consumed = 1;
@@ -243,7 +248,7 @@ void loop()
 
 void disableOutputs()
 {
-    for(uint8_t i =0; i < CYLINDER_PAIRS_COUNT; ++i)
+    for(uint8_t i =1; i <= CYLINDER_PAIRS_COUNT; ++i)
     {
         cyls[i].setPinLow(0);
         cyls[i].setPinLow(1);
@@ -252,8 +257,8 @@ void disableOutputs()
 
 void makeManualSet()
 {
-  Serial.print("call to makeManualSet with MIN_SIGNAL_ATMEGA="); Serial.println(MIN_SIGNAL_ATMEGA);
-    for(uint8_t i=0; i < CYLINDER_PAIRS_COUNT; ++i)
+  //Serial.print("call to makeManualSet with MIN_SIGNAL_ATMEGA="); Serial.println(MIN_SIGNAL_ATMEGA);
+    for(uint8_t i=1; i <= CYLINDER_PAIRS_COUNT; ++i)
     {
       Serial.print("cylinder #"); Serial.print((int)i);
         cyls[i].performAction();
@@ -263,7 +268,7 @@ void makeManualSet()
 void makeAutoSet()
 {
   //TODO implement this method
-    for(uint8_t i =0; i < CYLINDER_PAIRS_COUNT; ++i)
+    for(uint8_t i =1; i <= CYLINDER_PAIRS_COUNT; ++i)
     {
         cyls[i].performAction(g_moveDirection, g_counterVal);
     }
@@ -294,8 +299,8 @@ int handleManualSettingsReceive(char *buffer, uint8_t buf_u)
     }
     for(int i = 0; i < CYLINDER_PAIRS_COUNT; ++i)
     {
-        cyls[i].setTarget( msg->u.ms.manual_target_value[i]);
-        cyls[i].setDirection((msg->u.ms.directions & (3<<(2*i))) != 0);
+        cyls[i+1].setTarget( msg->u.ms.manual_target_value[i]);
+        cyls[i+1].setDirection((msg->u.ms.directions & (3<<(2*i))) != 0);
     }
     g_CanRunManual = 1;
     Serial.println("Setting for manual management applied");
@@ -304,6 +309,41 @@ int handleManualSettingsReceive(char *buffer, uint8_t buf_u)
     Serial3.write(data, 4);
 
     return sizeof(struct _manual_settings_message);
+}
+
+int handleManualTgtReceive(char *buffer, uint8_t buf_u)
+{
+    struct _alter_pressure_tgt *msg = (struct _alter_pressure_tgt*)buffer;
+    if(buf_u < sizeof(struct _alter_pressure_tgt))
+        return 0;
+    uint16_t crc = 0xFFFF;
+    uint8_t data[] = {ALTER_PRESSURE_TGT, 0, 0, 0};
+    Serial.println("Handling target change");
+
+    for(int i=0; i < sizeof(struct _alter_pressure_tgt)-sizeof(crc); ++i)
+    {
+        crc = _crc16_update(crc, buffer[i]);
+    }
+    if (crc != msg->crc) {
+        Serial.println("While receiving Manual Tgt Change CRC16 diverged");
+        //TODO update CRC
+        Serial3.write(data, 4);
+        return 1;// assume that only 1 byte can be consumed
+    }
+    if (msg->cyl_idx >= 0 && msg->cyl_idx < CYLINDER_PAIRS_COUNT)
+    {
+        cyls[msg->cyl_idx+1].setTarget(msg->newVal);
+    } else {
+        Serial.print("While receiving Manual Tgt Change index out of bounds "); Serial.println(msg->cyl_idx);
+        //TODO update CRC
+        Serial3.write(data, 4);
+        return 1;
+    }
+    data[1] = 1;
+    // TODO update CRC
+    Serial3.write(data, 4);
+
+    return sizeof(struct _alter_pressure_tgt);
 }
 
 int handleAutomaticSettingsReceived(char *buffer, uint8_t buf_u)
@@ -328,8 +368,8 @@ int handleAutomaticSettingsReceived(char *buffer, uint8_t buf_u)
     }
     for(uint8_t i = 0; i < CYLINDER_PAIRS_COUNT; ++i)
     {
-        cyls[i].setTarget( msg->u.ms.tgts_dirs.manual_target_value[i]);
-        cyls[i].setDirection((msg->u.ms.tgts_dirs.directions & (3<<(2*i))) != 0);
+        cyls[i+1].setTarget( msg->u.ms.tgts_dirs.manual_target_value[i]);
+        cyls[i+1].setDirection((msg->u.ms.tgts_dirs.directions & (3<<(2*i))) != 0);
     }
     // TODO find a proper way to assign points of reaction
     g_CanRunManual = 0;

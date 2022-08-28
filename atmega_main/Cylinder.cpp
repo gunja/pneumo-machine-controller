@@ -3,7 +3,7 @@
 
 #include "atm_esp_exchange.h"
 
-Cylinder::Cylinder(const int &id, const int pf,const int pb, const uint16_t &pa):
+Cylinder::Cylinder(const int &id, const int pf,const int pb, const int16_t &pa):
     pinManaged(pf), pinPermanent(pb), analogValue(pa), target(0), reactionDirection(0), prop_id(id)
 {
     pinMode(pinManaged, OUTPUT);
@@ -30,21 +30,29 @@ void Cylinder::setPinLow(uint8_t val)
 
 void Cylinder::performAction()
 {
-  Serial.print("performAction tgt="); Serial.print(target); Serial.print("  analogValue="); Serial.print(analogValue); Serial.print(" reactionDirection="); Serial.print((int)reactionDirection);
-  Serial.print("  pinPerm="); Serial.print(pinPermanent); Serial.print("  pinManaged="); Serial.print(pinManaged); 
+  //Serial.print("performAction tgt="); Serial.print(target); Serial.print("  analogValue="); Serial.print(analogValue); Serial.print(" reactionDirection="); Serial.print((int)reactionDirection);
+  //Serial.print("  pinPerm="); Serial.print(pinPermanent); Serial.print("  pinManaged="); Serial.print(pinManaged); 
     if (target > MIN_SIGNAL_ATMEGA)
-    {
+    { //Serial.println("");
+      //Serial.print("id="); Serial.print(prop_id); Serial.print("  MANAGING "); Serial.print(pinPermanent); Serial.print("  to HIGH");
         digitalWrite(pinPermanent, HIGH);
+        int16_t vv = analogValue - target; vv *= (reactionDirection == 0 ? 1: -1);
+        //Serial.print("   calculated dir value "); Serial.print(vv); 
         if( (analogValue - target ) * (reactionDirection == 0 ? 1: -1) > 0)
+        {
+          //Serial.print(" setting HIGH of "); Serial.print( pinManaged);
             digitalWrite(pinManaged, HIGH);
-        else
+        }
+        else {
+          //Serial.print(" setting LOW of "); Serial.print( pinManaged);
             digitalWrite(pinManaged, LOW);
+        }
         
     } else {
         digitalWrite(pinManaged, LOW);
         digitalWrite(pinPermanent, LOW);
     }
-    Serial.println("");
+    //Serial.println("");
 }
 
 void Cylinder::performAction(const uint8_t &md, const uint16_t &cntr)

@@ -5,8 +5,8 @@
 
 class Cylinder {
     int pinManaged, pinPermanent;
-    const uint16_t &analogValue;
-    uint16_t target;
+    const int16_t &analogValue;
+    int16_t target;
     uint8_t reactionDirection;
     uint16_t f_position1;
     uint16_t f_position2;
@@ -14,7 +14,7 @@ class Cylinder {
     uint16_t b_position2;
     uint8_t prop_id;
   public:
-    Cylinder(const int &id, const int pf,const int pb, const uint16_t &pa);
+    Cylinder(const int &id, const int pf,const int pb, const int16_t &pa);
     void setPinLow(uint8_t);
     void performAction();
     void performAction(const uint8_t &md, const uint16_t &cntr);
